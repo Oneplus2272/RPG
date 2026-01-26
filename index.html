@@ -3,15 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Empire RPG</title>
+    <title>Empire State Evolution</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
             background: #000;
             color: white;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Roboto, sans-serif;
             margin: 0;
-            min-height: 100vh;
+            padding: 0;
             overflow: hidden;
         }
 
@@ -22,7 +22,6 @@
             align-items: center;
             justify-content: center;
             height: 100vh;
-            background: rgba(0,0,0,0.8);
         }
 
         .cards-container {
@@ -31,44 +30,67 @@
             overflow-x: auto;
             padding: 20px;
             width: 100%;
-            scroll-snap-type: x mandatory;
             box-sizing: border-box;
+            scroll-snap-type: x mandatory;
         }
         .cards-container::-webkit-scrollbar { display: none; }
 
         .card {
-            background: #1a1a1a;
-            border-radius: 20px;
+            background-color: #151515;
+            background-size: cover;
+            background-position: center;
+            border-radius: 24px;
             min-width: 280px;
             padding: 20px;
-            border: 2px solid #333;
-            transition: 0.3s;
-            scroll-snap-align: center;
+            border: 2px solid #252525;
             display: flex;
             flex-direction: column;
-            align-items: center;
+            position: relative;
+            scroll-snap-align: center;
+            /* Затемнение нижней части карточки для читаемости текста */
+            box-shadow: inset 0 -120px 80px -20px rgba(0,0,0,0.9);
         }
-        .card.selected { border-color: #edb432; box-shadow: 0 0 20px rgba(237, 180, 50, 0.4); }
 
-        .card img { width: 100%; height: 200px; object-fit: cover; border-radius: 12px; margin-bottom: 15px; }
+        .card img {
+            width: 100%;
+            height: 200px;
+            object-fit: contain;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5));
+        }
 
-        .stats-block { width: 100%; background: #262626; padding: 15px; border-radius: 12px; box-sizing: border-box; }
-        .stat-label { font-size: 11px; color: #ccc; display: flex; justify-content: space-between; margin-bottom: 4px; }
-        .bar-bg { width: 100%; height: 6px; background: #444; border-radius: 10px; }
+        .card h3 {
+            text-align: center;
+            color: #edb432;
+            margin: 10px 0;
+            text-transform: uppercase;
+        }
+
+        /* СТАТЫ */
+        .stats-block { width: 100%; margin-bottom: 15px; }
+        .stat-row { margin-bottom: 8px; }
+        .stat-label { font-size: 10px; color: #aaa; display: flex; justify-content: space-between; margin-bottom: 3px; }
+        .bar-bg { width: 100%; height: 5px; background: rgba(255,255,255,0.1); border-radius: 10px; }
         .bar-fill { height: 100%; background: #edb432; border-radius: 10px; }
 
-        .select-btn { margin-top: 15px; padding: 12px; background: #333; color: #fff; border: none; border-radius: 10px; width: 100%; font-weight: bold; text-transform: uppercase; }
-        .selected .select-btn { background: #edb432; color: #000; }
+        .select-btn {
+            padding: 12px;
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 12px;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
 
         /* ЭКРАН ЗАМКА */
         #castle-screen {
-            display: none; 
+            display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            flex-direction: column;
-            align-items: center;
-            background-position: center;
             background-size: cover;
+            background-position: center;
+            flex-direction: column;
             z-index: 10;
         }
 
@@ -78,104 +100,99 @@
             justify-content: space-around;
             padding: 15px 0;
             background: rgba(0,0,0,0.7);
-            border-bottom: 2px solid #edb432;
+            border-bottom: 1px solid rgba(237, 180, 50, 0.4);
         }
 
-        .hero-container {
+        .hero-render-container {
             flex: 1;
             display: flex;
             align-items: flex-end;
             justify-content: center;
-            width: 100%;
-            position: relative;
-        }
-        #main-hero-img {
-            height: 75vh;
-            filter: drop-shadow(0 0 25px rgba(0,0,0,0.9));
-            z-index: 11;
+            padding-bottom: 120px;
         }
 
-        /* Меню круглое */
+        #main-hero-img {
+            height: 55vh; /* Уменьшенный размер */
+            object-fit: contain;
+        }
+
         .bottom-menu {
             position: absolute;
             bottom: 30px;
             display: flex;
-            gap: 15px;
-            z-index: 15;
+            gap: 20px;
             align-items: center;
         }
+
         .menu-btn {
-            width: 60px; height: 60px;
-            background: #1a1a1a;
-            border: 2px solid #edb432;
+            width: 55px; height: 55px;
+            background: rgba(0,0,0,0.8);
+            border: 1px solid #edb432;
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.3rem;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            font-size: 1.2rem;
         }
-        .battle-btn {
-            width: 85px; height: 85px;
-            background: radial-gradient(circle, #edb432, #8a650f);
+
+        .main-action-btn {
+            width: 75px; height: 75px;
+            background: #edb432;
+            color: #000;
             font-size: 2rem;
-            border: 3px solid #fff;
+            border: none;
         }
     </style>
 </head>
 <body>
 
     <div id="selection-screen">
-        <h2 style="text-transform: uppercase;">Выбери своего героя</h2>
+        <h2 style="text-align:center;">ВЫБЕРИ СВОЕГО ГЕРОЯ</h2>
         <div class="cards-container">
-            <div class="card" id="c-tsar">
+            
+            <div class="card" id="c-tsar" style="background-image: url('bg_tsar.jpg');">
                 <img src="tsar.png">
-                <h3 style="color:#edb432">ЦАРЬ</h3>
+                <h3>Царь</h3>
                 <div class="stats-block">
                     <div class="stat-label">Сила <span>85/100</span></div>
                     <div class="bar-bg"><div class="bar-fill" style="width: 85%"></div></div>
-                    <div style="margin-top:8px" class="stat-label">Ярость <span>75/100</span></div>
-                    <div class="bar-bg"><div class="bar-fill" style="width: 75%"></div></div>
                 </div>
                 <button class="select-btn" onclick="selectHero('Царь', 'tsar')">Выбрать</button>
             </div>
-            <div class="card" id="c-sultan">
+
+            <div class="card" id="c-sultan" style="background-image: url('bg_sultan.jpg');">
                 <img src="sultan.png">
-                <h3 style="color:#edb432">СУЛТАН</h3>
+                <h3>Султан</h3>
                 <div class="stats-block">
                     <div class="stat-label">Ловкость <span>95/100</span></div>
                     <div class="bar-bg"><div class="bar-fill" style="width: 95%"></div></div>
-                    <div style="margin-top:8px" class="stat-label">Выносливость <span>65/100</span></div>
-                    <div class="bar-bg"><div class="bar-fill" style="width: 65%"></div></div>
                 </div>
                 <button class="select-btn" onclick="selectHero('Султан', 'sultan')">Выбрать</button>
             </div>
-            <div class="card" id="c-king">
+
+            <div class="card" id="c-king" style="background-image: url('bg_king.jpg');">
                 <img src="king.png">
-                <h3 style="color:#edb432">КОРОЛЬ</h3>
+                <h3>Король</h3>
                 <div class="stats-block">
                     <div class="stat-label">Броня <span>90/100</span></div>
                     <div class="bar-bg"><div class="bar-fill" style="width: 90%"></div></div>
-                    <div style="margin-top:8px" class="stat-label">Урон <span>80/100</span></div>
-                    <div class="bar-bg"><div class="bar-fill" style="width: 80%"></div></div>
                 </div>
                 <button class="select-btn" onclick="selectHero('Король', 'king')">Выбрать</button>
             </div>
+
         </div>
     </div>
 
     <div id="castle-screen">
         <div class="top-bar">
-            <div>💰 1000</div>
+            <div>💰 1,000</div>
             <div>⚡ 10/10</div>
-            <div>🏆 Ур. 1</div>
+            <div>🏆 LVL 1</div>
         </div>
-        <div class="hero-container">
+        <div class="hero-render-container">
             <img id="main-hero-img" src="" alt="">
             <div class="bottom-menu">
                 <div class="menu-btn">🛡️</div>
-                <div class="menu-btn">🏠</div>
-                <div class="menu-btn battle-btn">⚔️</div>
+                <div class="menu-btn main-action-btn">⚔️</div>
                 <div class="menu-btn">👥</div>
-                <div class="menu-btn">⚙️</div>
             </div>
         </div>
     </div>
@@ -183,34 +200,31 @@
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
-        let currentSelection = null;
+        let selectedId = null;
 
         function selectHero(name, id) {
-            document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
-            document.getElementById('c-' + id).classList.add('selected');
-            currentSelection = { name, id };
+            selectedId = id;
+            document.querySelectorAll('.card').forEach(c => c.style.borderColor = '#252525');
+            document.getElementById('c-' + id).style.borderColor = '#edb432';
             
-            tg.MainButton.setText("ВСТУПИТЬ В БОЙ: " + name.toUpperCase());
+            tg.MainButton.setText("ПОДТВЕРДИТЬ: " + name.toUpperCase());
             tg.MainButton.setParams({color: '#edb432', text_color: '#000'});
             tg.MainButton.show();
         }
 
         tg.MainButton.onClick(() => {
-            if (!currentSelection) return;
+            if (!selectedId) return;
 
-            // Смена экранов
             document.getElementById('selection-screen').style.display = 'none';
             const castle = document.getElementById('castle-screen');
             const heroImg = document.getElementById('main-hero-img');
 
-            // Установка уникального фона и героя
-            heroImg.src = 'hero_' + currentSelection.id + '.png';
-            castle.style.backgroundImage = "url('bg_" + currentSelection.id + ".jpg')";
+            // Подгружаем контент
+            heroImg.src = 'hero_' + selectedId + '.png'; 
+            castle.style.backgroundImage = "url('bg_" + selectedId + ".jpg')";
             
             castle.style.display = 'flex';
             tg.MainButton.hide();
-
-            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
         });
     </script>
 </body>
