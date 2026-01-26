@@ -3,172 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Empire RPG</title>
+    <title>RPG Hero Select</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --gold: #edb432; --dark: #0a0b10; --card-bg: #161a23; }
-        
         body {
-            background: var(--dark);
+            background: radial-gradient(circle, #1a1a1a 0%, #000 100%);
             color: white;
             font-family: 'Segoe UI', sans-serif;
             margin: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
-            height: 100vh;
-            overflow: hidden;
+            min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        /* Главный экран героя */
-        .hero-display {
-            position: relative;
-            width: 100%;
-            height: 60%;
+        h2 { margin-top: 20px; font-weight: 300; color: #edb432; text-transform: uppercase; letter-spacing: 2px; }
+
+        /* Контейнер который можно листать */
+        .cards-container {
             display: flex;
-            justify-content: center;
-            align-items: flex-end;
-            background: radial-gradient(circle, #1e2533 0%, #0a0b10 100%);
-        }
-
-        .main-hero-img {
-            height: 90%;
-            filter: drop-shadow(0 0 20px rgba(0,0,0,0.8));
-            transition: 0.3s;
-        }
-
-        /* Панель информации справа */
-        .info-panel {
-            position: absolute;
-            top: 20px;
-            right: 15px;
-            width: 180px;
-            background: rgba(22, 26, 35, 0.9);
-            border-radius: 12px;
-            padding: 15px;
-            border: 1px solid #2d3442;
-        }
-
-        .hero-name { color: var(--gold); font-size: 1.2rem; margin: 0 0 5px 0; }
-        .hero-desc { font-size: 0.75rem; color: #a0a8b9; margin-bottom: 15px; line-height: 1.2; }
-
-        /* Шкалы характеристик */
-        .stat-row { margin-bottom: 8px; }
-        .stat-label { font-size: 0.7rem; color: #8892a7; display: flex; justify-content: space-between; margin-bottom: 3px; }
-        .bar-bg { width: 100%; height: 6px; background: #242a37; border-radius: 3px; overflow: hidden; }
-        .bar-fill { height: 100%; background: linear-gradient(90deg, #e67e22, #f1c40f); width: 0%; transition: 0.8s ease-out; }
-
-        /* Нижнее меню выбора */
-        .bottom-nav {
-            width: 100%;
-            height: 40%;
-            background: #0f1218;
+            gap: 20px;
+            overflow-x: auto;
             padding: 20px;
-            display: flex;
-            justify-content: center;
-            gap: 12px;
+            width: 100%;
+            scroll-snap-type: x mandatory;
             box-sizing: border-box;
-            border-top: 2px solid #1d232e;
         }
 
-        .nav-item {
-            width: 65px;
-            height: 65px;
-            background: var(--card-bg);
-            border: 2px solid #2d3442;
-            border-radius: 12px;
+        .card {
+            background: #222;
+            border-radius: 20px;
+            min-width: 280px;
+            padding: 15px;
+            border: 2px solid #333;
+            transition: 0.3s;
+            scroll-snap-align: center;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            transition: 0.2s;
         }
 
-        .nav-item img { width: 80%; border-radius: 8px; }
-        .nav-item span { font-size: 0.6rem; margin-top: 4px; color: #8892a7; }
+        .card.selected {
+            border-color: #edb432;
+            box-shadow: 0 0 20px rgba(237, 180, 50, 0.4);
+            background: #2a2a2a;
+        }
 
-        .nav-item.active {
-            border-color: var(--gold);
-            box-shadow: 0 0 15px rgba(237, 180, 50, 0.3);
-            background: #1d232e;
+        .card img {
+            width: 100%;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        }
+
+        /* Блок характеристик (как на твоем скрине) */
+        .stats-block {
+            text-align: left;
+            margin-top: 10px;
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .stat-item { margin-bottom: 8px; }
+        .stat-label { font-size: 12px; color: #aaa; margin-bottom: 4px; display: flex; justify-content: space-between; }
+        
+        .bar-bg { width: 100%; height: 6px; background: #444; border-radius: 3px; }
+        .bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #f39c12, #edb432); }
+
+        .select-btn {
+            margin-top: 15px;
+            padding: 12px;
+            background: #edb432;
+            color: black;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
         }
     </style>
 </head>
 <body>
 
-    <div class="hero-display">
-        <img src="1.png" id="hero-img" class="main-hero-img">
-        
-        <div class="info-panel">
-            <h3 id="h-name" class="hero-name">ЦАРЬ</h3>
-            <p id="h-desc" class="hero-desc">Могучий правитель севера. Сокрушает врагов тяжелым топором.</p>
-            
-            <div class="stat-row">
-                <div class="stat-label">Урон <span>MAX</span></div>
-                <div class="bar-bg"><div id="bar-atk" class="bar-fill"></div></div>
-            </div>
-            <div class="stat-row">
-                <div class="stat-label">Защита <span>HIGH</span></div>
-                <div class="bar-bg"><div id="bar-def" class="bar-fill"></div></div>
-            </div>
-            <div class="stat-row">
-                <div class="stat-label">Магия <span>LOW</span></div>
-                <div class="bar-bg"><div id="bar-mag" class="bar-fill"></div></div>
-            </div>
-        </div>
-    </div>
+    <h2 id="greet">Выбери чемпиона</h2>
 
-    <div class="bottom-nav">
-        <div class="nav-item active" onclick="updateHero(0)">
-            <img src="1.png">
-            <span>Царь</span>
+    <div class="cards-container">
+        
+        <div class="card" id="c-tsar">
+            <img src="tsar.png" alt="Царь">
+            <h3 style="margin: 0; color: #edb432;">ЦАРЬ</h3>
+            <div class="stats-block">
+                <div class="stat-item">
+                    <div class="stat-label">Урон <span>80%</span></div>
+                    <div class="bar-bg"><div class="bar-fill" style="width: 80%"></div></div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Защита <span>60%</span></div>
+                    <div class="bar-bg"><div class="bar-fill" style="width: 60%"></div></div>
+                </div>
+            </div>
+            <button class="select-btn" onclick="selectHero('Царь', 'tsar')">ВЫБРАТЬ</button>
         </div>
-        <div class="nav-item" onclick="updateHero(1)">
-            <img src="2.png">
-            <span>Султан</span>
+
+        <div class="card" id="c-sultan">
+            <img src="sultan.png" alt="Султан">
+            <h3 style="margin: 0; color: #edb432;">СУЛТАН</h3>
+            <div class="stats-block">
+                <div class="stat-item">
+                    <div class="stat-label">Урон <span>65%</span></div>
+                    <div class="bar-bg"><div class="bar-fill" style="width: 65%"></div></div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Ловкость <span>90%</span></div>
+                    <div class="bar-bg"><div class="bar-fill" style="width: 90%"></div></div>
+                </div>
+            </div>
+            <button class="select-btn" onclick="selectHero('Султан', 'sultan')">ВЫБРАТЬ</button>
         </div>
-        <div class="nav-item" onclick="updateHero(2)">
-            <img src="3.png">
-            <span>Король</span>
+
+        <div class="card" id="c-king">
+            <img src="king.png" alt="Король">
+            <h3 style="margin: 0; color: #edb432;">КОРОЛЬ</h3>
+            <div class="stats-block">
+                <div class="stat-item">
+                    <div class="stat-label">Защита <span>95%</span></div>
+                    <div class="bar-bg"><div class="bar-fill" style="width: 95%"></div></div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-label">Здоровье <span>100%</span></div>
+                    <div class="bar-bg"><div class="bar-fill" style="width: 100%"></div></div>
+                </div>
+            </div>
+            <button class="select-btn" onclick="selectHero('Король', 'king')">ВЫБРАТЬ</button>
         </div>
+
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        const heroes = [
-            { name: "ЦАРЬ", img: "1.png", desc: "Могучий правитель севера. Огромный урон и средняя броня.", stats: [90, 70, 20] },
-            { name: "СУЛТАН", img: "2.png", desc: "Мастер песков. Невероятная скорость и критические удары.", stats: [75, 50, 85] },
-            { name: "КОРОЛЬ", img: "3.png", desc: "Защитник империи. Самый высокий показатель здоровья.", stats: [60, 95, 40] }
-        ];
-
-        function updateHero(idx) {
-            const h = heroes[idx];
-            
-            // Обновляем картинку и текст
-            document.getElementById('hero-img').src = h.img;
-            document.getElementById('h-name').innerText = h.name;
-            document.getElementById('h-desc').innerText = h.desc;
-
-            // Обновляем шкалы
-            document.getElementById('bar-atk').style.width = h.stats[0] + "%";
-            document.getElementById('bar-def').style.width = h.stats[1] + "%";
-            document.getElementById('bar-mag').style.width = h.stats[2] + "%";
-
-            // Переключаем активную иконку в меню
-            document.querySelectorAll('.nav-item').forEach((el, i) => {
-                el.classList.toggle('active', i === idx);
-            });
-
-            // Вибрация и главная кнопка
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-            tg.MainButton.setText("СОЗДАТЬ: " + h.name);
-            tg.MainButton.show();
+        const user = tg.initDataUnsafe?.user;
+        if (user) {
+            document.getElementById('greet').innerText = `${user.first_name}, выбери чемпиона`;
         }
 
-        // Запуск первой анимации шкал
-        setTimeout(() => updateHero(0), 500);
+        function selectHero(name, id) {
+            // Убираем выделение
+            document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
+            // Добавляем текущему
+            document.getElementById('c-' + id).classList.add('selected');
+
+            // Виброотклик
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+
+            // Главная кнопка Телеграма снизу
+            tg.MainButton.setText("НАЧАТЬ ПУТЬ ЗА " + name.toUpperCase());
+            tg.MainButton.show();
+            tg.MainButton.onClick(() => {
+                alert("Погнали! Герой " + name + " готов к бою.");
+            });
+        }
     </script>
 </body>
 </html>
