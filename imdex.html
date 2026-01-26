@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Выбор Чемпиона</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: white;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        h2 { margin-bottom: 20px; font-weight: 300; }
+
+        .cards-container {
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            padding: 20px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .card {
+            background: #2a2a2a;
+            border-radius: 15px;
+            min-width: 200px;
+            text-align: center;
+            padding: 15px;
+            border: 2px solid transparent;
+            transition: 0.3s;
+        }
+
+        .card img {
+            width: 100%;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .card.selected {
+            border-color: #edb432;
+            box-shadow: 0 0 15px rgba(237, 180, 50, 0.5);
+            transform: scale(1.05);
+        }
+
+        .btn-start {
+            margin-top: 30px;
+            padding: 15px 50px;
+            background: #edb432;
+            color: black;
+            border: none;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 18px;
+            cursor: pointer;
+            display: none; /* Скрыта, пока не выберут героя */
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Выберите своего чемпиона</h2>
+
+    <div class="cards-container">
+        <div class="card" onclick="selectHero('Tsar', this)">
+            <img src="tsar.png" alt="Царь">
+            <h3>Царь</h3>
+        </div>
+
+        <div class="card" onclick="selectHero('Sultan', this)">
+            <img src="sultan.png" alt="Султан">
+            <h3>Султан</h3>
+        </div>
+
+        <div class="card" onclick="selectHero('King', this)">
+            <img src="king.png" alt="Король">
+            <h3>Король</h3>
+        </div>
+    </div>
+
+    <button id="startBtn" class="btn-start" onclick="startGame()">В ПУТЬ!</button>
+
+    <script>
+        let selectedHero = null;
+        const tg = window.Telegram.WebApp;
+        tg.expand(); // Развернуть на весь экран
+
+        function selectHero(heroName, element) {
+            // Убираем выделение у всех
+            document.querySelectorAll('.card').forEach(card => card.classList.remove('selected'));
+            
+            // Выделяем текущую
+            element.classList.add('selected');
+            selectedHero = heroName;
+
+            // Показываем кнопку "Старт"
+            document.getElementById('startBtn').style.display = 'block';
+
+            // Легкая вибрация телефона при нажатии
+            if (tg.HapticFeedback) {
+                tg.HapticFeedback.impactOccurred('medium');
+            }
+        }
+
+        function startGame() {
+            if (selectedHero) {
+                alert("Ваш герой: " + selectedHero + ". Начинаем приключение!");
+                // Тут в будущем будет переход на экран боя
+            }
+        }
+    </script>
+</body>
+</html>
