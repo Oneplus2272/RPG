@@ -14,86 +14,80 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
-            min-height: 100vh;
             padding-top: 20px;
+            overflow: hidden; /* Чтобы ничего не дергалось на мобилках */
         }
 
-        h2 { font-size: 1.2rem; margin-bottom: 20px; text-align: center; }
+        h2 { font-size: 1.1rem; margin-bottom: 20px; text-shadow: 0 2px 4px rgba(0,0,0,0.5); }
 
         .cards-container {
             display: grid;
-            grid-template-columns: repeat(3, 1fr); /* Три колонки в ряд */
-            gap: 8px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
             width: 95%;
-            padding: 5px;
+            max-width: 500px;
         }
 
         .card {
-            background: #2a2a2a;
-            border-radius: 10px;
+            background: #252525;
+            border-radius: 12px;
             padding: 8px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+            text-align: center;
             border: 2px solid transparent;
-            transition: 0.2s;
+            transition: transform 0.2s, border-color 0.2s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
 
         .card img {
             width: 100%;
+            border-radius: 8px;
             aspect-ratio: 1/1;
-            border-radius: 6px;
             object-fit: cover;
             margin-bottom: 8px;
         }
 
-        .card h3 {
-            font-size: 0.9rem;
-            margin: 5px 0;
-        }
+        .card h3 { font-size: 0.85rem; margin: 5px 0; color: #eee; }
 
-        /* Красивая кнопка под каждым героем */
         .select-btn {
-            background: #edb432;
+            background: linear-gradient(180deg, #edb432 0%, #c18e1a 100%);
             color: black;
             border: none;
-            border-radius: 5px;
-            padding: 6px 0;
+            border-radius: 6px;
             width: 100%;
-            font-size: 0.75rem;
+            padding: 8px 0;
+            font-size: 0.7rem;
             font-weight: bold;
             cursor: pointer;
-            text-transform: uppercase;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
 
         .card.selected {
             border-color: #edb432;
-            background: #333;
+            transform: translateY(-5px);
         }
     </style>
 </head>
 <body>
 
-    <h2 id="greeting">Выбери своего чемпиона</h2>
+    <h2 id="greeting">Загрузка...</h2>
 
     <div class="cards-container">
-        <div class="card" id="card-Tsar">
-            <img src="1.jpg" alt="Царь">
+        <div class="card" id="card-1">
+            <img src="1.png" alt="Царь">
             <h3>Царь</h3>
-            <button class="select-btn" onclick="selectHero('Царь', 'Tsar')">Выбрать</button>
+            <button class="select-btn" onclick="selectHero('Царь', '1')">ВЫБРАТЬ</button>
         </div>
 
-        <div class="card" id="card-Sultan">
-            <img src="2.jpg" alt="Султан">
+        <div class="card" id="card-2">
+            <img src="2.png" alt="Султан">
             <h3>Султан</h3>
-            <button class="select-btn" onclick="selectHero('Султан', 'Sultan')">Выбрать</button>
+            <button class="select-btn" onclick="selectHero('Султан', '2')">ВЫБРАТЬ</button>
         </div>
 
-        <div class="card" id="card-King">
-            <img src="3.jpg" alt="Король">
+        <div class="card" id="card-3">
+            <img src="3.png" alt="Король">
             <h3>Король</h3>
-            <button class="select-btn" onclick="selectHero('Король', 'King')">Выбрать</button>
+            <button class="select-btn" onclick="selectHero('Король', '3')">ВЫБРАТЬ</button>
         </div>
     </div>
 
@@ -101,25 +95,27 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Приветствие по имени из Telegram
+        // Берем имя пользователя из Телеграм
         const user = tg.initDataUnsafe?.user;
-        if (user) {
-            document.getElementById('greeting').innerText = `${user.first_name}, выбери чемпиона`;
-        }
+        document.getElementById('greeting').innerText = user ? `${user.first_name}, выбери героя` : "Выбери своего героя";
 
         function selectHero(name, id) {
             // Убираем старое выделение
             document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
-            // Добавляем новое
+            // Подсвечиваем выбранную карточку
             document.getElementById('card-' + id).classList.add('selected');
-
-            // Вибрация
+            
+            // Вибро-отклик
             if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-
-            // Подтверждение выбора (потом заменим на переход в бой)
+            
+            // Сообщаем о выборе
             setTimeout(() => {
-                alert("Вы выбрали: " + name);
-            }, 100);
+                tg.MainButton.setText("ИГРАТЬ ЗА: " + name.toUpperCase());
+                tg.MainButton.show();
+                tg.MainButton.onClick(() => {
+                    alert("Начинаем приключение за " + name + "!");
+                });
+            }, 200);
         }
     </script>
 </body>
