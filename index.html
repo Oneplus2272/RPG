@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>RPG Hero Select</title>
+    <title>Empire RPG</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
@@ -14,128 +14,174 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: center; /* Центрируем всё по вертикали */
             min-height: 100vh;
-            overflow-x: hidden;
+            overflow: hidden;
         }
 
-        h2 { margin-top: 20px; font-weight: 300; color: #edb432; text-transform: uppercase; letter-spacing: 2px; }
+        h2 { 
+            margin-bottom: 10px; 
+            font-weight: 300; 
+            color: #edb432; 
+            text-transform: uppercase; 
+            letter-spacing: 2px;
+            text-align: center;
+        }
 
-        /* Контейнер который можно листать */
+        /* Контейнер с карточками теперь центрирует содержимое */
         .cards-container {
             display: flex;
             gap: 20px;
             overflow-x: auto;
-            padding: 20px;
+            padding: 20px 40px;
             width: 100%;
             scroll-snap-type: x mandatory;
             box-sizing: border-box;
+            justify-content: flex-start; /* Для прокрутки на мобилках */
+            align-items: center;
+        }
+
+        /* Чтобы на широких экранах карточки тоже были по центру */
+        @media (min-width: 900px) {
+            .cards-container { justify-content: center; }
         }
 
         .card {
             background: #222;
             border-radius: 20px;
             min-width: 280px;
-            padding: 15px;
+            max-width: 300px;
+            padding: 20px;
             border: 2px solid #333;
-            transition: 0.3s;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             scroll-snap-align: center;
             display: flex;
             flex-direction: column;
+            align-items: center; /* Центрируем контент внутри карточки */
+            position: relative;
         }
 
         .card.selected {
             border-color: #edb432;
-            box-shadow: 0 0 20px rgba(237, 180, 50, 0.4);
+            box-shadow: 0 0 30px rgba(237, 180, 50, 0.3);
             background: #2a2a2a;
+            transform: scale(1.05);
         }
 
         .card img {
             width: 100%;
             border-radius: 15px;
             margin-bottom: 15px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.6);
+            pointer-events: none;
         }
 
-        /* Блок характеристик (как на твоем скрине) */
+        .hero-title {
+            margin: 0 0 15px 0;
+            color: #edb432;
+            font-size: 1.5rem;
+            letter-spacing: 1px;
+        }
+
+        /* Блок характеристик */
         .stats-block {
-            text-align: left;
-            margin-top: 10px;
-            background: rgba(0,0,0,0.3);
-            padding: 10px;
-            border-radius: 10px;
+            width: 100%;
+            background: rgba(0,0,0,0.4);
+            padding: 15px;
+            border-radius: 12px;
+            box-sizing: border-box;
         }
 
-        .stat-item { margin-bottom: 8px; }
-        .stat-label { font-size: 12px; color: #aaa; margin-bottom: 4px; display: flex; justify-content: space-between; }
+        .stat-item { margin-bottom: 10px; }
+        .stat-item:last-child { margin-bottom: 0; }
         
-        .bar-bg { width: 100%; height: 6px; background: #444; border-radius: 3px; }
-        .bar-fill { height: 100%; border-radius: 3px; background: linear-gradient(90deg, #f39c12, #edb432); }
-
-        .select-btn {
-            margin-top: 15px;
-            padding: 12px;
-            background: #edb432;
-            color: black;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
+        .stat-label { 
+            font-size: 11px; 
+            color: #888; 
+            margin-bottom: 5px; 
+            display: flex; 
+            justify-content: space-between;
             text-transform: uppercase;
         }
+        
+        .bar-bg { width: 100%; height: 8px; background: #333; border-radius: 4px; overflow: hidden; }
+        .bar-fill { 
+            height: 100%; 
+            border-radius: 4px; 
+            background: linear-gradient(90deg, #d35400, #edb432); 
+            transition: width 1s ease-in-out;
+        }
+
+        .select-btn {
+            margin-top: 20px;
+            padding: 14px;
+            background: linear-gradient(180deg, #edb432 0%, #c18e1a 100%);
+            color: black;
+            border: none;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            text-transform: uppercase;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        /* Скрываем скроллбар для красоты */
+        .cards-container::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body>
 
-    <h2 id="greet">Выбери чемпиона</h2>
+    <h2 id="greet">Выбери своего героя</h2>
 
     <div class="cards-container">
         
         <div class="card" id="c-tsar">
             <img src="tsar.png" alt="Царь">
-            <h3 style="margin: 0; color: #edb432;">ЦАРЬ</h3>
+            <h3 class="hero-title">ЦАРЬ</h3>
             <div class="stats-block">
                 <div class="stat-item">
-                    <div class="stat-label">Урон <span>80%</span></div>
-                    <div class="bar-bg"><div class="bar-fill" style="width: 80%"></div></div>
+                    <div class="stat-label">Сила <span>85/100</span></div>
+                    <div class="bar-bg"><div class="bar-fill" style="width: 85%"></div></div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-label">Защита <span>60%</span></div>
-                    <div class="bar-bg"><div class="bar-fill" style="width: 60%"></div></div>
+                    <div class="stat-label">Выносливость <span>70/100</span></div>
+                    <div class="bar-bg"><div class="bar-fill" style="width: 70%"></div></div>
                 </div>
             </div>
-            <button class="select-btn" onclick="selectHero('Царь', 'tsar')">ВЫБРАТЬ</button>
+            <button class="select-btn" onclick="selectHero('Царь', 'tsar')">Выбрать героя</button>
         </div>
 
         <div class="card" id="c-sultan">
             <img src="sultan.png" alt="Султан">
-            <h3 style="margin: 0; color: #edb432;">СУЛТАН</h3>
+            <h3 class="hero-title">СУЛТАН</h3>
             <div class="stats-block">
                 <div class="stat-item">
-                    <div class="stat-label">Урон <span>65%</span></div>
-                    <div class="bar-bg"><div class="bar-fill" style="width: 65%"></div></div>
+                    <div class="stat-label">Ловкость <span>95/100</span></div>
+                    <div class="bar-bg"><div class="bar-fill" style="width: 95%"></div></div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-label">Ловкость <span>90%</span></div>
-                    <div class="bar-bg"><div class="bar-fill" style="width: 90%"></div></div>
+                    <div class="stat-label">Интеллект <span>60/100</span></div>
+                    <div class="bar-bg"><div class="bar-fill" style="width: 60%"></div></div>
                 </div>
             </div>
-            <button class="select-btn" onclick="selectHero('Султан', 'sultan')">ВЫБРАТЬ</button>
+            <button class="select-btn" onclick="selectHero('Султан', 'sultan')">Выбрать героя</button>
         </div>
 
         <div class="card" id="c-king">
             <img src="king.png" alt="Король">
-            <h3 style="margin: 0; color: #edb432;">КОРОЛЬ</h3>
+            <h3 class="hero-title">КОРОЛЬ</h3>
             <div class="stats-block">
                 <div class="stat-item">
-                    <div class="stat-label">Защита <span>95%</span></div>
-                    <div class="bar-bg"><div class="bar-fill" style="width: 95%"></div></div>
+                    <div class="stat-label">Броня <span>90/100</span></div>
+                    <div class="bar-bg"><div class="bar-fill" style="width: 90%"></div></div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-label">Здоровье <span>100%</span></div>
+                    <div class="stat-label">Лидерство <span>100/100</span></div>
                     <div class="bar-bg"><div class="bar-fill" style="width: 100%"></div></div>
                 </div>
             </div>
-            <button class="select-btn" onclick="selectHero('Король', 'king')">ВЫБРАТЬ</button>
+            <button class="select-btn" onclick="selectHero('Король', 'king')">Выбрать героя</button>
         </div>
 
     </div>
@@ -146,23 +192,19 @@
 
         const user = tg.initDataUnsafe?.user;
         if (user) {
-            document.getElementById('greet').innerText = `${user.first_name}, выбери чемпиона`;
+            document.getElementById('greet').innerText = `${user.first_name.toUpperCase()}, ВЫБЕРИ ГЕРОЯ`;
         }
 
         function selectHero(name, id) {
-            // Убираем выделение
             document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
-            // Добавляем текущему
             document.getElementById('c-' + id).classList.add('selected');
 
-            // Виброотклик
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('heavy');
 
-            // Главная кнопка Телеграма снизу
-            tg.MainButton.setText("НАЧАТЬ ПУТЬ ЗА " + name.toUpperCase());
+            tg.MainButton.setText("ПОДТВЕРДИТЬ: " + name.toUpperCase());
             tg.MainButton.show();
             tg.MainButton.onClick(() => {
-                alert("Погнали! Герой " + name + " готов к бою.");
+                alert("Герой " + name + " выбран. Приключение начинается!");
             });
         }
     </script>
