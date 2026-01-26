@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Empire State: Evolution</title>
+    <title>Empire RPG</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
@@ -21,23 +21,21 @@
             position: relative;
         }
 
-        /* Затемнение фона как в приложении */
         body::before {
             content: "";
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.65);
+            background: rgba(0, 0, 0, 0.6);
             z-index: 0;
         }
 
         h2 { 
             position: relative;
             z-index: 2;
-            margin-bottom: 25px; 
+            margin-bottom: 20px; 
             font-weight: 800; 
-            color: white; 
+            color: #fff; 
             text-transform: uppercase; 
-            letter-spacing: 1.5px;
             text-align: center;
         }
 
@@ -47,107 +45,92 @@
             display: flex;
             gap: 15px;
             overflow-x: auto;
-            padding: 20px 40px;
+            padding: 20px;
             width: 100%;
             scroll-snap-type: x mandatory;
             box-sizing: border-box;
-            scrollbar-width: none;
         }
 
         .cards-container::-webkit-scrollbar { display: none; }
 
         .card {
-            background: rgba(25, 25, 25, 0.95);
+            background: #1a1a1a; /* НИКАКОЙ ПРОЗРАЧНОСТИ */
             border-radius: 20px;
-            min-width: 260px;
-            padding: 15px;
+            min-width: 280px;
+            padding: 20px;
             border: 2px solid #333;
-            transition: all 0.3s ease;
+            transition: 0.3s;
             scroll-snap-align: center;
             display: flex;
             flex-direction: column;
             align-items: center;
-            opacity: 0.5;
-            transform: scale(0.9);
+            box-sizing: border-box;
         }
 
-        /* Подсветка выбранной карточки золотой рамкой */
+        /* Четкое выделение выбранного героя */
         .card.selected {
-            opacity: 1;
             border-color: #edb432;
+            box-shadow: 0 0 20px rgba(237, 180, 50, 0.3);
             transform: scale(1.02);
         }
 
         .card img {
             width: 100%;
-            height: 180px;
+            height: 200px;
             object-fit: cover;
             border-radius: 12px;
-            margin-bottom: 12px;
+            margin-bottom: 15px;
         }
 
         .hero-title {
             margin: 0 0 15px 0;
             color: #edb432;
-            font-size: 1.4rem;
+            font-size: 1.5rem;
             font-weight: bold;
         }
 
         .stats-block {
             width: 100%;
-            padding: 0 5px;
+            background: #262626;
+            padding: 15px;
+            border-radius: 12px;
+            box-sizing: border-box;
         }
 
         .stat-item { margin-bottom: 12px; }
+        .stat-item:last-child { margin-bottom: 0; }
         
         .stat-label { 
-            font-size: 11px; 
-            color: #aaa; 
+            font-size: 12px; 
+            color: #ccc; 
             margin-bottom: 6px; 
             display: flex; 
             justify-content: space-between;
         }
         
-        .bar-bg { width: 100%; height: 7px; background: #222; border-radius: 10px; }
+        .bar-bg { width: 100%; height: 8px; background: #444; border-radius: 10px; }
         .bar-fill { 
             height: 100%; 
             border-radius: 10px; 
-            background: linear-gradient(90deg, #d35400, #edb432); 
-            transition: width 0.5s ease-in-out;
+            background: #edb432; 
         }
 
         .select-btn {
-            margin-top: 15px;
-            padding: 12px;
-            background: #444;
+            margin-top: 20px;
+            padding: 15px;
+            background: #333;
             color: #fff;
             border: none;
-            border-radius: 10px;
+            border-radius: 12px;
             font-weight: bold;
             width: 100%;
             text-transform: uppercase;
             cursor: pointer;
         }
 
-        /* Желтая кнопка "ВЫБРАТЬ" при активации карточки */
         .selected .select-btn {
             background: #edb432;
             color: #000;
-        }
-
-        /* Главная кнопка внизу (замена MainButton для превью) */
-        .bottom-action-btn {
-            position: fixed;
-            bottom: 20px;
-            width: 90%;
-            padding: 18px;
-            background: #edb432;
-            border: none;
-            border-radius: 12px;
-            font-weight: 900;
-            text-transform: uppercase;
-            z-index: 10;
-            display: none;
         }
     </style>
 </head>
@@ -162,12 +145,12 @@
             <h3 class="hero-title">ЦАРЬ</h3>
             <div class="stats-block">
                 <div class="stat-item">
-                    <div class="stat-label">Урон <span>85/100</span></div>
+                    <div class="stat-label">Сила <span>85/100</span></div>
                     <div class="bar-bg"><div class="bar-fill" style="width: 85%"></div></div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-label">Выносливость <span>70/100</span></div>
-                    <div class="bar-bg"><div class="bar-fill" style="width: 70%"></div></div>
+                    <div class="stat-label">Ярость <span>75/100</span></div>
+                    <div class="bar-bg"><div class="bar-fill" style="width: 75%"></div></div>
                 </div>
             </div>
             <button class="select-btn" onclick="selectHero('Царь', 'tsar')">Выбрать</button>
@@ -182,8 +165,8 @@
                     <div class="bar-bg"><div class="bar-fill" style="width: 95%"></div></div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-label">Выносливость <span>60/100</span></div>
-                    <div class="bar-bg"><div class="bar-fill" style="width: 60%"></div></div>
+                    <div class="stat-label">Выносливость <span>65/100</span></div>
+                    <div class="bar-bg"><div class="bar-fill" style="width: 65%"></div></div>
                 </div>
             </div>
             <button class="select-btn" onclick="selectHero('Султан', 'sultan')">Выбрать</button>
@@ -211,36 +194,17 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        // Отображение имени пользователя из Telegram
-        const user = tg.initDataUnsafe?.user;
-        if (user) {
-            document.getElementById('greet').innerText = `${user.first_name.toUpperCase()}, ВЫБЕРИ СВОЕГО ГЕРОЯ`;
-        }
-
         function selectHero(name, id) {
-            // 1. Сначала убираем класс 'selected' абсолютно у всех карточек
-            document.querySelectorAll('.card').forEach(c => {
-                c.classList.remove('selected');
-            });
-
-            // 2. Добавляем класс только той, по которой кликнули
-            const currentCard = document.getElementById('c-' + id);
-            currentCard.classList.add('selected');
+            // Убираем выделение у ВСЕХ перед новым выбором
+            document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
             
-            // 3. Плавно центрируем выбранную карточку
-            currentCard.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+            // Четко выделяем нужную
+            const current = document.getElementById('c-' + id);
+            current.classList.add('selected');
+            current.scrollIntoView({ behavior: 'smooth', inline: 'center' });
 
-            // 4. Работа с Telegram MainButton
-            tg.MainButton.setText("ВСТУПИТЬ В БОЙ ЗА " + name.toUpperCase());
-            tg.MainButton.setParams({
-                color: '#edb432',
-                text_color: '#000000'
-            });
+            tg.MainButton.setText("В БОЙ: " + name.toUpperCase());
             tg.MainButton.show();
-
-            if (tg.HapticFeedback) {
-                tg.HapticFeedback.impactOccurred('medium');
-            }
         }
     </script>
 </body>
