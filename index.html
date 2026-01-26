@@ -3,117 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>RPG Game</title>
+    <title>Empire RPG</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { background: #1a1a1a; color: white; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; margin: 0; padding: 20px; }
+        :root { --gold: #edb432; --dark: #0a0b10; --card-bg: #161a23; }
         
-        .cards-container { display: flex; gap: 15px; overflow-x: auto; width: 100%; padding: 10px; }
-
-        /* Сама карточка */
-        .card-wrapper {
-            min-width: 250px;
-            height: 400px;
-            perspective: 1000px;
-        }
-
-        .card-inner {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            text-align: center;
-            transition: transform 0.6s;
-            transform-style: preserve-3d;
-        }
-
-        /* Класс для переворота */
-        .card-wrapper.flipped .card-inner { transform: rotateY(180deg); }
-
-        .card-front, .card-back {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            backface-visibility: hidden;
-            border-radius: 15px;
-            border: 2px solid #edb432;
-            background: #2a2a2a;
+        body {
+            background: var(--dark);
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
             display: flex;
             flex-direction: column;
-            padding: 10px;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Главный экран героя */
+        .hero-display {
+            position: relative;
+            width: 100%;
+            height: 60%;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            background: radial-gradient(circle, #1e2533 0%, #0a0b10 100%);
+        }
+
+        .main-hero-img {
+            height: 90%;
+            filter: drop-shadow(0 0 20px rgba(0,0,0,0.8));
+            transition: 0.3s;
+        }
+
+        /* Панель информации справа */
+        .info-panel {
+            position: absolute;
+            top: 20px;
+            right: 15px;
+            width: 180px;
+            background: rgba(22, 26, 35, 0.9);
+            border-radius: 12px;
+            padding: 15px;
+            border: 1px solid #2d3442;
+        }
+
+        .hero-name { color: var(--gold); font-size: 1.2rem; margin: 0 0 5px 0; }
+        .hero-desc { font-size: 0.75rem; color: #a0a8b9; margin-bottom: 15px; line-height: 1.2; }
+
+        /* Шкалы характеристик */
+        .stat-row { margin-bottom: 8px; }
+        .stat-label { font-size: 0.7rem; color: #8892a7; display: flex; justify-content: space-between; margin-bottom: 3px; }
+        .bar-bg { width: 100%; height: 6px; background: #242a37; border-radius: 3px; overflow: hidden; }
+        .bar-fill { height: 100%; background: linear-gradient(90deg, #e67e22, #f1c40f); width: 0%; transition: 0.8s ease-out; }
+
+        /* Нижнее меню выбора */
+        .bottom-nav {
+            width: 100%;
+            height: 40%;
+            background: #0f1218;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 12px;
             box-sizing: border-box;
+            border-top: 2px solid #1d232e;
         }
 
-        /* Лицо */
-        .card-front img { width: 100%; border-radius: 10px; object-fit: cover; }
-        
-        /* Спина */
-        .card-back { transform: rotateY(180deg); justify-content: center; background: #333; }
-
-        .select-btn {
-            background: #edb432;
-            color: black;
-            border: none;
-            padding: 10px;
-            border-radius: 8px;
-            font-weight: bold;
-            margin-top: 20px;
-            cursor: pointer;
+        .nav-item {
+            width: 65px;
+            height: 65px;
+            background: var(--card-bg);
+            border: 2px solid #2d3442;
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: 0.2s;
         }
 
-        h2 { font-size: 1.2rem; text-align: center; }
+        .nav-item img { width: 80%; border-radius: 8px; }
+        .nav-item span { font-size: 0.6rem; margin-top: 4px; color: #8892a7; }
+
+        .nav-item.active {
+            border-color: var(--gold);
+            box-shadow: 0 0 15px rgba(237, 180, 50, 0.3);
+            background: #1d232e;
+        }
     </style>
 </head>
 <body>
 
-    <h2 id="greet">Никита, выбери героя</h2>
-
-    <div class="cards-container">
-        <div class="card-wrapper" onclick="this.classList.toggle('flipped')">
-            <div class="card-inner">
-                <div class="card-front">
-                    <img src="1.png">
-                    <h3>Царь</h3>
-                    <p style="font-size: 0.8rem; color: #aaa;">Нажми, чтобы увидеть статы</p>
-                </div>
-                <div class="card-back">
-                    <h3>БОНУСЫ</h3>
-                    <p>⚔️ Урон: +20%</p>
-                    <p>🔥 Навык: Двойной удар</p>
-                    <button class="select-btn" onclick="select('Царь')">ВЫБРАТЬ</button>
-                </div>
+    <div class="hero-display">
+        <img src="1.png" id="hero-img" class="main-hero-img">
+        
+        <div class="info-panel">
+            <h3 id="h-name" class="hero-name">ЦАРЬ</h3>
+            <p id="h-desc" class="hero-desc">Могучий правитель севера. Сокрушает врагов тяжелым топором.</p>
+            
+            <div class="stat-row">
+                <div class="stat-label">Урон <span>MAX</span></div>
+                <div class="bar-bg"><div id="bar-atk" class="bar-fill"></div></div>
+            </div>
+            <div class="stat-row">
+                <div class="stat-label">Защита <span>HIGH</span></div>
+                <div class="bar-bg"><div id="bar-def" class="bar-fill"></div></div>
+            </div>
+            <div class="stat-row">
+                <div class="stat-label">Магия <span>LOW</span></div>
+                <div class="bar-bg"><div id="bar-mag" class="bar-fill"></div></div>
             </div>
         </div>
+    </div>
 
-        <div class="card-wrapper" onclick="this.classList.toggle('flipped')">
-            <div class="card-inner">
-                <div class="card-front">
-                    <img src="2.png">
-                    <h3>Султан</h3>
-                    <p style="font-size: 0.8rem; color: #aaa;">Нажми, чтобы увидеть статы</p>
-                </div>
-                <div class="card-back">
-                    <h3>БОНУСЫ</h3>
-                    <p>⚡ Крит: +15%</p>
-                    <p>💨 Навык: Уклонение</p>
-                    <button class="select-btn" onclick="select('Султан')">ВЫБРАТЬ</button>
-                </div>
-            </div>
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="updateHero(0)">
+            <img src="1.png">
+            <span>Царь</span>
         </div>
-
-        <div class="card-wrapper" onclick="this.classList.toggle('flipped')">
-            <div class="card-inner">
-                <div class="card-front">
-                    <img src="3.png">
-                    <h3>Король</h3>
-                    <p style="font-size: 0.8rem; color: #aaa;">Нажми, чтобы увидеть статы</p>
-                </div>
-                <div class="card-back">
-                    <h3>БОНУСЫ</h3>
-                    <p>❤️ ХП: +30%</p>
-                    <p>🛡️ Навык: Отражение</p>
-                    <button class="select-btn" onclick="select('Король')">ВЫБРАТЬ</button>
-                </div>
-            </div>
+        <div class="nav-item" onclick="updateHero(1)">
+            <img src="2.png">
+            <span>Султан</span>
+        </div>
+        <div class="nav-item" onclick="updateHero(2)">
+            <img src="3.png">
+            <span>Король</span>
         </div>
     </div>
 
@@ -121,11 +137,38 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        function select(name) {
-            event.stopPropagation(); // Чтобы при клике на кнопку карта не закрылась обратно
-            tg.MainButton.setText("ИГРАТЬ ЗА: " + name);
+        const heroes = [
+            { name: "ЦАРЬ", img: "1.png", desc: "Могучий правитель севера. Огромный урон и средняя броня.", stats: [90, 70, 20] },
+            { name: "СУЛТАН", img: "2.png", desc: "Мастер песков. Невероятная скорость и критические удары.", stats: [75, 50, 85] },
+            { name: "КОРОЛЬ", img: "3.png", desc: "Защитник империи. Самый высокий показатель здоровья.", stats: [60, 95, 40] }
+        ];
+
+        function updateHero(idx) {
+            const h = heroes[idx];
+            
+            // Обновляем картинку и текст
+            document.getElementById('hero-img').src = h.img;
+            document.getElementById('h-name').innerText = h.name;
+            document.getElementById('h-desc').innerText = h.desc;
+
+            // Обновляем шкалы
+            document.getElementById('bar-atk').style.width = h.stats[0] + "%";
+            document.getElementById('bar-def').style.width = h.stats[1] + "%";
+            document.getElementById('bar-mag').style.width = h.stats[2] + "%";
+
+            // Переключаем активную иконку в меню
+            document.querySelectorAll('.nav-item').forEach((el, i) => {
+                el.classList.toggle('active', i === idx);
+            });
+
+            // Вибрация и главная кнопка
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
+            tg.MainButton.setText("СОЗДАТЬ: " + h.name);
             tg.MainButton.show();
         }
+
+        // Запуск первой анимации шкал
+        setTimeout(() => updateHero(0), 500);
     </script>
 </body>
 </html>
