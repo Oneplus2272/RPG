@@ -3,115 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Выбор Чемпиона</title>
+    <title>RPG Выбор</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
-            background-color: #1a1a1a;
+            background: radial-gradient(circle, #2c1f05 0%, #000000 100%);
             color: white;
-            font-family: 'Segoe UI', Tahoma, sans-serif;
-            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
             min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
         }
 
-        h2 { margin-bottom: 20px; font-weight: 300; font-size: 1.5rem; text-align: center; }
+        h2 { margin: 20px 0; text-shadow: 0 0 10px #edb432; font-size: 1.2rem; }
 
         .cards-container {
             display: flex;
-            gap: 20px;
-            overflow-x: auto; /* Позволяет листать героев влево-вправо */
+            gap: 15px;
+            overflow-x: auto;
+            width: 100%;
             padding: 20px;
-            width: 100%;
+            perspective: 1000px; /* Нужно для 3D эффекта */
             box-sizing: border-box;
-            -webkit-overflow-scrolling: touch;
         }
 
-        .card {
-            background: #2a2a2a;
-            border-radius: 15px;
-            min-width: 250px; /* Размер как на твоем удачном скриншоте */
-            text-align: center;
+        /* Контейнер для вращения */
+        .card-wrapper {
+            min-width: 260px;
+            height: 380px;
+            cursor: pointer;
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .card-wrapper.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 20px;
+            border: 2px solid #edb432;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: #1a1a1a;
+            box-sizing: border-box;
             padding: 15px;
-            border: 2px solid transparent;
-            transition: 0.3s;
-            flex-shrink: 0;
         }
 
-        .card img {
+        /* Лицевая сторона */
+        .card-front img {
             width: 100%;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            display: block;
+            border-radius: 12px;
+            margin-bottom: 10px;
         }
 
-        .card.selected {
-            border-color: #edb432;
-            box-shadow: 0 0 15px rgba(237, 180, 50, 0.5);
-            transform: scale(1.02);
+        /* Обратная сторона */
+        .card-back {
+            transform: rotateY(180deg);
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            justify-content: center;
+            text-align: center;
         }
 
+        .bonus-title { color: #edb432; font-size: 1.2rem; margin-bottom: 15px; font-weight: bold; }
+        .bonus-item { margin: 10px 0; font-size: 1rem; color: #ddd; }
+        
         .select-btn {
-            margin-top: 10px;
-            padding: 12px 0;
-            width: 100%;
             background: #edb432;
             color: black;
             border: none;
+            padding: 12px 20px;
             border-radius: 10px;
             font-weight: bold;
-            cursor: pointer;
+            margin-top: 15px;
+            width: 80%;
+        }
+
+        .card-wrapper.selected .card-front, 
+        .card-wrapper.selected .card-back {
+            box-shadow: 0 0 25px #edb432;
         }
     </style>
 </head>
 <body>
 
-    <h2 id="user-greeting">Никита, выбери чемпиона</h2>
+    <h2 id="name">Выбери чемпиона</h2>
 
     <div class="cards-container">
-        <div class="card" id="hero-tsar">
-            <img src="1.png" alt="Царь">
-            <h3>Царь</h3>
-            <button class="select-btn" onclick="choose('Царь', 'tsar')">ВЫБРАТЬ</button>
+        
+        <div class="card-wrapper" id="w-tsar" onclick="flipCard(this)">
+            <div class="card-front">
+                <img src="1.png">
+                <h3>Царь</h3>
+                <p>Нажми, чтобы узнать бонусы</p>
+            </div>
+            <div class="card-back">
+                <div class="bonus-title">БОНУСЫ ЦАРЯ</div>
+                <div class="bonus-item">⚔️ Урон: +20%</div>
+                <div class="bonus-item">🔥 Навык: Двойной удар</div>
+                <button class="select-btn" onclick="confirmSelection(event, 'Царь', 'tsar')">ВЫБРАТЬ</button>
+            </div>
         </div>
 
-        <div class="card" id="hero-sultan">
-            <img src="2.png" alt="Султан">
-            <h3>Султан</h3>
-            <button class="select-btn" onclick="choose('Султан', 'sultan')">ВЫБРАТЬ</button>
+        <div class="card-wrapper" id="w-sultan" onclick="flipCard(this)">
+            <div class="card-front">
+                <img src="2.png">
+                <h3>Султан</h3>
+                <p>Нажми, чтобы узнать бонусы</p>
+            </div>
+            <div class="card-back">
+                <div class="bonus-title">БОНУСЫ СУЛТАНА</div>
+                <div class="bonus-item">⚡ Крит: +15%</div>
+                <div class="bonus-item">💨 Навык: Уклонение</div>
+                <button class="select-btn" onclick="confirmSelection(event, 'Султан', 'sultan')">ВЫБРАТЬ</button>
+            </div>
         </div>
 
-        <div class="card" id="hero-king">
-            <img src="3.png" alt="Король">
-            <h3>Король</h3>
-            <button class="select-btn" onclick="choose('Король', 'king')">ВЫБРАТЬ</button>
+        <div class="card-wrapper" id="w-king" onclick="flipCard(this)">
+            <div class="card-front">
+                <img src="3.png">
+                <h3>Король</h3>
+                <p>Нажми, чтобы узнать бонусы</p>
+            </div>
+            <div class="card-back">
+                <div class="bonus-title">БОНУСЫ КОРОЛЯ</div>
+                <div class="bonus-item">❤️ ХП: +30%</div>
+                <div class="bonus-item">🛡️ Навык: Отражение</div>
+                <button class="select-btn" onclick="confirmSelection(event, 'Король', 'king')">ВЫБРАТЬ</button>
+            </div>
         </div>
+
     </div>
 
     <script>
         const tg = window.Telegram.WebApp;
         tg.expand();
 
-        function choose(name, id) {
-            // Убираем старое выделение
-            document.querySelectorAll('.card').forEach(c => c.classList.remove('selected'));
-            // Подсвечиваем новую карточку
-            document.getElementById('hero-' + id).classList.add('selected');
-            
-            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('medium');
-
-            // Показываем главную кнопку внизу Телеграма
-            tg.MainButton.setText("ИГРАТЬ ЗА: " + name.toUpperCase());
-            tg.MainButton.show();
+        // Показываем имя игрока
+        if (tg.initDataUnsafe?.user) {
+            document.getElementById('name').innerText = tg.initDataUnsafe.user.first_name + ", выбери героя";
         }
 
-        // Приветствие
-        const user = tg.initDataUnsafe?.user;
-        if (user) {
-            document.getElementById('user-greeting').innerText = `${user.first_name}, выбери чемпиона`;
+        // Функция переворота
+        function flipCard(el) {
+            el.classList.toggle('flipped');
+            if (tg.HapticFeedback) tg.HapticFeedback.impactOccurred('light');
+        }
+
+        // Функция выбора (чтобы нажатие кнопки не срабатывало как переворот, используем stopPropagation)
+        function confirmSelection(event, name, id) {
+            event.stopPropagation(); // Останавливает переворот при клике на кнопку
+            
+            document.querySelectorAll('.card-wrapper').forEach(c => c.classList.remove('selected'));
+            document.getElementById('w-' + id).classList.add('selected');
+
+            tg.MainButton.setText("ИГРАТЬ ЗА " + name.toUpperCase());
+            tg.MainButton.show();
+            
+            if (tg.HapticFeedback) tg.HapticFeedback.notificationOccurred('success');
         }
     </script>
 </body>
