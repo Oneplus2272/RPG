@@ -1,90 +1,91 @@
 (function() {
-    // 1. РАЗВОРАЧИВАЕМ НА ВЕСЬ ЭКРАН (Telegram)
+    // 1. РАЗВОРАЧИВАЕМ ТЕЛЕГРАМ НА ВЕСЬ ЭКРАН
     if (window.Telegram && window.Telegram.WebApp) {
         window.Telegram.WebApp.expand();
-        window.Telegram.WebApp.ready();
     }
 
     const style = document.createElement('style');
     style.innerHTML = `
-        /* ФИКС НА ВЕСЬ ЭКРАН */
+        /* ФИКС ОБЩИХ РАЗМЕРОВ */
         html, body {
             height: 100vh !important;
-            width: 100vw !important;
             margin: 0;
             padding: 0;
             overflow: hidden;
         }
 
-        /* Твой фон bg.jpg на экран выбора */
+        /* ФОН ДЛЯ ЭКРАНА ВЫБОРА */
         #selection-screen {
             background-image: url('bg.jpg') !important;
             background-size: cover !important;
             background-position: center !important;
-            background-repeat: no-repeat !important;
             height: 100vh !important;
         }
 
-        /* Прозрачные карточки */
+        /* КАРТОЧКИ ГЕРОЕВ (Прозрачность и уменьшение картинок) */
         .card {
-            background: rgba(15, 15, 15, 0.8) !important;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(237, 180, 50, 0.3) !important;
+            background: rgba(0, 0, 0, 0.7) !important;
+            backdrop-filter: blur(8px);
+            border: 1px solid #edb432 !important;
         }
-
-        /* Уменьшаем героев в карточках */
         .card img {
-            height: 140px !important;
+            height: 130px !important;
             object-fit: contain !important;
         }
 
-        /* КРУГ С ЧЕМПИОНОМ (Левый верхний угол) */
+        /* ЗОЛОТОЙ КРУГ (АВАТАРКА) В УГЛУ */
         #hero-avatar-circle {
             position: fixed;
             top: 15px;
             left: 15px;
-            width: 65px;
-            height: 65px;
-            background: rgba(0, 0, 0, 0.8);
-            border: 2px solid #edb432;
-            border-radius: 50%;
-            overflow: hidden;
-            display: none; /* Скрыт, пока не выберут */
-            z-index: 9999;
-            box-shadow: 0 0 15px rgba(0,0,0,0.7);
+            width: 80px;
+            height: 80px;
+            background-image: url('frame.png'); /* ТВОЯ ЗОЛОТАЯ РАМКА */
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            display: none; 
+            z-index: 10000;
         }
 
-        #hero-avatar-circle img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
+        /* ЛИЦО ВНУТРИ КРУГА */
+        #avatar-img {
+            width: 76%;
+            height: 76%;
+            margin: 12%; 
+            border-radius: 50%;
+            object-fit: cover; /* Это обрежет картинку до лица */
+            object-position: top; /* Фокус на голову чемпиона */
+            position: absolute;
+            z-index: -1; /* Лицо под рамкой */
         }
-        
-        /* Фикс размера героя в замке */
+
+        /* ГЕРОЙ В ЗАМКЕ */
         #main-hero-img {
-            height: 48vh !important;
+            height: 45vh !important;
         }
     `;
     document.head.appendChild(style);
 
-    // СОЗДАЕМ КРУГ В HTML
-    const avatarDiv = document.createElement('div');
-    avatarDiv.id = 'hero-avatar-circle';
-    avatarDiv.innerHTML = '<img id="avatar-img" src="">';
-    document.body.appendChild(avatarDiv);
+    // СОЗДАЕМ КРУГ В HTML, ЕСЛИ ЕГО НЕТ
+    if (!document.getElementById('hero-avatar-circle')) {
+        const div = document.createElement('div');
+        div.id = 'hero-avatar-circle';
+        div.innerHTML = '<img id="avatar-img" src="">';
+        document.body.appendChild(div);
+    }
 
-    // ЛОГИКА ПОКАЗА КРУГА
-    function updateAvatar() {
-        const mainHeroImg = document.getElementById('main-hero-img');
+    // АВТОМАТИЧЕСКАЯ ПРОВЕРКА ВЫБОРА
+    setInterval(() => {
+        const mainHero = document.getElementById('main-hero-img');
         const avatarImg = document.getElementById('avatar-img');
         const circle = document.getElementById('hero-avatar-circle');
 
-        if (mainHeroImg && mainHeroImg.src && mainHeroImg.src.indexOf('hero_') !== -1) {
-            avatarImg.src = mainHeroImg.src;
-            circle.style.display = 'block';
+        if (mainHero && mainHero.src && mainHero.src.includes('hero_')) {
+            if (avatarImg.src !== mainHero.src) {
+                avatarImg.src = mainHero.src;
+                circle.style.display = 'block';
+            }
         }
-    }
-
-    // Проверяем каждую секунду, выбрал ли пользователь героя
-    setInterval(updateAvatar, 500);
+    }, 500);
 })();
