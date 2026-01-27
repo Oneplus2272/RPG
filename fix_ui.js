@@ -14,7 +14,7 @@
             overflow: hidden;
         }
 
-        /* ФОН ДЛЯ ЭКРАНА ВЫБОРА */
+        /* ТВОЙ ФОН НА ЭКРАН ВЫБОРА */
         #selection-screen {
             background-image: url('bg.jpg') !important;
             background-size: cover !important;
@@ -22,7 +22,7 @@
             height: 100vh !important;
         }
 
-        /* КАРТОЧКИ ГЕРОЕВ (Прозрачность и уменьшение картинок) */
+        /* КАРТОЧКИ (фон и чемпионы) */
         .card {
             background: rgba(0, 0, 0, 0.7) !important;
             backdrop-filter: blur(8px);
@@ -33,49 +33,58 @@
             object-fit: contain !important;
         }
 
-        /* ЗОЛОТОЙ КРУГ (АВАТАРКА) В УГЛУ */
+        /* ЗОЛОТОЙ КРУГ (УВЕЛИЧЕН В 2.5 РАЗА) */
         #hero-avatar-circle {
             position: fixed;
-            top: 15px;
-            left: 15px;
-            width: 80px;
-            height: 80px;
-            background-image: url('frame.png'); /* ТВОЯ ЗОЛОТАЯ РАМКА */
+            top: 20px;
+            left: 20px;
+            width: 180px; /* Большой размер круга */
+            height: 180px;
+            background-image: url('frame.png'); /* Твоя золотая рамка */
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
             display: none; 
             z-index: 10000;
-        }
-
-        /* ЛИЦО ВНУТРИ КРУГА */
-        #avatar-img {
-            width: 76%;
-            height: 76%;
-            margin: 12%; 
             border-radius: 50%;
-            object-fit: cover; /* Это обрежет картинку до лица */
-            object-position: top; /* Фокус на голову чемпиона */
-            position: absolute;
-            z-index: -1; /* Лицо под рамкой */
         }
 
-        /* ГЕРОЙ В ЗАМКЕ */
+        /* КОНТЕЙНЕР ДЛЯ ЛИЦА (чтобы ничего не вылезало за границы круга) */
+        #avatar-container {
+            width: 82%;
+            height: 82%;
+            margin: 9%;
+            border-radius: 50%;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* ЛИЦО ЧЕМПИОНА (СИЛЬНОЕ УВЕЛИЧЕНИЕ) */
+        #avatar-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: top; /* Фокусируемся на голове */
+            transform: scale(2.8); /* УВЕЛИЧИВАЕМ КАРТИНКУ, ЧТОБЫ БЫЛО ТОЛЬКО ЛИЦО */
+            transform-origin: center 20%; /* Точка масштабирования на уровне лица */
+        }
+
+        /* ГЕРОЙ В ЗАМКЕ (после выбора) */
         #main-hero-img {
             height: 45vh !important;
         }
     `;
     document.head.appendChild(style);
 
-    // СОЗДАЕМ КРУГ В HTML, ЕСЛИ ЕГО НЕТ
+    // СОЗДАЕМ КРУГ И КОНТЕЙНЕР ДЛЯ ЛИЦА
     if (!document.getElementById('hero-avatar-circle')) {
         const div = document.createElement('div');
         div.id = 'hero-avatar-circle';
-        div.innerHTML = '<img id="avatar-img" src="">';
+        div.innerHTML = '<div id="avatar-container"><img id="avatar-img" src=""></div>';
         document.body.appendChild(div);
     }
 
-    // АВТОМАТИЧЕСКАЯ ПРОВЕРКА ВЫБОРА
+    // ЛОГИКА ОБНОВЛЕНИЯ
     setInterval(() => {
         const mainHero = document.getElementById('main-hero-img');
         const avatarImg = document.getElementById('avatar-img');
