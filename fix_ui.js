@@ -1,18 +1,19 @@
 (function() {
+    // 1. РАЗВОРАЧИВАЕМ TELEGRAM
     if (window.Telegram && window.Telegram.WebApp) {
         window.Telegram.WebApp.expand();
     }
 
     const style = document.createElement('style');
     style.innerHTML = `
-        /* ЭКРАН ВЫБОРА ГЕРОЕВ */
+        /* ЭКРАН ВЫБОРА */
         #selection-screen {
             background-image: url('bg.jpg') !important;
             background-size: cover !important;
             background-position: center !important;
         }
 
-        /* КАРТОЧКИ: Прозрачный стиль */
+        /* КАРТОЧКИ: Прозрачность и рамки */
         .card {
             background: rgba(0, 0, 0, 0.6) !important;
             backdrop-filter: blur(10px);
@@ -20,15 +21,14 @@
             border-radius: 15px !important;
         }
 
-        /* ГЕРОИ В КАРТОЧКАХ: Используем твои PNG (hero_1.png и т.д.) */
+        /* Убираем любой фон у самих картинок в карточках */
         .card img {
-            background: transparent !important; 
+            background: transparent !important;
             object-fit: contain !important;
-            transform: scale(1.1); /* Чуть крупнее для красоты */
-            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
+            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.8));
         }
 
-        /* ГИГАНТСКИЙ ЗОЛОТОЙ КРУГ В УГЛУ */
+        /* ЗОЛОТОЙ КРУГ В УГЛУ (270px) */
         #hero-avatar-circle {
             position: fixed;
             top: 20px;
@@ -37,11 +37,10 @@
             height: 270px;
             background: url('frame.png') no-repeat center/contain !important;
             display: none;
-            z-index: 99999;
+            z-index: 100000;
             pointer-events: none;
         }
 
-        /* ЛИЦО (face_X.png) ВНУТРИ КРУГА */
         #avatar-img {
             width: 78%;
             height: 78%;
@@ -51,21 +50,15 @@
             position: absolute;
         }
 
-        /* ЭКРАНЫ ЗАМКОВ: Твои bg_1, bg_2, bg_3 остаются на месте */
+        /* ЭКРАНЫ ЗАМКОВ (НЕ ТРОГАЕМ СТИЛИ) */
         #castle-screen {
             background-size: cover !important;
             background-position: center !important;
         }
-
-        /* ГЕРОЙ В ЦЕНТРЕ ЗАМКА */
-        #main-hero-img {
-            display: block !important;
-            height: 55vh !important;
-        }
     `;
     document.head.appendChild(style);
 
-    // Добавляем круг в HTML-разметку
+    // СОЗДАЕМ КРУГ
     if (!document.getElementById('hero-avatar-circle')) {
         const div = document.createElement('div');
         div.id = 'hero-avatar-circle';
@@ -73,8 +66,21 @@
         document.body.appendChild(div);
     }
 
-    // Логика автоматической подмены лица
+    // ГЛАВНЫЙ ЦИКЛ ОБНОВЛЕНИЯ
     setInterval(() => {
+        // 1. ЗАМЕНЯЕМ КАРТИНКИ В КАРТОЧКАХ НА ПРОЗРАЧНЫЕ (hero_X.png)
+        const cards = document.querySelectorAll('.card');
+        cards.forEach((card, index) => {
+            const img = card.querySelector('img');
+            if (img) {
+                const newSrc = `hero_${index + 1}.png`;
+                if (!img.src.includes(newSrc)) {
+                    img.src = newSrc;
+                }
+            }
+        });
+
+        // 2. ОБНОВЛЯЕМ КРУГ В УГЛУ (face_X.png)
         const mainHero = document.getElementById('main-hero-img');
         const avatarImg = document.getElementById('avatar-img');
         const circle = document.getElementById('hero-avatar-circle');
