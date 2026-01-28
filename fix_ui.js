@@ -6,26 +6,27 @@
 
     const style = document.createElement('style');
     style.innerHTML = `
-        /* --- ЭКРАН ВЫБОРА ГЕРОЕВ --- */
+        /* --- ЭКРАН ВЫБОРА (Твой фон с горами) --- */
         #selection-screen {
             background-image: url('bg.jpg') !important;
             background-size: cover !important;
             background-position: center !important;
         }
 
-        /* Твои прозрачные чемпионы в карточках */
-        .card img {
-            background: transparent !important;
-            object-fit: contain !important;
-            /* Увеличиваем масштаб, чтобы персонажи без фона смотрелись крупнее */
-            transform: scale(1.1);
-        }
-
-        /* Сами карточки выбора */
+        /* КАРТОЧКИ: Прозрачность и стиль */
         .card {
             background: rgba(0, 0, 0, 0.6) !important;
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(10px);
             border: 1px solid rgba(237, 180, 50, 0.4) !important;
+            border-radius: 15px !important;
+        }
+
+        /* КАРТИНКИ В КАРТОЧКАХ: Ставим твои PNG без фона */
+        .card img {
+            background: transparent !important; /* Убираем старый фон */
+            object-fit: contain !important;
+            transform: scale(1.15); /* Чуть увеличиваем персонажа для красоты */
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.6));
         }
 
         /* --- ЗОЛОТОЙ КРУГ (АВАТАРКА) --- */
@@ -50,23 +51,22 @@
             position: absolute;
         }
 
-        /* --- ЭКРАНЫ ЗАМКОВ --- */
-        /* Мы ВООБЩЕ НЕ ТРОГАЕМ фоны тут, чтобы работали твои bg_1, bg_2 и т.д. */
+        /* --- ЭКРАНЫ ЗАМКОВ (НЕ ТРОГАЕМ) --- */
+        /* Здесь будут твои bg_1, bg_2, bg_3 */
         #castle-screen {
             background-size: cover !important;
             background-position: center !important;
         }
 
-        /* Главный герой в замке (тоже без фона) */
+        /* ГЛАВНЫЙ ГЕРОЙ В ЗАМКЕ (PNG без фона) */
         #main-hero-img {
             display: block !important;
             height: 55vh !important;
-            filter: drop-shadow(0 0 20px rgba(0,0,0,0.7));
         }
     `;
     document.head.appendChild(style);
 
-    // Добавляем круг в HTML
+    // Создаем элемент круга
     if (!document.getElementById('hero-avatar-circle')) {
         const div = document.createElement('div');
         div.id = 'hero-avatar-circle';
@@ -74,16 +74,16 @@
         document.body.appendChild(div);
     }
 
-    // Логика: связываем hero_X.png с face_X.png
+    // Логика: связываем hero_X.png (карточки) с face_X.png (круг)
     setInterval(() => {
         const mainHero = document.getElementById('main-hero-img');
         const avatarImg = document.getElementById('avatar-img');
         const circle = document.getElementById('hero-avatar-circle');
 
         if (mainHero && mainHero.src && mainHero.src.includes('hero_')) {
-            const id = mainHero.src.match(/hero_(\d+)/);
-            if (id) {
-                const facePath = 'face_' + id[1] + '.png';
+            const idMatch = mainHero.src.match(/hero_(\d+)/);
+            if (idMatch) {
+                const facePath = 'face_' + idMatch[1] + '.png';
                 if (avatarImg.src.indexOf(facePath) === -1) {
                     avatarImg.src = facePath;
                     circle.style.display = 'block';
