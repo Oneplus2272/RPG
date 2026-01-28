@@ -24,22 +24,22 @@
         .card img {
             background: transparent !important;
             object-fit: contain !important;
-            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.8));
         }
 
-        /* ЖЁЛТЫЙ КРУГ (АВАТАРКА) В ЛЕВОМ УГЛУ */
+        /* ЖЁЛТЫЙ КРУГ (АВАТАРКА) - СДВИНУТ В УГОЛ */
         #hero-avatar-circle {
             position: fixed;
-            top: 15px;
-            left: 15px;
+            top: 5px;   /* Сдвинул выше */
+            left: 5px;  /* Сдвинул левее */
             width: 270px; 
             height: 270px;
             background: url('frame.png') no-repeat center/contain !important;
-            display: none; /* Появится после выбора героя */
+            display: none;
             z-index: 100000;
             pointer-events: none;
         }
 
+        /* УБИРАЕМ БЕЛЫЙ КВАДРАТ (Стили для картинки внутри круга) */
         #avatar-img {
             width: 78%;
             height: 78%;
@@ -47,6 +47,14 @@
             border-radius: 50%;
             object-fit: cover;
             position: absolute;
+            background: transparent !important; /* Убирает белый фон */
+            border: none !important;            /* Убирает возможную рамку */
+            outline: none !important;
+        }
+
+        /* Прячем картинку, пока нет пути, чтобы не было квадрата */
+        #avatar-img[src=""], #avatar-img:not([src]) {
+            opacity: 0;
         }
 
         /* ЭКРАН ЗАМКА */
@@ -61,18 +69,18 @@
     if (!document.getElementById('hero-avatar-circle')) {
         const div = document.createElement('div');
         div.id = 'hero-avatar-circle';
-        div.innerHTML = '<img id="avatar-img" src="">';
+        div.innerHTML = '<img id="avatar-img" src="" alt="">';
         document.body.appendChild(div);
     }
 
-    // ОПТИМИЗИРОВАННАЯ ЛОГИКА (Проверка раз в секунду, чтобы не лагало)
-    const checkAvatar = setInterval(() => {
+    // ЛОГИКА ПОДСТАНОВКИ ЛИЦА
+    setInterval(() => {
         const mainHero = document.getElementById('main-hero-img');
         const avatarImg = document.getElementById('avatar-img');
         const circle = document.getElementById('hero-avatar-circle');
 
-        // Если экран замка открыт и есть герой
         if (mainHero && mainHero.src && mainHero.src.includes('hero_')) {
+            // Извлекаем id: tsar, sultan или king
             const idMatch = mainHero.src.match(/hero_([a-z]+)/);
             if (idMatch) {
                 const id = idMatch[1];
@@ -80,9 +88,10 @@
                 
                 if (avatarImg.src.indexOf(facePath) === -1) {
                     avatarImg.src = facePath;
+                    avatarImg.style.opacity = "1"; // Показываем картинку
                     circle.style.display = 'block';
                 }
             }
         }
-    }, 1000); // Увеличил до 1 сек для быстрой загрузки
+    }, 500);
 })();
