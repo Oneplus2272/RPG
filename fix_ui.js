@@ -1,30 +1,31 @@
 (function() {
-    // 1. РАЗВОРАЧИВАЕМ TELEGRAM
+    // Разворачиваем Telegram
     if (window.Telegram && window.Telegram.WebApp) {
         window.Telegram.WebApp.expand();
     }
 
     const style = document.createElement('style');
     style.innerHTML = `
-        /* --- ЭКРАН ВЫБОРА (Карточки) --- */
+        /* --- ЭКРАН ВЫБОРА ГЕРОЕВ --- */
         #selection-screen {
             background-image: url('bg.jpg') !important;
             background-size: cover !important;
             background-position: center !important;
         }
 
-        /* Делаем карточки прозрачными, чтобы они не перекрывали фон */
+        /* Твои прозрачные чемпионы в карточках */
+        .card img {
+            background: transparent !important;
+            object-fit: contain !important;
+            /* Увеличиваем масштаб, чтобы персонажи без фона смотрелись крупнее */
+            transform: scale(1.1);
+        }
+
+        /* Сами карточки выбора */
         .card {
             background: rgba(0, 0, 0, 0.6) !important;
             backdrop-filter: blur(8px);
             border: 1px solid rgba(237, 180, 50, 0.4) !important;
-            border-radius: 15px !important;
-        }
-        
-        /* ГЕРОИ В КАРТОЧКАХ: Убираем серый/черный фон у самих картинок */
-        .card img {
-            background: transparent !important;
-            object-fit: contain !important;
         }
 
         /* --- ЗОЛОТОЙ КРУГ (АВАТАРКА) --- */
@@ -32,15 +33,14 @@
             position: fixed;
             top: 20px;
             left: 20px;
-            width: 270px; /* Твой размер (в 3.75 раза больше базы) */
+            width: 270px; 
             height: 270px;
             background: url('frame.png') no-repeat center/contain !important;
-            display: none; /* Появится только после выбора */
-            z-index: 99999;
-            pointer-events: none; /* Чтобы не мешал нажимать на кнопки под ним */
+            display: none;
+            z-index: 10000;
+            pointer-events: none;
         }
 
-        /* ЛИЦО ВНУТРИ КРУГА */
         #avatar-img {
             width: 78%;
             height: 78%;
@@ -50,47 +50,43 @@
             position: absolute;
         }
 
-        /* --- ЭКРАН ЗАМКА (НЕ ТРОГАЕМ ФОНЫ!) --- */
-        /* Здесь будут отображаться твои bg_1.jpg, bg_2.jpg и т.д. */
+        /* --- ЭКРАНЫ ЗАМКОВ --- */
+        /* Мы ВООБЩЕ НЕ ТРОГАЕМ фоны тут, чтобы работали твои bg_1, bg_2 и т.д. */
         #castle-screen {
             background-size: cover !important;
             background-position: center !important;
         }
 
-        /* ГЛАВНЫЙ ГЕРОЙ В ЗАМКЕ */
+        /* Главный герой в замке (тоже без фона) */
         #main-hero-img {
             display: block !important;
-            height: 50vh !important;
-            z-index: 5;
+            height: 55vh !important;
+            filter: drop-shadow(0 0 20px rgba(0,0,0,0.7));
         }
     `;
     document.head.appendChild(style);
 
-    // СОЗДАЕМ КРУГ В HTML
+    // Добавляем круг в HTML
     if (!document.getElementById('hero-avatar-circle')) {
         const div = document.createElement('div');
         div.id = 'hero-avatar-circle';
-        div.innerHTML = '<img id="avatar-img" src="">';
+        div.innerHTML = '<div style="position:relative;width:100%;height:100%;"><img id="avatar-img" src=""></div>';
         document.body.appendChild(div);
     }
 
-    // ЛОГИКА: СЛЕДИМ ЗА ВЫБОРОМ ГЕРОЯ
+    // Логика: связываем hero_X.png с face_X.png
     setInterval(() => {
         const mainHero = document.getElementById('main-hero-img');
         const avatarImg = document.getElementById('avatar-img');
         const circle = document.getElementById('hero-avatar-circle');
 
         if (mainHero && mainHero.src && mainHero.src.includes('hero_')) {
-            // Берем ID (например, 1 из hero_1.png)
-            const idMatch = mainHero.src.match(/hero_(\d+)/);
-            if (idMatch) {
-                const heroId = idMatch[1];
-                const facePath = 'face_' + heroId + '.png'; // Формируем путь к лицу
-                
-                // Если картинка в круге еще не та, меняем её
+            const id = mainHero.src.match(/hero_(\d+)/);
+            if (id) {
+                const facePath = 'face_' + id[1] + '.png';
                 if (avatarImg.src.indexOf(facePath) === -1) {
                     avatarImg.src = facePath;
-                    circle.style.display = 'block'; // Показываем круг
+                    circle.style.display = 'block';
                 }
             }
         }
