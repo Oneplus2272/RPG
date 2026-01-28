@@ -6,34 +6,42 @@
 
     const style = document.createElement('style');
     style.innerHTML = `
-        /* КАРТОЧКИ: Делаем их полупрозрачными, чтобы был виден фон сзади */
-        .card {
-            background: rgba(20, 20, 20, 0.7) !important; /* Темный прозрачный фон */
-            backdrop-filter: blur(10px);
-            border: 2px solid #edb432 !important;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5) !important;
+        /* ЭКРАН ВЫБОРА: ПРИНУДИТЕЛЬНО ВОЗВРАЩАЕМ bg.jpg */
+        #selection-screen {
+            background-image: url('bg.jpg') !important;
+            background-size: cover !important;
+            background-position: center !important;
+            background-repeat: no-repeat !important;
         }
 
-        /* КАРТИНКИ В КАРТОЧКАХ: Убираем серые/белые фоны, если они были */
+        /* КАРТОЧКИ: Делаем их прозрачными, чтобы фон bg.jpg был виден */
+        .card {
+            background: rgba(0, 0, 0, 0.6) !important;
+            backdrop-filter: blur(10px);
+            border: 2px solid #edb432 !important;
+        }
+
+        /* КАРТИНКИ В КАРТОЧКАХ */
         .card img {
             background: transparent !important;
             object-fit: contain !important;
         }
 
-        /* МАЛЕНЬКИЙ ЖЕЛТЫЙ КРУГ В УГЛУ */
+        /* МАЛЕНЬКИЙ ЖЕЛТЫЙ КРУГ В УГЛУ (АВАТАР) */
         #hero-avatar-circle {
             position: fixed;
             top: 10px;
             left: 10px;
-            width: 65px; 
-            height: 65px;
-            border: 3px solid #edb432; 
+            width: 60px; 
+            height: 60px;
+            border: 3px solid #ffcc00; 
             border-radius: 50%;
             overflow: hidden;
             display: none; 
             z-index: 999999;
-            background: rgba(0,0,0,0.3); /* Легкая подложка, чтобы не было дырки */
+            background: transparent;
             pointer-events: none;
+            box-shadow: 0 0 10px rgba(0,0,0,0.5);
         }
 
         #avatar-img {
@@ -45,7 +53,7 @@
     `;
     document.head.appendChild(style);
 
-    // Создаем круг
+    // Создаем круг в HTML, если его нет
     if (!document.getElementById('hero-avatar-circle')) {
         const div = document.createElement('div');
         div.id = 'hero-avatar-circle';
@@ -53,7 +61,7 @@
         document.body.appendChild(div);
     }
 
-    // ЛОГИКА ПОДСТАНОВКИ ЛИЦ
+    // ЛОГИКА ПОДСТАНОВКИ ЛИЦ (face_1, 2, 3)
     setInterval(() => {
         const mainHero = document.getElementById('main-hero-img');
         const avatarImg = document.getElementById('avatar-img');
