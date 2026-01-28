@@ -47,15 +47,22 @@
             flex-direction: column;
             position: relative;
             scroll-snap-align: center;
-            /* Затемнение нижней части карточки для читаемости текста */
             box-shadow: inset 0 -120px 80px -20px rgba(0,0,0,0.9);
+        }
+
+        /* Контейнер для фото героя, которое вставит JS */
+        .hero-placeholder {
+            width: 100%;
+            height: 200px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
         .card img {
             width: 100%;
-            height: 200px;
+            height: 100%;
             object-fit: contain;
-            margin-bottom: 10px;
             filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5));
         }
 
@@ -66,7 +73,6 @@
             text-transform: uppercase;
         }
 
-        /* СТАТЫ */
         .stats-block { width: 100%; margin-bottom: 15px; }
         .stat-row { margin-bottom: 8px; }
         .stat-label { font-size: 10px; color: #aaa; display: flex; justify-content: space-between; margin-bottom: 3px; }
@@ -81,6 +87,7 @@
             border-radius: 12px;
             font-weight: bold;
             text-transform: uppercase;
+            z-index: 5;
         }
 
         /* ЭКРАН ЗАМКА */
@@ -112,7 +119,7 @@
         }
 
         #main-hero-img {
-            height: 55vh; /* Уменьшенный размер */
+            height: 55vh;
             object-fit: contain;
         }
 
@@ -149,7 +156,7 @@
         <div class="cards-container">
             
             <div class="card" id="c-tsar" style="background-image: url('bg_tsar.jpg');">
-                <img src="tsar.png">
+                <div class="hero-placeholder"><img src="hero_tsar.png"></div>
                 <h3>Царь</h3>
                 <div class="stats-block">
                     <div class="stat-label">Сила <span>85/100</span></div>
@@ -159,7 +166,7 @@
             </div>
 
             <div class="card" id="c-sultan" style="background-image: url('bg_sultan.jpg');">
-                <img src="sultan.png">
+                <div class="hero-placeholder"><img src="hero_sultan.png"></div>
                 <h3>Султан</h3>
                 <div class="stats-block">
                     <div class="stat-label">Ловкость <span>95/100</span></div>
@@ -169,7 +176,7 @@
             </div>
 
             <div class="card" id="c-king" style="background-image: url('bg_king.jpg');">
-                <img src="king.png">
+                <div class="hero-placeholder"><img src="hero_king.png"></div>
                 <h3>Король</h3>
                 <div class="stats-block">
                     <div class="stat-label">Броня <span>90/100</span></div>
@@ -219,12 +226,13 @@
             const castle = document.getElementById('castle-screen');
             const heroImg = document.getElementById('main-hero-img');
 
-            // Подгружаем контент
             heroImg.src = 'hero_' + selectedId + '.png'; 
             castle.style.backgroundImage = "url('bg_" + selectedId + ".jpg')";
             
             castle.style.display = 'flex';
             tg.MainButton.hide();
         });
-    </script> <script src="fix_ui.js"></script> </body>
+    </script> 
+    <script src="fix_ui.js"></script> 
+</body>
 </html>
