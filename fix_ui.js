@@ -6,29 +6,30 @@
 
     const style = document.createElement('style');
     style.innerHTML = `
-        /* ЭКРАН ВЫБОРА */
+        /* ЭКРАН ВЫБОРА: твой фон bg.jpg */
         #selection-screen {
             background-image: url('bg.jpg') !important;
             background-size: cover !important;
             background-position: center !important;
         }
 
-        /* КАРТОЧКИ: Прозрачность и рамки */
+        /* КАРТОЧКИ: Прозрачность и дизайн */
         .card {
             background: rgba(0, 0, 0, 0.6) !important;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(237, 180, 50, 0.4) !important;
-            border-radius: 15px !important;
+            box-shadow: none !important;
         }
 
-        /* Убираем любой фон у самих картинок в карточках */
+        /* КАРТИНКИ В КАРТОЧКАХ: только стили отображения */
         .card img {
             background: transparent !important;
             object-fit: contain !important;
-            filter: drop-shadow(0 10px 15px rgba(0,0,0,0.8));
+            filter: drop-shadow(0 10px 20px rgba(0,0,0,0.8));
+            transform: scale(1.1);
         }
 
-        /* ЗОЛОТОЙ КРУГ В УГЛУ (270px) */
+        /* ГИГАНТСКИЙ КРУГ (270px) */
         #hero-avatar-circle {
             position: fixed;
             top: 20px;
@@ -36,7 +37,7 @@
             width: 270px; 
             height: 270px;
             background: url('frame.png') no-repeat center/contain !important;
-            display: none;
+            display: none; /* Ждет выбора героя */
             z-index: 100000;
             pointer-events: none;
         }
@@ -50,7 +51,7 @@
             position: absolute;
         }
 
-        /* ЭКРАНЫ ЗАМКОВ (НЕ ТРОГАЕМ СТИЛИ) */
+        /* ЭКРАН ЗАМКА: фоны подтянутся из HTML */
         #castle-screen {
             background-size: cover !important;
             background-position: center !important;
@@ -58,7 +59,7 @@
     `;
     document.head.appendChild(style);
 
-    // СОЗДАЕМ КРУГ
+    // СОЗДАЕМ КРУГ В HTML
     if (!document.getElementById('hero-avatar-circle')) {
         const div = document.createElement('div');
         div.id = 'hero-avatar-circle';
@@ -66,33 +67,20 @@
         document.body.appendChild(div);
     }
 
-    // ГЛАВНЫЙ ЦИКЛ ОБНОВЛЕНИЯ
+    // ЛОГИКА ТОЛЬКО ДЛЯ КРУГА (Face_X.png)
     setInterval(() => {
-        // 1. ЗАМЕНЯЕМ КАРТИНКИ В КАРТОЧКАХ НА ПРОЗРАЧНЫЕ (hero_X.png)
-        const cards = document.querySelectorAll('.card');
-        cards.forEach((card, index) => {
-            const img = card.querySelector('img');
-            if (img) {
-                const newSrc = `hero_${index + 1}.png`;
-                if (!img.src.includes(newSrc)) {
-                    img.src = newSrc;
-                }
-            }
-        });
-
-        // 2. ОБНОВЛЯЕМ КРУГ В УГЛУ (face_X.png)
         const mainHero = document.getElementById('main-hero-img');
         const avatarImg = document.getElementById('avatar-img');
         const circle = document.getElementById('hero-avatar-circle');
 
         if (mainHero && mainHero.src && mainHero.src.includes('hero_')) {
-            const idMatch = mainHero.src.match(/hero_(\d+)/);
-            if (idMatch) {
-                const facePath = 'face_' + idMatch[1] + '.png';
-                if (avatarImg.src.indexOf(facePath) === -1) {
-                    avatarImg.src = facePath;
-                    circle.style.display = 'block';
-                }
+            // Вытаскиваем id из названия файла в замке (hero_tsar.png -> tsar)
+            const id = mainHero.src.split('hero_')[1].split('.png')[0];
+            const facePath = 'face_' + id + '.png';
+            
+            if (avatarImg.src.indexOf(facePath) === -1) {
+                avatarImg.src = facePath;
+                circle.style.display = 'block';
             }
         }
     }, 500);
