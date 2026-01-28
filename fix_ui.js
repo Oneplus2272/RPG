@@ -6,56 +6,49 @@
 
     const style = document.createElement('style');
     style.innerHTML = `
-        /* ОБЩИЕ НАСТРОЙКИ */
-        html, body {
-            height: 100vh !important;
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-            background-color: #000;
-        }
-
-        /* ОСНОВНОЙ ФОН */
-        #selection-screen, #castle-screen {
+        /* ЭКРАН ВЫБОРА: Ставим твой общий фон bg.jpg */
+        #selection-screen {
             background-image: url('bg.jpg') !important;
             background-size: cover !important;
             background-position: center !important;
-            height: 100vh !important;
         }
 
-        /* КАРТОЧКИ ЧЕМПИОНОВ */
+        /* КАРТОЧКИ: Делаем их прозрачными (где бонусы и выбор) */
         .card {
             background: rgba(15, 15, 15, 0.7) !important;
             backdrop-filter: blur(10px);
-            border: 1px solid rgba(237, 180, 50, 0.5) !important;
-            border-radius: 15px !important;
-            transition: transform 0.2s;
+            border: 1px solid rgba(237, 180, 50, 0.4) !important;
         }
 
-        /* ФОТО БЕЗ ФОНА В КАРТОЧКАХ */
+        /* ПЕРСОНАЖИ В КАРТОЧКАХ (Без фона) */
         .card img {
-            height: 150px !important;
+            height: 140px !important;
             object-fit: contain !important;
-            background: transparent !important; /* Убираем любой фон у картинок */
-            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5)); /* Добавляем тень персонажу */
+            background: transparent !important;
         }
 
-        /* ГИГАНТСКИЙ КРУГ С ЛИЦОМ (Увеличен в 3.75 раза) */
+        /* ЭКРАН ЗАМКА: НЕ ТРОГАЕМ ФОН (пусть работают твои bg_1.jpg, bg_2.jpg и т.д.) */
+        #castle-screen {
+            background-size: cover !important;
+            background-position: center !important;
+        }
+
+        /* ГИГАНТСКИЙ ЗОЛОТОЙ КРУГ В УГЛУ */
         #hero-avatar-circle {
             position: fixed;
             top: 20px;
             left: 20px;
-            width: 270px; 
+            width: 270px; /* Тот самый размер */
             height: 270px;
             background-image: url('frame.png') !important;
             background-size: contain !important;
             background-repeat: no-repeat !important;
             background-position: center !important;
-            display: none;
+            display: none; /* Ждет выбора */
             z-index: 10000;
         }
 
-        /* КОНТЕЙНЕР ДЛЯ ЛИЦА ВНУТРИ РАМКИ */
+        /* КОНТЕЙНЕР ДЛЯ ТВОЕГО ФАЙЛА С ЛИЦОМ */
         #avatar-container {
             width: 78%;
             height: 78%;
@@ -68,14 +61,13 @@
         #avatar-img {
             width: 100%;
             height: 100%;
-            object-fit: cover; /* Идеально вписываем обрезанное лицо */
+            object-fit: cover;
         }
 
-        /* ГЛАВНЫЙ ГЕРОЙ В ЦЕНТРЕ (БЕЗ ФОНА) */
+        /* ГЛАВНЫЙ ГЕРОЙ В ЗАМКЕ (Оставляем как был) */
         #main-hero-img {
             display: block !important;
             height: 50vh !important;
-            filter: drop-shadow(0 0 30px rgba(0,0,0,0.8));
         }
     `;
     document.head.appendChild(style);
@@ -88,19 +80,17 @@
         document.body.appendChild(div);
     }
 
-    // ЛОГИКА АВТОМАТИЧЕСКОГО ОБНОВЛЕНИЯ
+    // ЛОГИКА: СЛЕДИМ ЗА ВЫБОРОМ И СТАВИМ FACE_X.PNG
     setInterval(() => {
         const mainHero = document.getElementById('main-hero-img');
         const avatarImg = document.getElementById('avatar-img');
         const circle = document.getElementById('hero-avatar-circle');
 
         if (mainHero && mainHero.src && mainHero.src.includes('hero_')) {
-            // Берем ID из имени основного файла (например, из hero_1.png берем цифру 1)
-            const heroId = mainHero.src.match(/hero_(\d+)/);
-            
-            if (heroId) {
-                const faceSrc = 'face_' + heroId[1] + '.png'; // Формируем путь к лицу
-                
+            // Вытаскиваем ID героя (например 1 из hero_1.png)
+            const match = mainHero.src.match(/hero_(\d+)/);
+            if (match) {
+                const faceSrc = 'face_' + match[1] + '.png';
                 if (avatarImg.src.indexOf(faceSrc) === -1) {
                     avatarImg.src = faceSrc;
                     circle.style.display = 'block';
