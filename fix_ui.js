@@ -18,7 +18,6 @@
             background: rgba(0, 0, 0, 0.6) !important;
             backdrop-filter: blur(10px);
             border: 1px solid rgba(237, 180, 50, 0.4) !important;
-            box-shadow: none !important;
         }
 
         .card img {
@@ -26,35 +25,28 @@
             object-fit: contain !important;
         }
 
-        /* ЖЁЛТЫЙ КРУГ (АВАТАРКА) - СДВИНУТ В УГОЛ */
+        /* ПРОСТО ЖЕЛТЫЙ КРУГ В УГЛУ */
         #hero-avatar-circle {
             position: fixed;
-            top: 5px;   /* Сдвинул выше */
-            left: 5px;  /* Сдвинул левее */
-            width: 270px; 
-            height: 270px;
-            background: url('frame.png') no-repeat center/contain !important;
-            display: none;
+            top: 10px;
+            left: 10px;
+            width: 120px; /* Размер круга (можешь менять) */
+            height: 120px;
+            border: 4px solid #edb432; /* Тот самый желтый цвет */
+            border-radius: 50%;
+            overflow: hidden;
+            display: none; /* Появится после выбора */
             z-index: 100000;
+            background: #000; /* Фон за лицом, если фото не на весь круг */
+            box-shadow: 0 0 15px rgba(237, 180, 50, 0.5);
             pointer-events: none;
         }
 
-        /* УБИРАЕМ БЕЛЫЙ КВАДРАТ (Стили для картинки внутри круга) */
         #avatar-img {
-            width: 78%;
-            height: 78%;
-            margin: 11%;
-            border-radius: 50%;
+            width: 100%;
+            height: 100%;
             object-fit: cover;
-            position: absolute;
-            background: transparent !important; /* Убирает белый фон */
-            border: none !important;            /* Убирает возможную рамку */
-            outline: none !important;
-        }
-
-        /* Прячем картинку, пока нет пути, чтобы не было квадрата */
-        #avatar-img[src=""], #avatar-img:not([src]) {
-            opacity: 0;
+            display: block;
         }
 
         /* ЭКРАН ЗАМКА */
@@ -69,26 +61,26 @@
     if (!document.getElementById('hero-avatar-circle')) {
         const div = document.createElement('div');
         div.id = 'hero-avatar-circle';
-        div.innerHTML = '<img id="avatar-img" src="" alt="">';
+        div.innerHTML = '<img id="avatar-img" src="">';
         document.body.appendChild(div);
     }
 
-    // ЛОГИКА ПОДСТАНОВКИ ЛИЦА
+    // ЛОГИКА ПОДСТАНОВКИ ЛИЦА (3 чемпиона)
     setInterval(() => {
         const mainHero = document.getElementById('main-hero-img');
         const avatarImg = document.getElementById('avatar-img');
         const circle = document.getElementById('hero-avatar-circle');
 
         if (mainHero && mainHero.src && mainHero.src.includes('hero_')) {
-            // Извлекаем id: tsar, sultan или king
+            // Вытаскиваем id: tsar, sultan или king
             const idMatch = mainHero.src.match(/hero_([a-z]+)/);
             if (idMatch) {
                 const id = idMatch[1];
+                // Ищем файл лица: face_tsar.png, face_sultan.png или face_king.png
                 const facePath = 'face_' + id + '.png';
                 
                 if (avatarImg.src.indexOf(facePath) === -1) {
                     avatarImg.src = facePath;
-                    avatarImg.style.opacity = "1"; // Показываем картинку
                     circle.style.display = 'block';
                 }
             }
