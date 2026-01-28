@@ -6,14 +6,14 @@
 
     const style = document.createElement('style');
     style.innerHTML = `
-        /* ЭКРАН ВЫБОРА: твой фон bg.jpg */
+        /* ЭКРАН ВЫБОРА */
         #selection-screen {
             background-image: url('bg.jpg') !important;
             background-size: cover !important;
             background-position: center !important;
         }
 
-        /* КАРТОЧКИ: Прозрачность и дизайн */
+        /* КАРТОЧКИ: Прозрачность */
         .card {
             background: rgba(0, 0, 0, 0.6) !important;
             backdrop-filter: blur(10px);
@@ -21,23 +21,21 @@
             box-shadow: none !important;
         }
 
-        /* КАРТИНКИ В КАРТОЧКАХ: только стили отображения */
         .card img {
             background: transparent !important;
             object-fit: contain !important;
             filter: drop-shadow(0 10px 20px rgba(0,0,0,0.8));
-            transform: scale(1.1);
         }
 
-        /* ГИГАНТСКИЙ КРУГ (270px) */
+        /* ЖЁЛТЫЙ КРУГ (АВАТАРКА) В ЛЕВОМ УГЛУ */
         #hero-avatar-circle {
             position: fixed;
-            top: 20px;
-            left: 20px;
+            top: 15px;
+            left: 15px;
             width: 270px; 
             height: 270px;
             background: url('frame.png') no-repeat center/contain !important;
-            display: none; /* Ждет выбора героя */
+            display: none; /* Появится после выбора героя */
             z-index: 100000;
             pointer-events: none;
         }
@@ -51,7 +49,7 @@
             position: absolute;
         }
 
-        /* ЭКРАН ЗАМКА: фоны подтянутся из HTML */
+        /* ЭКРАН ЗАМКА */
         #castle-screen {
             background-size: cover !important;
             background-position: center !important;
@@ -67,21 +65,24 @@
         document.body.appendChild(div);
     }
 
-    // ЛОГИКА ТОЛЬКО ДЛЯ КРУГА (Face_X.png)
-    setInterval(() => {
+    // ОПТИМИЗИРОВАННАЯ ЛОГИКА (Проверка раз в секунду, чтобы не лагало)
+    const checkAvatar = setInterval(() => {
         const mainHero = document.getElementById('main-hero-img');
         const avatarImg = document.getElementById('avatar-img');
         const circle = document.getElementById('hero-avatar-circle');
 
+        // Если экран замка открыт и есть герой
         if (mainHero && mainHero.src && mainHero.src.includes('hero_')) {
-            // Вытаскиваем id из названия файла в замке (hero_tsar.png -> tsar)
-            const id = mainHero.src.split('hero_')[1].split('.png')[0];
-            const facePath = 'face_' + id + '.png';
-            
-            if (avatarImg.src.indexOf(facePath) === -1) {
-                avatarImg.src = facePath;
-                circle.style.display = 'block';
+            const idMatch = mainHero.src.match(/hero_([a-z]+)/);
+            if (idMatch) {
+                const id = idMatch[1];
+                const facePath = 'face_' + id + '.png';
+                
+                if (avatarImg.src.indexOf(facePath) === -1) {
+                    avatarImg.src = facePath;
+                    circle.style.display = 'block';
+                }
             }
         }
-    }, 500);
+    }, 1000); // Увеличил до 1 сек для быстрой загрузки
 })();
