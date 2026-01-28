@@ -6,54 +6,55 @@
 
     const style = document.createElement('style');
     style.innerHTML = `
-        /* ЭКРАН ВЫБОРА: ПРИНУДИТЕЛЬНО ВОЗВРАЩАЕМ bg.jpg */
+        /* ЭКРАН ВЫБОРА: Возвращаем фон как он был в рабочем варианте */
         #selection-screen {
-            background-image: url('bg.jpg') !important;
+            background: url('bg.jpg') no-repeat center center !important;
             background-size: cover !important;
-            background-position: center !important;
-            background-repeat: no-repeat !important;
+            height: 100vh !important;
+            width: 100vw !important;
+            display: flex !important;
         }
 
-        /* КАРТОЧКИ: Делаем их прозрачными, чтобы фон bg.jpg был виден */
+        /* КАРТОЧКИ: Прозрачность, чтобы не перекрывали bg.jpg */
         .card {
             background: rgba(0, 0, 0, 0.6) !important;
             backdrop-filter: blur(10px);
             border: 2px solid #edb432 !important;
         }
 
-        /* КАРТИНКИ В КАРТОЧКАХ */
-        .card img {
-            background: transparent !important;
-            object-fit: contain !important;
-        }
-
-        /* МАЛЕНЬКИЙ ЖЕЛТЫЙ КРУГ В УГЛУ (АВАТАР) */
+        /* МАЛЕНЬКИЙ ЖЕЛТЫЙ КРУГ (60px) */
         #hero-avatar-circle {
             position: fixed;
             top: 10px;
             left: 10px;
-            width: 60px; 
-            height: 60px;
-            border: 3px solid #ffcc00; 
-            border-radius: 50%;
-            overflow: hidden;
+            width: 60px !important; 
+            height: 60px !important;
+            border: 3px solid #ffcc00 !important;
+            border-radius: 50% !important;
+            overflow: hidden !important;
             display: none; 
             z-index: 999999;
-            background: transparent;
+            background: transparent !important;
             pointer-events: none;
             box-shadow: 0 0 10px rgba(0,0,0,0.5);
         }
 
         #avatar-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            display: block;
+            width: 100% !important;
+            height: 100% !important;
+            object-fit: cover !important;
+            display: block !important;
+        }
+
+        /* ЭКРАН ЗАМКА */
+        #castle-screen {
+            background-size: cover !important;
+            background-position: center !important;
         }
     `;
     document.head.appendChild(style);
 
-    // Создаем круг в HTML, если его нет
+    // Создаем круг
     if (!document.getElementById('hero-avatar-circle')) {
         const div = document.createElement('div');
         div.id = 'hero-avatar-circle';
