@@ -5,13 +5,28 @@
 
     const style = document.createElement('style');
     style.innerHTML = `
-        /* ФОН И КАРТОЧКИ (БЕЗ ИЗМЕНЕНИЙ) */
+        /* ЭКРАН ВЫБОРА */
         #selection-screen {
             background: url('bg.jpg') no-repeat center center !important;
             background-size: cover !important;
         }
 
-        /* АВАТАРКА В УГЛУ (БЕЗ ИЗМЕНЕНИЙ) */
+        /* КАРТОЧКИ: Убираем фон замков, оставляем только чистую прозрачность */
+        .card {
+            background: rgba(0, 0, 0, 0.7) !important; /* Темная подложка */
+            backdrop-filter: blur(10px);
+            border: 2px solid #edb432 !important;
+            background-image: none !important; /* Принудительно убираем любые картинки фона */
+        }
+
+        /* Убираем фон у самих изображений героев внутри карточек */
+        .card img {
+            background: transparent !important;
+            background-image: none !important;
+            object-fit: contain !important;
+        }
+
+        /* АВАТАРКА В ВЕРХНЕМ ЛЕВОМ УГЛУ */
         #hero-avatar-circle {
             position: fixed;
             top: 10px;
@@ -25,18 +40,15 @@
             z-index: 999999;
         }
 
-        /* КНОПКА ГЛОБУСА (НИЖНИЙ ПРАВЫЙ УГОЛ) */
+        /* ГЛОБУС В НИЖНЕМ ЛЕВОМ УГЛУ */
         #world-map-btn {
             position: fixed;
             bottom: 20px;
-            right: 20px;
-            width: 80px;
-            height: 80px;
+            left: 20px; /* Перенес на лево */
+            width: 70px;
+            height: 70px;
             z-index: 1000000;
             cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         #world-map-btn img {
@@ -44,38 +56,31 @@
             height: 100%;
             object-fit: contain;
             border-radius: 50%;
-            /* Анимация пульсирующей обводки */
-            animation: pulse-border 2s infinite;
+            animation: pulse-yellow 2s infinite;
         }
 
-        @keyframes pulse-border {
-            0% { box-shadow: 0 0 0 0 rgba(237, 180, 50, 0.7); }
-            70% { box-shadow: 0 0 0 15px rgba(237, 180, 50, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(237, 180, 50, 0); }
+        /* Анимация желтой обводки (сжимается/разжимается) */
+        @keyframes pulse-yellow {
+            0% { box-shadow: 0 0 0 0 rgba(255, 204, 0, 0.7); transform: scale(1); }
+            70% { box-shadow: 0 0 0 15px rgba(255, 204, 0, 0); transform: scale(1.05); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 204, 0, 0); transform: scale(1); }
         }
 
-        /* Эффект при нажатии */
-        #world-map-btn:active {
-            transform: scale(0.9);
-        }
+        #world-map-btn:active { transform: scale(0.9); }
     `;
     document.head.appendChild(style);
 
-    // СОЗДАЕМ ГЛОБУС В HTML
+    // СОЗДАЕМ ГЛОБУС
     if (!document.getElementById('world-map-btn')) {
         const globeBtn = document.createElement('div');
         globeBtn.id = 'world-map-btn';
         globeBtn.innerHTML = '<img src="globe.png" alt="Map">';
         document.body.appendChild(globeBtn);
-
-        // Клик по глобусу (пока просто лог, потом привяжем переход)
-        globeBtn.onclick = function() {
-            console.log("Переход на карту мира...");
-            // Здесь будет код открытия карты
-        };
+        
+        globeBtn.onclick = () => console.log("Map clicked");
     }
 
-    // ЛОГИКА АВАТАРКИ (БЕЗ ИЗМЕНЕНИЙ)
+    // ЛОГИКА АВАТАРКИ
     if (!document.getElementById('hero-avatar-circle')) {
         const div = document.createElement('div');
         div.id = 'hero-avatar-circle';
