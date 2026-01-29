@@ -99,13 +99,13 @@
             white-space: nowrap;
         }
 
-        /* ГЛОБУС "МИР" КАК НА ФОТО */
+        /* ГЛОБУС "МИР": УВЕЛИЧЕН В 2 РАЗА, БЕЗ ЧЕРНОЙ РАМКИ */
         #world-map-btn {
             position: absolute;
-            bottom: 10px; 
-            left: 10px; 
-            width: 110px; 
-            height: 110px;
+            bottom: 5px; 
+            left: 5px; 
+            width: 220px; /* Увеличено в 2 раза (было 110px) */
+            height: 220px; /* Увеличено в 2 раза */
             z-index: 1000000;
             cursor: pointer;
             -webkit-tap-highlight-color: transparent;
@@ -114,7 +114,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-end; /* Текст внизу круга */
+            justify-content: flex-end;
         }
 
         #world-map-btn img {
@@ -124,37 +124,35 @@
             height: 100%;
             object-fit: contain;
             border-radius: 50%;
-            border: 2px solid #edb432; /* Золотой ободок вокруг глобуса */
+            border: 4px solid #edb432; /* Пропорционально увеличил толщину рамки */
             box-sizing: border-box;
-            background: rgba(0,0,0,0.3);
         }
 
         .map-label-container {
             position: relative;
             z-index: 2;
             width: 100%;
-            background: rgba(0, 0, 0, 0.5); /* Темный фон под текстом */
+            background: transparent; /* УБРАЛ ЧЕРНУЮ РАМКУ */
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-bottom: 5px; /* Чуть выше нижнего края */
+            margin-bottom: 25px; /* Поднял текст чуть выше из-за увеличения размера */
         }
 
-        /* Желтые полоски */
         .yellow-line {
-            width: 60%;
+            width: 45%; /* Сделал полоски короче для стиля */
             height: 2px;
             background: #edb432;
-            box-shadow: 0 0 5px #edb432;
+            box-shadow: 0 0 8px #edb432;
         }
 
         .map-label {
             color: #ffffff;
-            font-size: 16px;
+            font-size: 24px; /* Увеличил шрифт пропорционально кнопке */
             font-weight: bold;
             font-family: 'serif', 'Times New Roman';
-            text-shadow: 1px 1px 3px #000;
-            padding: 2px 0;
+            text-shadow: 2px 2px 5px #000; /* Усилил тень для читаемости без фона */
+            padding: 4px 0;
         }
 
         #world-map-btn:active {
@@ -170,7 +168,6 @@
             globeBtn.id = 'world-map-btn';
             globeBtn.setAttribute('tabindex', '-1');
             
-            // Структура глобуса с полосками и надписью "Мир"
             globeBtn.innerHTML = `
                 <img src="globe.png" alt="Map" draggable="false">
                 <div class="map-label-container">
