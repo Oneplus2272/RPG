@@ -3,7 +3,7 @@ const UIManager = {
         const castleScreen = document.getElementById('castle-screen');
         if (!castleScreen) return;
 
-        // 1. ОСНОВНАЯ ПАНЕЛЬ РЕСУРСОВ (Хлеб, Дерево, Камень, Железо, Серебро)
+        // 1. ОСНОВНАЯ ПАНЕЛЬ РЕСУРСОВ
         const resourceBar = document.createElement('div');
         resourceBar.id = 'top-resource-bar';
         
@@ -17,7 +17,6 @@ const UIManager = {
 
         resources.forEach(res => {
             const item = document.createElement('div');
-            // Добавляем специальный класс для камня
             item.className = `resource-item ${res.id === 'stone' ? 'big-stone' : ''}`;
             item.innerHTML = `
                 <img src="${res.icon}" alt="${res.id}">
@@ -26,13 +25,16 @@ const UIManager = {
             resourceBar.appendChild(item);
         });
 
-        // 2. ОТДЕЛЬНАЯ РАМКА ДЛЯ ЗОЛОТА (Справа под панелью)
+        // 2. РАМКА ДЛЯ ЗОЛОТА (как на скриншоте)
         const goldPanel = document.createElement('div');
         goldPanel.id = 'gold-special-panel';
         goldPanel.innerHTML = `
-            <div class="gold-content">
-                <img src="gold.png" alt="gold">
+            <div class="gold-container">
                 <span id="gold-value">0</span>
+                <div class="gold-icon-wrapper">
+                    <img src="gold.png" alt="gold">
+                    <div class="plus-button">+</div>
+                </div>
             </div>
         `;
 
@@ -46,123 +48,118 @@ const UIManager = {
         const style = document.createElement('style');
         style.id = 'ui-styles';
         style.innerHTML = `
-            /* ВЕРХНЯЯ ПАНЕЛЬ */
             #top-resource-bar {
                 position: fixed;
                 top: 0;
                 left: 0;
                 width: 100%;
-                height: 50px;
-                background: rgba(45, 30, 20, 0.85);
-                border-bottom: 2px solid #edb432;
+                height: 45px;
+                background: rgba(20, 15, 10, 0.8);
+                border-bottom: 1px solid #555;
                 display: flex;
                 align-items: center;
-                justify-content: flex-start; /* Всегда прижимаем к левому краю */
+                justify-content: flex-start;
                 padding: 0 10px;
                 z-index: 2000000;
-                backdrop-filter: blur(5px);
                 box-sizing: border-box;
-                white-space: nowrap;
-                overflow: hidden;
             }
 
             .resource-item {
                 display: flex;
                 align-items: center;
-                flex-shrink: 0;
-                margin-right: 12px; /* Компактно для мобилок */
-                color: #fff;
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                font-size: 14px;
+                margin-right: 12px;
+                color: #e0e0e0;
+                font-family: sans-serif;
+                font-size: 13px;
                 font-weight: bold;
-                text-shadow: 1px 1px 2px #000;
             }
 
             .resource-item img {
-                width: 28px;
-                height: 28px;
-                margin-right: 4px;
+                width: 26px;
+                height: 26px;
+                margin-right: 3px;
                 object-fit: contain;
             }
 
-            /* УВЕЛИЧЕННЫЙ КАМЕНЬ */
             .big-stone img {
-                width: 36px;
-                height: 36px;
-                transform: scale(1.1);
+                width: 34px;
+                height: 34px;
             }
 
-            /* РАМКА ЗОЛОТА */
+            /* СТИЛЬ ЗОЛОТА СО СКРИНШОТА */
             #gold-special-panel {
                 position: fixed;
-                top: 55px; /* Сразу под баром */
-                right: 10px; /* Прижато вправо */
-                z-index: 2000000;
+                top: 5px;   /* Оно на одном уровне с ресурсами, но справа */
+                right: 10px;
+                z-index: 2000001;
             }
 
-            .gold-content {
-                background: rgba(144, 238, 144, 0.35); /* Светло-зеленый прозрачный фон */
-                border: 2px solid #90ee90;            /* Светло-зеленая рамка */
-                border-radius: 12px;
-                padding: 4px 12px;
+            .gold-container {
+                background: linear-gradient(180deg, #1a3c1a 0%, #0d240d 100%); /* Темно-зеленый градиент */
+                border: 2px solid #edb432; /* Золотая кайма */
+                border-radius: 20px;
                 display: flex;
                 align-items: center;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+                padding: 2px 2px 2px 15px;
+                min-width: 100px;
+                height: 34px;
+                box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
             }
 
-            .gold-content img {
-                width: 30px;
-                height: 30px;
-                margin-right: 8px;
-            }
-
-            .gold-content span {
-                color: #ffd700;
+            #gold-value {
+                color: #fff;
                 font-family: sans-serif;
                 font-weight: bold;
-                font-size: 16px;
-                text-shadow: 1px 1px 2px #000;
+                font-size: 15px;
+                margin-right: 10px;
+                flex-grow: 1;
+                text-align: center;
             }
 
-            /* АДАПТИВНОСТЬ ДЛЯ ПЛАНШЕТОВ И ПК */
+            .gold-icon-wrapper {
+                position: relative;
+                display: flex;
+                align-items: center;
+            }
+
+            .gold-icon-wrapper img {
+                width: 32px;
+                height: 32px;
+            }
+
+            .plus-button {
+                position: absolute;
+                right: -2px;
+                bottom: -2px;
+                background: #f1c40f;
+                color: #000;
+                width: 14px;
+                height: 14px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-size: 12px;
+                font-weight: bold;
+                border: 1px solid #000;
+            }
+
             @media (min-width: 768px) {
-                #top-resource-bar {
-                    padding: 0 25px;
-                    height: 60px;
-                }
-                .resource-item {
-                    margin-right: 30px;
-                    font-size: 18px;
-                }
-                .resource-item img {
-                    width: 38px;
-                    height: 38px;
-                }
-                .big-stone img {
-                    width: 48px;
-                    height: 48px;
-                }
-                .gold-content {
-                    padding: 6px 18px;
-                }
-                .gold-content img {
-                    width: 40px;
-                    height: 40px;
-                }
-                .gold-content span {
-                    font-size: 20px;
-                }
+                #top-resource-bar { height: 55px; }
+                .resource-item { font-size: 16px; margin-right: 25px; }
+                .resource-item img { width: 32px; height: 32px; }
+                .big-stone img { width: 42px; height: 42px; }
+                .gold-container { height: 40px; padding-left: 20px; }
+                .gold-icon-wrapper img { width: 42px; height: 42px; }
             }
         `;
         document.head.appendChild(style);
     }
 };
 
-// Запуск при загрузке с проверкой экрана
 window.addEventListener('load', () => {
     const checkSelection = setInterval(() => {
         const sel = document.getElementById('selection-screen');
-        // Проверяем, что экран выбора скрыт, прежде чем рисовать интерфейс замка
         if (sel && (sel.style.display === 'none' || sel.classList.contains('hidden'))) {
             UIManager.init();
             clearInterval(checkSelection);
