@@ -3,13 +3,12 @@ const CityManager = {
     viewport: null,
     isDragging: false,
     
-    currentX: 0, 
-    currentY: 0,
+    currentX: 0, currentY: 0,
     scale: 1.0, 
     
-    mapSize: 2000, // Увеличенный размер для перекрытия углов
-    minScale: 1.0,
-    maxScale: 2.5,
+    mapSize: 1500, 
+    minScale: 0.5, // Теперь можно отдалять сильнее, чтобы видеть воду
+    maxScale: 2.0,
 
     lastDist: 0,
     startX: 0, startY: 0,
@@ -18,10 +17,10 @@ const CityManager = {
         const castleScreen = document.getElementById('castle-screen');
         if (!castleScreen) return;
 
-        // Небо (фон)
-        const sky = document.createElement('div');
-        sky.id = 'sky-layer';
-        castleScreen.appendChild(sky);
+        // 1. Океан (вместо неба)
+        const ocean = document.createElement('div');
+        ocean.id = 'ocean-layer';
+        castleScreen.appendChild(ocean);
 
         this.viewport = document.createElement('div');
         this.viewport.id = 'map-viewport';
@@ -29,7 +28,7 @@ const CityManager = {
         this.container = document.createElement('div');
         this.container.id = 'city-map';
         
-        // Яркое освещение
+        // Свет на острове
         const sunLight = document.createElement('div');
         sunLight.id = 'sun-light';
         this.container.appendChild(sunLight);
@@ -46,10 +45,12 @@ const CityManager = {
     applyStyles() {
         const style = document.createElement('style');
         style.innerHTML = `
-            #sky-layer {
+            #ocean-layer {
                 position: fixed;
                 top: 0; left: 0; width: 100%; height: 100%;
-                background: #4facfe; /* Цвет неба */
+                background: #1a4e66;
+                /* Эффект волн через градиент */
+                background-image: radial-gradient(circle at 50% 50%, #205e7a 0%, #1a4e66 100%);
                 z-index: 1;
             }
 
@@ -58,7 +59,7 @@ const CityManager = {
                 top: 0; left: 0; width: 100vw; height: 100vh;
                 overflow: hidden;
                 z-index: 2;
-                perspective: 2000px;
+                perspective: 1200px;
                 touch-action: none;
             }
 
@@ -67,55 +68,55 @@ const CityManager = {
                 width: ${this.mapSize}px;
                 height: ${this.mapSize}px;
                 background-color: #2e5a1c;
+                /* Тень от острова на воде */
+                box-shadow: 0 50px 100px rgba(0,0,0,0.5);
                 transform-origin: center center;
                 will-change: transform, left, top;
+                /* Скругление краев, чтобы был похож на остров */
+                border-radius: 40px;
+                border: 10px solid #3d6a2a;
             }
 
             #sun-light {
                 position: absolute;
                 top: 0; left: 0; width: 100%; height: 100%;
-                /* Мощное центральное освещение */
-                background: radial-gradient(circle at 50% 50%, rgba(255,255,230,0.4) 0%, transparent 70%);
+                background: radial-gradient(circle at 50% 20%, rgba(255,255,230,0.4) 0%, transparent 80%);
                 pointer-events: none;
                 mix-blend-mode: overlay;
+                border-radius: 40px;
             }
 
-            /* Дымка у горизонта, чтобы скрыть стык */
-            #map-viewport::after {
+            /* Солнечная дорожка на воде */
+            #map-viewport::before {
                 content: "";
                 position: absolute;
-                top: 0; left: 0; width: 100%; height: 40%;
-                background: linear-gradient(to top, transparent, rgba(79, 172, 254, 0.8));
+                top: 0; left: 50%; width: 200%; height: 100%;
+                background: radial-gradient(ellipse at center top, rgba(255,255,255,0.2) 0%, transparent 50%);
+                transform: translateX(-50%);
                 pointer-events: none;
+                z-index: 1;
             }
         `;
         document.head.appendChild(style);
     },
 
     centerMap() {
-        // Устанавливаем камеру ровно в центр карты
         this.currentX = (window.innerWidth / 2) - (this.mapSize / 2);
         this.currentY = (window.innerHeight / 2) - (this.mapSize / 2);
     },
 
     updatePosition() {
         const s = this.scale;
+        // Ограничиваем скролл так, чтобы остров не уплывал совсем далеко, 
+        // но даем увидеть воду (запас 200px)
+        const margin = 200; 
         const vw = window.innerWidth;
         const vh = window.innerHeight;
 
-        // Математический расчет границ для ромба:
-        // Чтобы углы не вылезали, мы ограничиваем перемещение сильнее, чем просто по размеру
-        const overflowX = (this.mapSize * s - vw) / 2;
-        const overflowY = (this.mapSize * s - vh) / 2;
-
-        // Коэффициент 0.35 — это магическое число для rotate(45deg), 
-        // которое не дает углам зайти в видимую зону
-        const margin = this.mapSize * s * 0.15; 
-
-        const minX = vw - this.mapSize * s + margin;
-        const maxX = -margin;
-        const minY = vh - this.mapSize * s + margin;
-        const maxY = -margin;
+        const minX = vw - this.mapSize * s - margin;
+        const maxX = margin;
+        const minY = vh - this.mapSize * s - margin;
+        const maxY = margin;
 
         if (this.currentX > maxX) this.currentX = maxX;
         if (this.currentY > maxY) this.currentY = maxY;
@@ -163,10 +164,7 @@ const CityManager = {
         window.addEventListener('mousemove', handleMove);
         window.addEventListener('touchmove', handleMove, {passive: false});
         window.addEventListener('mouseup', () => this.isDragging = false);
-        window.addEventListener('touchend', () => {
-            this.isDragging = false;
-            this.lastDist = 0;
-        });
+        window.addEventListener('touchend', () => { this.isDragging = false; this.lastDist = 0; });
 
         this.viewport.addEventListener('wheel', (e) => {
             const delta = e.deltaY > 0 ? 0.9 : 1.1;
