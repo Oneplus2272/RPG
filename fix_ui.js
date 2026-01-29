@@ -35,7 +35,7 @@
             border-radius: 50%;
             overflow: visible; 
             display: none; 
-            z-index: 999999;
+            z-index: 999999; /* Самый высокий слой для круга */
             box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
 
@@ -59,13 +59,13 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.5);
         }
 
-        /* ИНФО-ПАНЕЛЬ (ИМЯ И СИЛА) - СПРЯТАНА ЧУТЬ ПОД КРУГ */
+        /* ИНФО-ПАНЕЛЬ (ИМЯ И СИЛА) - ЗА КРУГОМ */
         #hero-info-panel {
-            position: absolute;
-            left: 60px; /* Сдвинута влево, чтобы заходить под круг */
-            bottom: 5px;   
-            width: 130px;
-            height: 45px;
+            position: fixed; /* Используем fixed и z-index ниже аватарки */
+            top: 75px;      /* Выравниваем примерно по середине высоты аватарки */
+            left: 55px;     /* Начинается ЗА кругом */
+            width: 110px;   /* Уменьшена длина */
+            height: 40px;   /* Чуть компактнее */
             background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(5px);
             border-radius: 0 10px 10px 0;
@@ -74,13 +74,13 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding-left: 35px; /* Увеличено, так как часть панели под кругом */
+            padding-left: 40px; /* Текст начинается после того, как "вышел" из-за круга */
             color: #fff;
-            z-index: 999998; /* Ниже, чем аватарка */
+            z-index: 999990;    /* Ниже чем #hero-avatar-circle */
         }
 
         .info-name {
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
             color: #ffcc00;
             margin: 0;
@@ -90,7 +90,7 @@
         }
 
         .info-power {
-            font-size: 12px;
+            font-size: 11px;
             color: #fff;
             margin: 0;
         }
@@ -147,18 +147,25 @@
         }
     }
 
+    // Создаем аватарку
     if (!document.getElementById('hero-avatar-circle')) {
-        const div = document.createElement('div');
-        div.id = 'hero-avatar-circle';
-        div.innerHTML = `
+        const circle = document.createElement('div');
+        circle.id = 'hero-avatar-circle';
+        circle.innerHTML = `
             <img id="avatar-img" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" src="">
             <div id="hero-level-badge">1</div>
-            <div id="hero-info-panel">
-                <p class="info-name">Никита</p>
-                <p class="info-power">Сила 0</p>
-            </div>
         `;
-        document.body.appendChild(div);
+        document.body.appendChild(circle);
+
+        // Создаем инфо-панель ОТДЕЛЬНЫМ элементом, чтобы z-index работал корректно относительно круга
+        const infoPanel = document.createElement('div');
+        infoPanel.id = 'hero-info-panel';
+        infoPanel.style.display = 'none'; // Скрываем по умолчанию
+        infoPanel.innerHTML = `
+            <p class="info-name">Никита</p>
+            <p class="info-power">Сила 0</p>
+        `;
+        document.body.appendChild(infoPanel);
     }
 
     setInterval(() => {
@@ -173,6 +180,7 @@
         const mainHero = document.getElementById('main-hero-img');
         const avatarImg = document.getElementById('avatar-img');
         const circle = document.getElementById('hero-avatar-circle');
+        const infoPanel = document.getElementById('hero-info-panel');
 
         if (mainHero && mainHero.src) {
             let faceNum = "";
@@ -183,6 +191,7 @@
             if (faceNum !== "" && !avatarImg.src.includes('face_' + faceNum)) {
                 avatarImg.src = 'face_' + faceNum + '.png';
                 circle.style.display = 'block';
+                if (infoPanel) infoPanel.style.display = 'flex';
             }
         }
     }, 400);
