@@ -11,7 +11,7 @@
             background-size: cover !important;
         }
 
-        /* КАРТОЧКИ: Полностью убираем любые фоны, кроме темной прозрачности */
+        /* КАРТОЧКИ: Чистая прозрачность без фонов замка */
         .card {
             background: rgba(0, 0, 0, 0.75) !important;
             backdrop-filter: blur(12px);
@@ -39,9 +39,9 @@
             z-index: 999999;
         }
 
-        /* ГЛОБУС: ЕЩЕ БОЛЬШЕ (140px) И В ЛЕВОМ УГЛУ */
+        /* ГЛОБУС В ЛЕВОМ УГЛУ (БЕЗ АНИМАЦИИ) */
         #world-map-btn {
-            position: absolute; /* Внутри контейнера замка */
+            position: absolute;
             bottom: 40px;
             left: 20px;
             width: 140px; 
@@ -55,37 +55,33 @@
             height: 100%;
             object-fit: contain;
             border-radius: 50%;
-            animation: pulse-yellow-large 2s infinite;
+            /* Анимация удалена */
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); /* Просто легкая тень для объема */
         }
 
-        @keyframes pulse-yellow-large {
-            0% { box-shadow: 0 0 0 0 rgba(255, 204, 0, 0.8); transform: scale(1); }
-            70% { box-shadow: 0 0 0 25px rgba(255, 204, 0, 0); transform: scale(1.02); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 204, 0, 0); transform: scale(1); }
+        /* Эффект только при самом нажатии пальцем */
+        #world-map-btn:active {
+            transform: scale(0.95);
         }
-
-        #world-map-btn:active { transform: scale(0.9); }
     `;
     document.head.appendChild(style);
 
-    // Функция создания глобуса именно в замке
     function injectGlobe() {
         const castleScreen = document.getElementById('castle-screen');
         if (castleScreen && !document.getElementById('world-map-btn')) {
             const globeBtn = document.createElement('div');
             globeBtn.id = 'world-map-btn';
             globeBtn.innerHTML = '<img src="globe.png" alt="Map">';
-            castleScreen.appendChild(globeBtn); // Добавляем СТРОГО в экран замка
+            castleScreen.appendChild(globeBtn);
             
             globeBtn.onclick = () => {
                 if (window.Telegram.WebApp.HapticFeedback) {
-                    window.Telegram.WebApp.HapticFeedback.impactOccurred('heavy');
+                    window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
                 }
             };
         }
     }
 
-    // Создаем аватар в body (он общий)
     if (!document.getElementById('hero-avatar-circle')) {
         const div = document.createElement('div');
         div.id = 'hero-avatar-circle';
@@ -94,18 +90,15 @@
     }
 
     setInterval(() => {
-        const castleScreen = document.getElementById('castle-screen');
         const selectionScreen = document.getElementById('selection-screen');
         
-        // 1. Управляем глобусом: показываем только если экран выбора скрыт
         if (selectionScreen && selectionScreen.style.display === 'none') {
             injectGlobe();
         } else {
             const oldGlobe = document.getElementById('world-map-btn');
-            if (oldGlobe) oldGlobe.remove(); // Удаляем на корню, если мы на выборе
+            if (oldGlobe) oldGlobe.remove();
         }
 
-        // 2. Логика аватара
         const mainHero = document.getElementById('main-hero-img');
         const avatarImg = document.getElementById('avatar-img');
         const circle = document.getElementById('hero-avatar-circle');
