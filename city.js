@@ -1,94 +1,126 @@
 const CityManager = {
     container: null,
+    viewport: null,
     isDragging: false,
-    startX: 0, startY: 0,
-    currentX: window.innerWidth / 2,
-    currentY: 100, // Смещаем чуть вниз, чтобы видеть "небо"
+    startX: 0,
+    startY: 0,
+    // Начальная позиция камеры (центр огромной карты)
+    currentX: -2000, 
+    currentY: -2000,
+    mapWidth: 5000,
+    mapHeight: 5000,
 
     init() {
         const castleScreen = document.getElementById('castle-screen');
         if (!castleScreen) return;
 
-        // Небо с солнцем (фон)
+        // 1. Создаем слой неба
         const sky = document.createElement('div');
         sky.id = 'sky-layer';
         castleScreen.appendChild(sky);
 
-        const viewport = document.createElement('div');
-        viewport.id = 'map-viewport';
+        // 2. Создаем окно просмотра (Viewport)
+        this.viewport = document.createElement('div');
+        this.viewport.id = 'map-viewport';
         
-        // Сама земля
+        // 3. Создаем саму землю
         this.container = document.createElement('div');
         this.container.id = 'city-map';
         
-        viewport.appendChild(this.container);
-        castleScreen.appendChild(viewport);
+        this.viewport.appendChild(this.container);
+        castleScreen.appendChild(this.viewport);
 
         this.applyStyles();
-        this.initEvents(viewport);
-        
-        // Добавляем тестовую точку строительства
-        this.addSlot(500, 500); 
+        this.initEvents();
+        this.updatePosition();
+
+        console.log("City Manager: Ландшафт в стиле 'Марш Империй' запущен");
     },
 
     applyStyles() {
         const style = document.createElement('style');
         style.innerHTML = `
+            /* Небо на заднем плане */
             #sky-layer {
                 position: fixed;
-                top: 0; left: 0; width: 100%; height: 60%;
-                background: linear-gradient(to bottom, #87ceeb 0%, #e0f6ff 100%);
+                top: 0; left: 0; width: 100%; height: 100%;
+                background: linear-gradient(to bottom, #1e3c72 0%, #2a5298 100%);
                 z-index: 1;
             }
 
+            /* Окно, через которое мы смотрим на мир */
             #map-viewport {
+                position: absolute;
+                top: 0; left: 0;
                 width: 100vw; height: 100vh;
                 overflow: hidden;
-                position: relative;
                 z-index: 2;
-                perspective: 1200px; /* Создает эффект глубины */
+                perspective: 1500px; /* Глубина 3D */
             }
 
+            /* Огромная земля */
             #city-map {
                 position: absolute;
-                width: 4000px; height: 4000px;
-                background-color: #3d6a2a;
-                /* Сетка как в стратегии */
-                background-image: 
-                    linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-                    linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
-                background-size: 100px 100px;
+                width: ${this.mapWidth}px;
+                height: ${this.mapHeight}px;
+                background-color: #2d4c1e;
                 
-                /* МАГИЯ ИЗОМЕТРИИ: Наклон плоскости */
+                /* Текстура земли: пятна травы и шум */
+                background-image: 
+                    radial-gradient(circle at 20% 30%, #3d6a2a 0%, transparent 40%),
+                    radial-gradient(circle at 80% 70%, #4a7c36 0%, transparent 50%),
+                    radial-gradient(circle at 50% 50%, #254018 0%, transparent 60%),
+                    url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+                
+                /* Тот самый наклон из стратегий */
                 transform: rotateX(60deg) rotateZ(45deg);
                 transform-style: preserve-3d;
-                transition: transform 0.1s ease-out;
-                box-shadow: 0 0 500px rgba(0,0,0,0.5);
+                will-change: left, top; /* Ускоряет работу на телефонах */
             }
 
-            .slot {
+            /* Атмосферный туман у горизонта */
+            #map-viewport::after {
+                content: "";
                 position: absolute;
-                width: 100px; height: 100px;
-                background: rgba(237, 180, 50, 0.4);
-                border: 3px solid #edb432;
-                display: flex;
-                align-items: center; justify-content: center;
-                color: #fff; font-weight: bold;
-                /* Чтобы текст не был наклонен вместе с картой */
-                transform: rotateZ(-45deg) rotateX(-60deg);
+                top: 0; left: 0; width: 100%; height: 50%;
+                background: linear-gradient(to top, transparent, rgba(30, 60, 114, 0.9));
+                pointer-events: none; /* Чтобы туман не мешал кликать */
+            }
+
+            /* Золотой маркер, чтобы не потеряться в центре */
+            .center-point {
+                position: absolute;
+                top: 50%; left: 50%;
+                width: 40px; height: 40px;
+                background: rgba(237, 180, 50, 0.5);
+                border: 2px solid #edb432;
+                transform: translate(-50%, -50%) rotateZ(-45deg) rotateX(-60deg);
+                box-shadow: 0 0 15px #edb432;
             }
         `;
         document.head.appendChild(style);
+
+        // Добавим маркер центра
+        const marker = document.createElement('div');
+        marker.className = 'center-point';
+        this.container.appendChild(marker);
     },
 
-    // Логика перемещения с учетом наклона
-    initEvents(viewport) {
-        const updatePos = () => {
-            // Центрируем карту и применяем смещение
-            this.container.style.left = (this.currentX - 2000) + 'px';
-            this.container.style.top = (this.currentY - 2000) + 'px';
-        };
+    updatePosition() {
+        // Ограничиваем, чтобы не уйти за край карты
+        const minX = window.innerWidth - this.mapWidth;
+        const minY = window.innerHeight - this.mapHeight;
 
+        if (this.currentX > 0) this.currentX = 0;
+        if (this.currentY > 0) this.currentY = 0;
+        if (this.currentX < minX) this.currentX = minX;
+        if (this.currentY < minY) this.currentY = minY;
+
+        this.container.style.left = this.currentX + 'px';
+        this.container.style.top = this.currentY + 'px';
+    },
+
+    initEvents() {
         const start = (e) => {
             this.isDragging = true;
             const px = e.pageX || e.touches[0].pageX;
@@ -99,29 +131,34 @@ const CityManager = {
 
         const move = (e) => {
             if (!this.isDragging) return;
+            // e.preventDefault(); // Можно раскомментировать, если страница дергается
             const px = e.pageX || e.touches[0].pageX;
             const py = e.pageY || e.touches[0].pageY;
+            
             this.currentX = px - this.startX;
             this.currentY = py - this.startY;
-            updatePos();
+            this.updatePosition();
         };
 
-        updatePos(); // Ставим карту в начальную позицию
+        const stop = () => { this.isDragging = false; };
 
-        viewport.addEventListener('mousedown', start);
-        viewport.addEventListener('touchstart', start);
+        this.viewport.addEventListener('mousedown', start);
+        this.viewport.addEventListener('touchstart', start, {passive: false});
         window.addEventListener('mousemove', move);
         window.addEventListener('touchmove', move, {passive: false});
-        window.addEventListener('mouseup', () => this.isDragging = false);
-        window.addEventListener('touchend', () => this.isDragging = false);
-    },
-
-    addSlot(x, y) {
-        const slot = document.createElement('div');
-        slot.className = 'slot';
-        slot.style.left = x + 'px';
-        slot.style.top = y + 'px';
-        slot.innerHTML = 'BUILD';
-        this.container.appendChild(slot);
+        window.addEventListener('mouseup', stop);
+        window.addEventListener('touchend', stop);
     }
 };
+
+// Запуск при переходе к экрану замка
+window.addEventListener('load', () => {
+    const checkStart = setInterval(() => {
+        const selection = document.getElementById('selection-screen');
+        // Если экран выбора скрыт, значит мы в игре
+        if (selection && (selection.style.display === 'none' || selection.classList.contains('hidden'))) {
+            CityManager.init();
+            clearInterval(checkStart);
+        }
+    }, 500);
+});
