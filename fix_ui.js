@@ -24,24 +24,25 @@
             object-fit: contain !important;
         }
 
-        /* АВАТАРКА */
+        /* АВАТАРКА: УВЕЛИЧЕНА ДО 90px (в 1.5 раза) */
         #hero-avatar-circle {
             position: fixed;
             top: 10px;
             left: 10px;
-            width: 60px; 
-            height: 60px;
-            border: 3px solid #ffcc00; 
+            width: 90px; 
+            height: 90px;
+            border: 4px solid #ffcc00; 
             border-radius: 50%;
             overflow: hidden;
             display: none; 
             z-index: 999999;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
 
-        /* ГЛОБУС: ОПУЩЕН НИЖЕ */
+        /* ГЛОБУС: ОПУЩЕН ДО 10px ОТ НИЖНЕГО КРАЯ */
         #world-map-btn {
             position: absolute;
-            bottom: 10px; /* Было 40px, теперь 10px — глобус стал ниже */
+            bottom: 10px; 
             left: 5px; 
             width: 140px; 
             height: 140px;
@@ -68,7 +69,7 @@
             filter: none !important;
             
             animation: none !important;
-            -webkit-user-drag: none; /* Чтобы картинку нельзя было потянуть */
+            -webkit-user-drag: none; 
         }
 
         /* Только легкое изменение масштаба при клике без рамок */
@@ -84,13 +85,12 @@
         if (castleScreen && !document.getElementById('world-map-btn')) {
             const globeBtn = document.createElement('div');
             globeBtn.id = 'world-map-btn';
-            // Добавил атрибуты, чтобы браузер не пытался выделить элемент
             globeBtn.setAttribute('tabindex', '-1');
             globeBtn.innerHTML = '<img src="globe.png" alt="Map" draggable="false">';
             castleScreen.appendChild(globeBtn);
             
             globeBtn.onclick = (e) => {
-                e.preventDefault(); // Защита от лишних срабатываний браузера
+                e.preventDefault(); 
                 if (window.Telegram.WebApp.HapticFeedback) {
                     window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
                 }
