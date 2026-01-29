@@ -1,29 +1,28 @@
 (function() {
-    // 1. Стили для анимации блеска и адаптивности
+    // 1. Стили: Логотип вверху, медленный блеск только по золоту
     const style = document.createElement('style');
     style.innerHTML = `
         @keyframes shine {
-            0% { transform: translateX(-150%) skewX(-25deg); }
-            100% { transform: translateX(150%) skewX(-25deg); }
+            0% { left: -150%; }
+            100% { left: 150%; }
         }
-        .progress-bar-inner::before {
-            content: "";
+        .shiny-effect {
             position: absolute;
-            top: 0; left: 0; width: 40%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6), transparent);
-            animation: shine 2s infinite;
+            top: 0; width: 60px; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+            transform: skewX(-25deg);
+            animation: shine 3.5s infinite ease-in-out; /* Замедлил до 3.5 секунд */
         }
         #logo-container {
-            width: 95vw; /* Адаптивная ширина под экран */
-            height: 40vh; /* Занимает до 40% высоты экрана */
-            max-height: 400px; /* Ограничение для больших экранов */
+            width: 95vw;
+            height: 45vh; /* Чуть больше высоты */
+            max-height: 500px;
             background-image: url('war_of_kings_legacy_logo.png');
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center top;
-            filter: drop-shadow(0px 0px 25px rgba(0,0,0,0.9));
             position: absolute;
-            top: 20px; /* Отступ сверху */
+            top: 5px; /* Максимально вверх */
             left: 50%;
             transform: translateX(-50%);
             z-index: 1000001;
@@ -31,7 +30,7 @@
     `;
     document.head.appendChild(style);
 
-    // 2. Основной контейнер (Фон)
+    // 2. Фон
     const loader = document.createElement('div');
     loader.id = 'game-loader-screen';
     Object.assign(loader.style, {
@@ -43,39 +42,40 @@
         alignItems: 'center', justifyContent: 'flex-end', paddingBottom: '80px'
     });
 
-    // 3. Создаем ЛОГОТИП
+    // 3. Логотип
     const logo = document.createElement('div');
     logo.id = 'logo-container';
 
-    // 4. Контейнер для прогресса (внизу)
+    // 4. Прогресс-бар
     const bottomContainer = document.createElement('div');
-    Object.assign(bottomContainer.style, {
-        width: '85%', textAlign: 'center', z-index: '1000002'
-    });
+    Object.assign(bottomContainer.style, { width: '85%', textAlign: 'center', zIndex: '1000002' });
 
     const percentText = document.createElement('div');
     percentText.innerText = '0%';
     Object.assign(percentText.style, {
-        color: '#f9e27d', fontSize: '22px', fontWeight: 'bold',
-        marginBottom: '12px', textShadow: '2px 2px 5px #000', fontFamily: 'serif'
+        color: '#f9e27d', fontSize: '20px', fontWeight: 'bold',
+        marginBottom: '10px', textShadow: '2px 2px 5px #000', fontFamily: 'serif'
     });
 
     const progressWrapper = document.createElement('div');
     Object.assign(progressWrapper.style, {
-        width: '100%', height: '18px', background: 'rgba(0,0,0,0.8)',
-        border: '2px solid #d4af37', borderRadius: '10px',
-        overflow: 'hidden', position: 'relative', boxShadow: '0 0 15px rgba(212, 175, 55, 0.5)'
+        width: '100%', height: '22px', background: 'rgba(0,0,0,0.85)',
+        border: '2px solid #d4af37', borderRadius: '12px',
+        overflow: 'hidden', position: 'relative'
     });
 
     const progressBar = document.createElement('div');
-    progressBar.className = 'progress-bar-inner';
     Object.assign(progressBar.style, {
         width: '0%', height: '100%',
         background: 'linear-gradient(90deg, #8b6d11, #d4af37, #f9e27d)',
-        transition: 'width 0.2s ease-out', position: 'relative'
+        transition: 'width 0.3s ease-out', position: 'relative', overflow: 'hidden'
     });
 
-    // Сборка
+    // Тот самый блеск — теперь он внутри progressBar
+    const shine = document.createElement('div');
+    shine.className = 'shiny-effect';
+    progressBar.appendChild(shine);
+
     progressWrapper.appendChild(progressBar);
     bottomContainer.appendChild(percentText);
     bottomContainer.appendChild(progressWrapper);
@@ -84,10 +84,10 @@
     loader.appendChild(bottomContainer);
     document.body.appendChild(loader);
 
-    // 5. Логика загрузки
+    // 5. Логика
     let curProgress = 0;
     const interval = setInterval(() => {
-        curProgress += Math.floor(Math.random() * 4) + 1;
+        curProgress += Math.floor(Math.random() * 3) + 1;
         if (curProgress >= 100) {
             curProgress = 100;
             clearInterval(interval);
@@ -95,7 +95,7 @@
         }
         progressBar.style.width = curProgress + '%';
         percentText.innerText = `Подготовка к битве: ${curProgress}%`;
-    }, 100);
+    }, 150);
 
     function finishLoading() {
         setTimeout(() => {
@@ -103,11 +103,7 @@
             loader.style.opacity = '0';
             setTimeout(() => {
                 loader.remove();
-                if (typeof initChampionSelection === "function") {
-                    initChampionSelection();
-                } else {
-                    console.log("Загрузка завершена. Переход к выбору героев.");
-                }
+                if (typeof initChampionSelection === "function") initChampionSelection();
             }, 1000);
         }, 500);
     }
