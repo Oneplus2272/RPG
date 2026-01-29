@@ -11,18 +11,18 @@
             top: 0; width: 60px; height: 100%;
             background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
             transform: skewX(-25deg);
-            animation: shine 3.5s infinite ease-in-out; /* Замедлил до 3.5 секунд */
+            animation: shine 3.5s infinite ease-in-out; 
         }
         #logo-container {
             width: 95vw;
-            height: 45vh; /* Чуть больше высоты */
+            height: 45vh;
             max-height: 500px;
             background-image: url('war_of_kings_legacy_logo.png');
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center top;
             position: absolute;
-            top: 5px; /* Максимально вверх */
+            top: 5px; 
             left: 50%;
             transform: translateX(-50%);
             z-index: 1000001;
@@ -71,7 +71,7 @@
         transition: 'width 0.3s ease-out', position: 'relative', overflow: 'hidden'
     });
 
-    // Тот самый блеск — теперь он внутри progressBar
+    // Блеск внутри progressBar
     const shine = document.createElement('div');
     shine.className = 'shiny-effect';
     progressBar.appendChild(shine);
@@ -94,7 +94,8 @@
             finishLoading();
         }
         progressBar.style.width = curProgress + '%';
-        percentText.innerText = `Подготовка к битве: ${curProgress}%`;
+        // ИЗМЕНЕНО ТУТ:
+        percentText.innerText = `Загрузка империи: ${curProgress}%`;
     }, 150);
 
     function finishLoading() {
