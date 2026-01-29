@@ -60,12 +60,12 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.5);
         }
 
-        /* ИНФО-ПАНЕЛЬ: ПОДПРАВИЛ ПОЗИЦИЮ ТЕКСТА */
+        /* ИНФО-ПАНЕЛЬ: Сдвинул текст вправо и опустил рамку ниже */
         #hero-info-panel {
             position: fixed;
-            top: 95px;      
+            top: 98px;      /* Опустил на 3px ниже для центровки по низу круга */
             left: 70px;     
-            width: 95px;    /* Чуть расширил для комфорта текста */
+            width: 100px;   /* Чуть удлинил рамку, чтобы текст влез */
             height: 38px;   
             background: rgba(0, 0, 0, 0.7);
             backdrop-filter: blur(5px);
@@ -74,8 +74,8 @@
             border-left: none;
             display: flex;
             flex-direction: column;
-            justify-content: center; /* Центровка по вертикали */
-            padding-left: 28px;      /* Сдвиг текста вправо от круга */
+            justify-content: center; 
+            padding-left: 32px;      /* ВЫТАЛКИВАЕМ ТЕКСТ: было 28px, стало 32px */
             color: #fff;
             z-index: 999990;    
         }
@@ -86,7 +86,8 @@
             color: #ffcc00;
             margin: 0;
             padding: 0;
-            line-height: 1.2; /* Чтобы имя не липло к силе */
+            line-height: 1.2;
+            white-space: nowrap;
         }
 
         .info-power {
@@ -95,6 +96,7 @@
             margin: 0;
             padding: 0;
             line-height: 1;
+            white-space: nowrap;
         }
 
         /* ГЛОБУС */
