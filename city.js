@@ -5,11 +5,12 @@ const CityManager = {
     
     currentX: 0, 
     currentY: 0,
-    scale: 0.8, // Начинаем с небольшого отдаления, чтобы видеть остров
+    targetScale: 0.8, // Целевой зум для плавности
+    scale: 0.8,       // Текущий зум
     
     mapSize: 2500, 
-    minScale: 0.6,
-    maxScale: 1.5,
+    minScale: 0.5,
+    maxScale: 2.0,
 
     lastDist: 0,
     startX: 0, startY: 0,
@@ -18,10 +19,12 @@ const CityManager = {
         const castleScreen = document.getElementById('castle-screen');
         if (!castleScreen) return;
 
-        // 1. Слой океана
-        const ocean = document.createElement('div');
-        ocean.id = 'ocean-layer';
-        castleScreen.appendChild(ocean);
+        // 1. Океан
+        if(!document.getElementById('ocean-layer')) {
+            const ocean = document.createElement('div');
+            ocean.id = 'ocean-layer';
+            castleScreen.appendChild(ocean);
+        }
 
         this.viewport = document.createElement('div');
         this.viewport.id = 'map-viewport';
@@ -30,7 +33,6 @@ const CityManager = {
         this.container = document.createElement('div');
         this.container.id = 'city-map';
         
-        // Солнечный свет
         const sunLight = document.createElement('div');
         sunLight.id = 'sun-light';
         this.container.appendChild(sunLight);
@@ -41,7 +43,7 @@ const CityManager = {
         this.applyStyles();
         this.centerMap();
         this.initEvents();
-        this.updatePosition();
+        this.animate(); // Запуск цикла плавной анимации
     },
 
     applyStyles() {
@@ -60,7 +62,7 @@ const CityManager = {
                 top: 0; left: 0; width: 100vw; height: 100vh;
                 overflow: hidden;
                 z-index: 2;
-                perspective: 1500px;
+                perspective: 2000px;
                 touch-action: none;
             }
 
@@ -69,11 +71,11 @@ const CityManager = {
                 width: ${this.mapSize}px;
                 height: ${this.mapSize}px;
                 background-color: #2e5a1c;
-                box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+                box-shadow: 0 50px 100px rgba(0,0,0,0.6);
                 transform-origin: center center;
                 will-change: transform, left, top;
-                border-radius: 60px; /* Скругленный остров */
-                border: 8px solid #3d6a2a;
+                border-radius: 80px;
+                border: 10px solid #3d6a2a;
             }
 
             #sun-light {
@@ -82,17 +84,16 @@ const CityManager = {
                 background: radial-gradient(circle at 50% 20%, rgba(255,255,230,0.3) 0%, transparent 80%);
                 pointer-events: none;
                 mix-blend-mode: overlay;
-                border-radius: 60px;
+                border-radius: 80px;
             }
 
-            /* Солнечные блики на воде */
             #map-viewport::before {
                 content: "";
                 position: absolute;
                 top: 0; left: 0; width: 100%; height: 100%;
                 background: radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.15) 0%, transparent 60%);
                 pointer-events: none;
-                z-index: 1;
+                z-index: 5;
             }
         `;
         document.head.appendChild(style);
@@ -103,20 +104,30 @@ const CityManager = {
         this.currentY = (window.innerHeight / 2) - (this.mapSize / 2);
     },
 
+    // Основной цикл анимации для плавного зума
+    animate() {
+        // Плавное приближение scale к targetScale (Lerp)
+        const lerpFactor = 0.15;
+        this.scale += (this.targetScale - this.scale) * lerpFactor;
+
+        this.updatePosition();
+        requestAnimationFrame(() => this.animate());
+    },
+
     updatePosition() {
         const s = this.scale;
         const vw = window.innerWidth;
         const vh = window.innerHeight;
 
-        // Ограничиваем скролл: позволяем видеть берега (края плитки), 
-        // но не даем острову "улететь" из центра. Запас видимости воды — 100px.
-        const margin = 100; 
+        // Динамический расчет границ: позволяем видеть воду на 20% от размера экрана
+        const margin = Math.min(vw, vh) * 0.2; 
 
         const minX = vw - (this.mapSize * s) - margin;
         const maxX = margin;
         const minY = vh - (this.mapSize * s) - margin;
         const maxY = margin;
 
+        // Ограничение перемещения
         if (this.currentX > maxX) this.currentX = maxX;
         if (this.currentY > maxY) this.currentY = maxY;
         if (this.currentX < minX) this.currentX = minX;
@@ -124,6 +135,7 @@ const CityManager = {
 
         this.container.style.left = this.currentX + 'px';
         this.container.style.top = this.currentY + 'px';
+        // Изометрическая трансформация
         this.container.style.transform = `scale(${s}) rotateX(55deg) rotateZ(45deg)`;
     },
 
@@ -144,9 +156,9 @@ const CityManager = {
                 );
                 if (this.lastDist > 0) {
                     const delta = dist / this.lastDist;
-                    const newScale = this.scale * delta;
-                    if (newScale >= this.minScale && newScale <= this.maxScale) {
-                        this.scale = newScale;
+                    let nextScale = this.targetScale * delta;
+                    if (nextScale >= this.minScale && nextScale <= this.maxScale) {
+                        this.targetScale = nextScale;
                     }
                 }
                 this.lastDist = dist;
@@ -155,24 +167,37 @@ const CityManager = {
                 this.currentX = t.pageX - this.startX;
                 this.currentY = t.pageY - this.startY;
             }
-            this.updatePosition();
+        };
+
+        const handleEnd = () => {
+            this.isDragging = false;
+            this.lastDist = 0;
         };
 
         this.viewport.addEventListener('mousedown', handleStart);
         this.viewport.addEventListener('touchstart', handleStart, {passive: false});
+        
         window.addEventListener('mousemove', handleMove);
-        window.addEventListener('touchmove', handleMove, {passive: false});
-        window.addEventListener('mouseup', () => this.isDragging = false);
-        window.addEventListener('touchend', () => { this.isDragging = false; this.lastDist = 0; });
+        window.addEventListener('touchmove', (e) => {
+            if(e.touches.length === 2) e.preventDefault(); // Запрет системного зума браузера
+            handleMove(e);
+        }, {passive: false});
+
+        window.addEventListener('mouseup', handleEnd);
+        window.addEventListener('touchend', handleEnd);
 
         this.viewport.addEventListener('wheel', (e) => {
-            const delta = e.deltaY > 0 ? 0.95 : 1.05;
-            const newScale = this.scale * delta;
-            if (newScale >= this.minScale && newScale <= this.maxScale) {
-                this.scale = newScale;
-                this.updatePosition();
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? 0.9 : 1.1;
+            const nextScale = this.targetScale * delta;
+            
+            if (nextScale >= this.minScale && nextScale <= this.maxScale) {
+                this.targetScale = nextScale;
             }
-        });
+        }, {passive: false});
+
+        // Адаптация при повороте экрана
+        window.addEventListener('resize', () => this.updatePosition());
     }
 };
 
