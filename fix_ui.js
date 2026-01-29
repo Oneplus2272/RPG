@@ -11,7 +11,7 @@
             background-size: cover !important;
         }
 
-        /* КАРТОЧКИ: Прозрачность без лишних фонов */
+        /* КАРТОЧКИ */
         .card {
             background: rgba(0, 0, 0, 0.75) !important;
             backdrop-filter: blur(12px);
@@ -38,16 +38,21 @@
             z-index: 999999;
         }
 
-        /* ГЛОБУС: СМЕЩЕН ЛЕВЕЕ И БЕЗ АНИМАЦИИ */
+        /* ГЛОБУС: БЕЗ ТЕНЕЙ, БЕЗ ВЫДЕЛЕНИЯ КВАДРАТОМ */
         #world-map-btn {
             position: absolute;
             bottom: 40px;
-            left: 5px; /* Максимально влево */
+            left: 5px; 
             width: 140px; 
             height: 140px;
             z-index: 1000000;
             cursor: pointer;
-            /* Гарантируем отсутствие анимаций */
+            
+            /* Убираем выделение квадратом при нажатии */
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+            user-select: none;
+            
             animation: none !important;
             transform: none !important;
         }
@@ -57,13 +62,19 @@
             height: 100%;
             object-fit: contain;
             border-radius: 50%;
-            animation: none !important; /* Убираем анимацию с самой картинки */
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); 
+            
+            /* Убираем все тени и свечения вокруг */
+            box-shadow: none !important; 
+            filter: none !important;
+            
+            animation: none !important;
+            -webkit-user-drag: none; /* Чтобы картинку нельзя было потянуть */
         }
 
-        /* Легкий эффект при нажатии для отклика */
+        /* Только легкое изменение масштаба при клике без рамок */
         #world-map-btn:active {
-            transform: scale(0.95) !important;
+            transform: scale(0.96) !important;
+            outline: none;
         }
     `;
     document.head.appendChild(style);
@@ -73,10 +84,13 @@
         if (castleScreen && !document.getElementById('world-map-btn')) {
             const globeBtn = document.createElement('div');
             globeBtn.id = 'world-map-btn';
-            globeBtn.innerHTML = '<img src="globe.png" alt="Map">';
+            // Добавил атрибуты, чтобы браузер не пытался выделить элемент
+            globeBtn.setAttribute('tabindex', '-1');
+            globeBtn.innerHTML = '<img src="globe.png" alt="Map" draggable="false">';
             castleScreen.appendChild(globeBtn);
             
-            globeBtn.onclick = () => {
+            globeBtn.onclick = (e) => {
+                e.preventDefault(); // Защита от лишних срабатываний браузера
                 if (window.Telegram.WebApp.HapticFeedback) {
                     window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
                 }
@@ -93,7 +107,6 @@
 
     setInterval(() => {
         const selectionScreen = document.getElementById('selection-screen');
-        
         if (selectionScreen && selectionScreen.style.display === 'none') {
             injectGlobe();
         } else {
