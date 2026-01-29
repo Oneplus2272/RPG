@@ -3,13 +3,14 @@ const CityManager = {
     viewport: null,
     isDragging: false,
     
-    currentX: -300, 
-    currentY: -300,
-    scale: 1.0, 
+    currentX: 0, 
+    currentY: 0,
+    scale: 1.2, // Чуть приблизим для четкости
     
-    mapSize: 1200, // Чуть увеличил для запаса хода
-    minScale: 1.0, // Чтобы карта не была меньше экрана
-    maxScale: 1.8,
+    mapSize: 1000, 
+    safeMargin: 150, // На сколько пикселей НЕ доходить до края (барьер)
+    minScale: 1.0,
+    maxScale: 2.0,
 
     lastDist: 0,
     startX: 0, startY: 0,
@@ -18,26 +19,29 @@ const CityManager = {
         const castleScreen = document.getElementById('castle-screen');
         if (!castleScreen) return;
 
-        // Фон неба (остается неподвижным)
+        // 1. Небо
         const sky = document.createElement('div');
         sky.id = 'sky-layer';
         castleScreen.appendChild(sky);
 
+        // 2. Вьюпорт
         this.viewport = document.createElement('div');
         this.viewport.id = 'map-viewport';
         
+        // 3. Карта
         this.container = document.createElement('div');
         this.container.id = 'city-map';
         
-        // Солнечный блик на траве
-        const sunGlare = document.createElement('div');
-        sunGlare.id = 'sun-glare';
-        this.container.appendChild(sunGlare);
+        // 4. Слой освещения
+        const light = document.createElement('div');
+        light.id = 'map-light';
+        this.container.appendChild(light);
         
         this.viewport.appendChild(this.container);
         castleScreen.appendChild(this.viewport);
 
         this.applyStyles();
+        this.centerMap(); // Ставим по центру
         this.initEvents();
         this.updatePosition();
     },
@@ -48,7 +52,7 @@ const CityManager = {
             #sky-layer {
                 position: fixed;
                 top: 0; left: 0; width: 100%; height: 100%;
-                background: radial-gradient(circle at 50% 10%, #2c5364, #203a43, #0f2027);
+                background: #0a0f05;
                 z-index: 1;
             }
 
@@ -65,55 +69,56 @@ const CityManager = {
                 position: absolute;
                 width: ${this.mapSize}px;
                 height: ${this.mapSize}px;
-                background-color: #1b3012;
-                /* Ландшафт с тенями */
-                background-image: 
-                    radial-gradient(circle at 20% 20%, rgba(61, 106, 42, 0.4) 0%, transparent 50%),
-                    radial-gradient(circle at 80% 80%, rgba(22, 41, 15, 0.5) 0%, transparent 50%);
-                
-                transform-origin: 0 0;
+                background-color: #14260d; /* Глубокий зеленый */
+                transform-origin: center center;
                 transform: rotateX(55deg) rotateZ(45deg);
                 will-change: left, top, transform;
-                box-shadow: inset 0 0 100px rgba(0,0,0,0.5);
             }
 
-            /* Солнечный свет на поверхности */
-            #sun-glare {
+            /* Чистое освещение без полос */
+            #map-light {
                 position: absolute;
                 top: 0; left: 0; width: 100%; height: 100%;
-                background: radial-gradient(circle at 50% 0%, rgba(255,255,200,0.15) 0%, transparent 60%);
+                background: radial-gradient(circle at 50% 0%, rgba(255,255,180,0.15) 0%, transparent 70%);
                 pointer-events: none;
             }
 
-            /* Дымка у горизонта (скрывает стык) */
+            /* Атмосфера у горизонта */
             #map-viewport::after {
                 content: "";
                 position: absolute;
-                top: 0; left: 0; width: 100%; height: 40%;
-                background: linear-gradient(to top, transparent, rgba(15, 32, 39, 0.8));
+                top: 0; left: 0; width: 100%; height: 50%;
+                background: linear-gradient(to top, transparent, rgba(10, 15, 5, 0.9));
                 pointer-events: none;
             }
         `;
         document.head.appendChild(style);
     },
 
+    centerMap() {
+        // Рассчитываем центр экрана относительно центра карты
+        this.currentX = (window.innerWidth / 2) - (this.mapSize / 2);
+        this.currentY = (window.innerHeight / 2) - (this.mapSize / 2);
+    },
+
     updatePosition() {
         const s = this.scale;
-        
-        // Важно: учитываем поворот и наклон при расчете границ
-        // В изометрии реальная занимаемая площадь на экране меняется
-        const viewW = window.innerWidth;
-        const viewH = window.innerHeight;
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
 
-        // Жесткие границы: камера не выходит за пределы карты
-        const limitX = viewW - (this.mapSize * s * 0.7); // 0.7 - поправка на rotate
-        const limitY = viewH - (this.mapSize * s * 0.5); 
-
-        if (this.currentX > 0) this.currentX = 0;
-        if (this.currentY > -100) this.currentY = -100; // Немного опускаем от верха
+        // Логика барьера (Safe Zone):
+        // Рассчитываем границы так, чтобы края карты (mapSize) никогда не заходили слишком далеко в экран
+        const limitX_right = vw - (this.mapSize * s) + this.safeMargin;
+        const limitX_left = -this.safeMargin;
         
-        if (this.currentX < limitX) this.currentX = limitX;
-        if (this.currentY < limitY) this.currentY = limitY;
+        const limitY_bottom = vh - (this.mapSize * s) + this.safeMargin;
+        const limitY_top = -this.safeMargin;
+
+        // Применяем ограничения
+        if (this.currentX > limitX_left) this.currentX = limitX_left;
+        if (this.currentY > limitY_top) this.currentY = limitY_top;
+        if (this.currentX < limitX_right) this.currentX = limitX_right;
+        if (this.currentY < limitY_bottom) this.currentY = limitY_bottom;
 
         this.container.style.left = this.currentX + 'px';
         this.container.style.top = this.currentY + 'px';
@@ -122,10 +127,10 @@ const CityManager = {
 
     initEvents() {
         const handleStart = (e) => {
-            const touch = e.touches ? e.touches[0] : e;
+            const t = e.touches ? e.touches[0] : e;
             this.isDragging = true;
-            this.startX = touch.pageX - this.currentX;
-            this.startY = touch.pageY - this.currentY;
+            this.startX = t.pageX - this.currentX;
+            this.startY = t.pageY - this.currentY;
         };
 
         const handleMove = (e) => {
@@ -144,9 +149,9 @@ const CityManager = {
                 }
                 this.lastDist = dist;
             } else if (this.isDragging) {
-                const touch = e.touches ? e.touches[0] : e;
-                this.currentX = touch.pageX - this.startX;
-                this.currentY = touch.pageY - this.startY;
+                const t = e.touches ? e.touches[0] : e;
+                this.currentX = t.pageX - this.startX;
+                this.currentY = t.pageY - this.startY;
             }
             this.updatePosition();
         };
@@ -162,7 +167,7 @@ const CityManager = {
         });
 
         this.viewport.addEventListener('wheel', (e) => {
-            const delta = e.deltaY > 0 ? 0.95 : 1.05;
+            const delta = e.deltaY > 0 ? 0.9 : 1.1;
             const newScale = this.scale * delta;
             if (newScale >= this.minScale && newScale <= this.maxScale) {
                 this.scale = newScale;
