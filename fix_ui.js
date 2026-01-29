@@ -35,8 +35,9 @@
             border-radius: 50%;
             overflow: visible; 
             display: none; 
-            z-index: 999999; /* Самый высокий слой для круга */
+            z-index: 999999; 
             box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            background: #000; /* Черный фон внутри круга, чтобы не было видно рамку сзади */
         }
 
         /* УРОВЕНЬ ЧЕМПИОНА */
@@ -59,38 +60,36 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.5);
         }
 
-        /* ИНФО-ПАНЕЛЬ (ИМЯ И СИЛА) - ЗА КРУГОМ */
+        /* ИНФО-ПАНЕЛЬ (ИМЯ И СИЛА) - КОРОТКАЯ, ВНИЗУ, ЗА КРУГОМ */
         #hero-info-panel {
-            position: fixed; /* Используем fixed и z-index ниже аватарки */
-            top: 75px;      /* Выравниваем примерно по середине высоты аватарки */
-            left: 55px;     /* Начинается ЗА кругом */
-            width: 110px;   /* Уменьшена длина */
-            height: 40px;   /* Чуть компактнее */
-            background: rgba(0, 0, 0, 0.6);
+            position: fixed;
+            top: 95px;      /* Опустил к нижней части круга */
+            left: 70px;     /* Сдвинул еще глубже за круг */
+            width: 90px;    /* Еще короче */
+            height: 38px;   
+            background: rgba(0, 0, 0, 0.7);
             backdrop-filter: blur(5px);
             border-radius: 0 10px 10px 0;
-            border: 1px solid rgba(255, 204, 0, 0.3);
+            border: 1px solid rgba(255, 204, 0, 0.4);
             border-left: none;
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding-left: 40px; /* Текст начинается после того, как "вышел" из-за круга */
+            padding-left: 25px; /* Текст начинается сразу после края круга */
             color: #fff;
-            z-index: 999990;    /* Ниже чем #hero-avatar-circle */
+            z-index: 999990;    
         }
 
         .info-name {
-            font-size: 13px;
+            font-size: 12px;
             font-weight: bold;
             color: #ffcc00;
             margin: 0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
+            line-height: 1.1;
         }
 
         .info-power {
-            font-size: 11px;
+            font-size: 10px;
             color: #fff;
             margin: 0;
         }
@@ -147,20 +146,18 @@
         }
     }
 
-    // Создаем аватарку
     if (!document.getElementById('hero-avatar-circle')) {
         const circle = document.createElement('div');
         circle.id = 'hero-avatar-circle';
         circle.innerHTML = `
-            <img id="avatar-img" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" src="">
+            <img id="avatar-img" style="width:100%;height:100%;object-fit:cover;border-radius:50%;position:relative;z-index:2;" src="">
             <div id="hero-level-badge">1</div>
         `;
         document.body.appendChild(circle);
 
-        // Создаем инфо-панель ОТДЕЛЬНЫМ элементом, чтобы z-index работал корректно относительно круга
         const infoPanel = document.createElement('div');
         infoPanel.id = 'hero-info-panel';
-        infoPanel.style.display = 'none'; // Скрываем по умолчанию
+        infoPanel.style.display = 'none';
         infoPanel.innerHTML = `
             <p class="info-name">Никита</p>
             <p class="info-power">Сила 0</p>
