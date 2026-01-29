@@ -50,7 +50,6 @@
             box-shadow: inset 0 -120px 80px -20px rgba(0,0,0,0.9);
         }
 
-        /* Контейнер для фото героя, которое вставит JS */
         .hero-placeholder {
             width: 100%;
             height: 200px;
@@ -90,13 +89,12 @@
             z-index: 5;
         }
 
-        /* ЭКРАН ЗАМКА */
+        /* ЭКРАН ЗАМКА (ОЧИЩЕННЫЙ) */
         #castle-screen {
             display: none;
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
-            background-size: cover;
-            background-position: center;
+            background: #1a1a1a; /* Базовый цвет ландшафта */
             flex-direction: column;
             z-index: 10;
         }
@@ -108,6 +106,8 @@
             padding: 15px 0;
             background: rgba(0,0,0,0.7);
             border-bottom: 1px solid rgba(237, 180, 50, 0.4);
+            font-weight: bold;
+            color: #edb432;
         }
 
         .hero-render-container {
@@ -118,9 +118,9 @@
             padding-bottom: 120px;
         }
 
+        /* Убрали фиксированную картинку героя */
         #main-hero-img {
-            height: 55vh;
-            object-fit: contain;
+            display: none;
         }
 
         .bottom-menu {
@@ -137,14 +137,14 @@
             border: 1px solid #edb432;
             border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
-            font-size: 1.2rem;
+            color: #edb432;
+            font-weight: bold;
         }
 
         .main-action-btn {
             width: 75px; height: 75px;
             background: #edb432;
             color: #000;
-            font-size: 2rem;
             border: none;
         }
     </style>
@@ -155,7 +155,7 @@
         <h2 style="text-align:center;">ВЫБЕРИ СВОЕГО ГЕРОЯ</h2>
         <div class="cards-container">
             
-            <div class="card" id="c-tsar" style="background-image: url('bg_tsar.jpg');">
+            <div class="card" id="c-tsar">
                 <div class="hero-placeholder"><img src="hero_tsar.png"></div>
                 <h3>Царь</h3>
                 <div class="stats-block">
@@ -165,7 +165,7 @@
                 <button class="select-btn" onclick="selectHero('Царь', 'tsar')">Выбрать</button>
             </div>
 
-            <div class="card" id="c-sultan" style="background-image: url('bg_sultan.jpg');">
+            <div class="card" id="c-sultan">
                 <div class="hero-placeholder"><img src="hero_sultan.png"></div>
                 <h3>Султан</h3>
                 <div class="stats-block">
@@ -175,7 +175,7 @@
                 <button class="select-btn" onclick="selectHero('Султан', 'sultan')">Выбрать</button>
             </div>
 
-            <div class="card" id="c-king" style="background-image: url('bg_king.jpg');">
+            <div class="card" id="c-king">
                 <div class="hero-placeholder"><img src="hero_king.png"></div>
                 <h3>Король</h3>
                 <div class="stats-block">
@@ -190,16 +190,15 @@
 
     <div id="castle-screen">
         <div class="top-bar">
-            <div>💰 1,000</div>
-            <div>⚡ 10/10</div>
-            <div>🏆 LVL 1</div>
+            <div>GOLD 1,000</div>
+            <div>ENERGY 10/10</div>
+            <div>LVL 1</div>
         </div>
         <div class="hero-render-container">
-            <img id="main-hero-img" src="" alt="">
             <div class="bottom-menu">
-                <div class="menu-btn">🛡️</div>
-                <div class="menu-btn main-action-btn">⚔️</div>
-                <div class="menu-btn">👥</div>
+                <div class="menu-btn">UPG</div>
+                <div class="menu-btn main-action-btn">WORK</div>
+                <div class="menu-btn">CLAN</div>
             </div>
         </div>
     </div>
@@ -224,13 +223,13 @@
 
             document.getElementById('selection-screen').style.display = 'none';
             const castle = document.getElementById('castle-screen');
-            const heroImg = document.getElementById('main-hero-img');
-
-            heroImg.src = 'hero_' + selectedId + '.png'; 
-            castle.style.backgroundImage = "url('bg_" + selectedId + ".jpg')";
             
+            // Теперь герой и фон замка НЕ ставятся
             castle.style.display = 'flex';
             tg.MainButton.hide();
+            
+            // Сохраняем ID для фикс_юи (чтобы аватарка подтянулась)
+            window.lastSelectedHero = selectedId;
         });
     </script> 
     <script src="fix_ui.js"></script> 
