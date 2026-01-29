@@ -37,49 +37,48 @@
             position: absolute;
             bottom: 10px; 
             left: 10px; 
-            width: 115px; 
-            height: 115px;
+            width: 120px; 
+            height: 120px;
             z-index: 1000000;
             cursor: pointer;
             user-select: none;
             display: flex;
-            flex-direction: column;
             align-items: center;
             justify-content: center;
-            overflow: visible;
         }
 
-        /* Твоя картинка рамки (globe-frame.png) */
+        /* Исправленная рамка: сохраняет пропорции */
         .globe-frame-img {
             position: absolute;
             top: 0; left: 0;
             width: 100%;
             height: 100%;
-            z-index: 3; /* Поверх глобуса */
+            z-index: 3;
             pointer-events: none;
+            object-fit: contain; /* Чтобы рамка не сплющивалась */
         }
 
         #world-map-btn .globe-img {
             position: absolute;
-            width: 82%; /* Уменьшил, чтобы влезло ВНУТРИ рамки */
-            height: 82%;
+            width: 76%; /* Подогнал размер, чтобы глобус был четко в центре рамки */
+            height: 76%;
             border-radius: 50%;
             object-fit: cover;
             z-index: 1;
         }
 
         .map-label-container {
-            position: relative;
-            z-index: 10; /* Выше рамки */
+            position: absolute;
+            z-index: 10;
+            bottom: -5px; /* Вынес текст чуть ниже глобуса как на скриншоте */
             width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-top: 55px; /* Смещаем текст вниз на глобус */
         }
 
         .yellow-line {
-            width: 55%;
+            width: 45%;
             height: 2px;
             background: #edb432;
             box-shadow: 0 0 5px #edb432;
@@ -87,12 +86,13 @@
 
         .map-label {
             color: #ffffff;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: bold;
             font-family: 'serif', 'Times New Roman';
             text-shadow: 2px 2px 3px #000;
             padding: 1px 0;
             text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         #world-map-btn:active { transform: scale(0.95); }
@@ -105,7 +105,6 @@
             const globeBtn = document.createElement('div');
             globeBtn.id = 'world-map-btn';
             
-            // Здесь globe-frame.png — это твоя картинка рамки
             globeBtn.innerHTML = `
                 <img src="globe.png" class="globe-img" draggable="false">
                 <img src="globe-frame.png" class="globe-frame-img" draggable="false">
