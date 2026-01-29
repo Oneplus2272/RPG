@@ -24,10 +24,10 @@
             object-fit: contain !important;
         }
 
-        /* АВАТАРКА: УВЕЛИЧЕНА ДО 90px (в 1.5 раза) */
+        /* АВАТАРКА: ОПУЩЕНА НИЖЕ (top: 50px) */
         #hero-avatar-circle {
             position: fixed;
-            top: 10px;
+            top: 50px; 
             left: 10px;
             width: 90px; 
             height: 90px;
