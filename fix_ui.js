@@ -33,7 +33,7 @@
             height: 90px;
             border: 4px solid #ffcc00; 
             border-radius: 50%;
-            overflow: visible; /* Изменено для отображения уровня */
+            overflow: visible; 
             display: none; 
             z-index: 999999;
             box-shadow: 0 4px 10px rgba(0,0,0,0.5);
@@ -59,12 +59,12 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.5);
         }
 
-        /* ИНФО-ПАНЕЛЬ (ИМЯ И СИЛА) */
+        /* ИНФО-ПАНЕЛЬ (ИМЯ И СИЛА) - СПРЯТАНА ЧУТЬ ПОД КРУГ */
         #hero-info-panel {
             position: absolute;
-            left: 85px; /* Справа от аватарки */
-            bottom: 0;   /* От нижней части круга */
-            width: 120px;
+            left: 60px; /* Сдвинута влево, чтобы заходить под круг */
+            bottom: 5px;   
+            width: 130px;
             height: 45px;
             background: rgba(0, 0, 0, 0.6);
             backdrop-filter: blur(5px);
@@ -74,9 +74,9 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
-            padding-left: 15px;
+            padding-left: 35px; /* Увеличено, так как часть панели под кругом */
             color: #fff;
-            z-index: 999998;
+            z-index: 999998; /* Ниже, чем аватарка */
         }
 
         .info-name {
@@ -150,13 +150,12 @@
     if (!document.getElementById('hero-avatar-circle')) {
         const div = document.createElement('div');
         div.id = 'hero-avatar-circle';
-        // Внутренняя структура: картинка + уровень + инфо-панель
         div.innerHTML = `
             <img id="avatar-img" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" src="">
             <div id="hero-level-badge">1</div>
             <div id="hero-info-panel">
                 <p class="info-name">Никита</p>
-                <p class="info-power">Сила 30к</p>
+                <p class="info-power">Сила 0</p>
             </div>
         `;
         document.body.appendChild(div);
