@@ -49,7 +49,7 @@
             overflow: visible;
         }
 
-        /* Твоя картинка рамки (1000008073.png) */
+        /* Твоя картинка рамки (globe-frame.png) */
         .globe-frame-img {
             position: absolute;
             top: 0; left: 0;
@@ -105,10 +105,10 @@
             const globeBtn = document.createElement('div');
             globeBtn.id = 'world-map-btn';
             
-            // Здесь 1000008073.png — это твоя картинка рамки
+            // Здесь globe-frame.png — это твоя картинка рамки
             globeBtn.innerHTML = `
                 <img src="globe.png" class="globe-img" draggable="false">
-                <img src="1000008073.png" class="globe-frame-img" draggable="false">
+                <img src="globe-frame.png" class="globe-frame-img" draggable="false">
                 <div class="map-label-container">
                     <div class="yellow-line"></div>
                     <div class="map-label">Мир</div>
