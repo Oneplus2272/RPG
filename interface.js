@@ -25,7 +25,7 @@ const UIManager = {
             resourceBar.appendChild(item);
         });
 
-        // 2. ОТДЕЛЬНАЯ РАМКА ДЛЯ ЗОЛОТА (ПОД ПАНЕЛЬЮ)
+        // 2. УВЕЛИЧЕННАЯ РАМКА ЗОЛОТА (Золото справа внутри)
         const goldPanel = document.createElement('div');
         goldPanel.id = 'gold-special-panel';
         goldPanel.innerHTML = `
@@ -48,7 +48,6 @@ const UIManager = {
         const style = document.createElement('style');
         style.id = 'ui-styles';
         style.innerHTML = `
-            /* ВЕРХНЯЯ ПАНЕЛЬ */
             #top-resource-bar {
                 position: fixed;
                 top: 0;
@@ -63,7 +62,6 @@ const UIManager = {
                 padding: 0 10px;
                 z-index: 2000000;
                 box-sizing: border-box;
-                backdrop-filter: blur(4px);
             }
 
             .resource-item {
@@ -85,78 +83,80 @@ const UIManager = {
             }
 
             .big-stone img {
-                width: 36px;
-                height: 36px;
+                width: 38px;
+                height: 38px;
             }
 
-            /* РАМКА ЗОЛОТА - ТЕПЕРЬ ПОД ПАНЕЛЬЮ */
+            /* ОБНОВЛЕННАЯ РАМКА ЗОЛОТА */
             #gold-special-panel {
                 position: fixed;
-                top: 50px; /* Опускаем ниже основной панели (45px + 5px отступ) */
-                right: 10px;
+                top: 50px; 
+                right: 15px;
                 z-index: 2000001;
             }
 
             .gold-container {
                 background: linear-gradient(180deg, #1a3c1a 0%, #0d240d 100%);
                 border: 2px solid #edb432;
-                border-radius: 20px;
+                border-radius: 25px; /* Больше скругления */
                 display: flex;
                 align-items: center;
-                padding: 2px 2px 2px 15px;
-                min-width: 90px;
-                height: 32px;
-                box-shadow: 0 4px 6px rgba(0,0,0,0.5);
+                justify-content: space-between; /* Текст слева, золото справа */
+                padding: 2px 2px 2px 20px;
+                min-width: 120px; /* Увеличил ширину рамки */
+                height: 40px;    /* Увеличил высоту рамки */
+                box-shadow: 0 4px 8px rgba(0,0,0,0.6);
             }
 
             #gold-value {
                 color: #fff;
                 font-family: sans-serif;
                 font-weight: bold;
-                font-size: 14px;
-                margin-right: 8px;
-                text-shadow: 1px 1px 1px #000;
+                font-size: 18px; /* Крупный текст */
+                text-shadow: 1px 1px 2px #000;
             }
 
             .gold-icon-wrapper {
                 position: relative;
                 display: flex;
                 align-items: center;
+                margin-left: 10px;
             }
 
             .gold-icon-wrapper img {
-                width: 34px;
-                height: 34px;
+                width: 44px; /* Увеличил фото золота */
+                height: 44px;
+                filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
             }
 
             .plus-button {
                 position: absolute;
-                right: -2px;
-                bottom: -2px;
+                right: 0px;
+                bottom: 2px;
                 background: #f1c40f;
                 color: #000;
-                width: 14px;
-                height: 14px;
+                width: 18px; /* Чуть больше кнопка */
+                height: 18px;
                 border-radius: 50%;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                font-size: 12px;
+                font-size: 14px;
                 font-weight: bold;
-                border: 1px solid #000;
-                box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+                border: 1.5px solid #000;
             }
 
-            /* АДАПТИВНОСТЬ */
+            /* АДАПТИВНОСТЬ ДЛЯ ПЛАНШЕТОВ */
             @media (min-width: 768px) {
-                #top-resource-bar { height: 55px; }
-                #gold-special-panel { top: 60px; }
-                .resource-item { font-size: 16px; margin-right: 25px; }
-                .resource-item img { width: 34px; height: 34px; }
-                .big-stone img { width: 44px; height: 44px; }
-                .gold-container { height: 40px; min-width: 120px; }
-                .gold-icon-wrapper img { width: 44px; height: 44px; }
-                #gold-value { font-size: 18px; }
+                #top-resource-bar { height: 60px; }
+                #gold-special-panel { top: 65px; }
+                .resource-item { font-size: 18px; margin-right: 30px; }
+                .resource-item img { width: 36px; height: 36px; }
+                .big-stone img { width: 46px; height: 46px; }
+                .gold-container { height: 50px; min-width: 150px; }
+                .gold-icon-wrapper img { width: 55px; height: 55px; }
+                #gold-value { font-size: 22px; }
+                .plus-button { width: 22px; height: 22px; font-size: 16px; }
             }
         `;
         document.head.appendChild(style);
