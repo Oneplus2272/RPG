@@ -32,53 +32,58 @@
         .info-name { font-size: 12px; font-weight: bold; color: #ffcc00; margin: 0; line-height: 1.2; }
         .info-power { font-size: 10px; color: #fff; margin: 0; line-height: 1; }
 
-        /* ГЛОБУС С ТВОЕЙ НОВОЙ РАМКОЙ */
+        /* ГЛОБУС С ТВОЕЙ НОВОЙ РАМКОЙ - ИСПРАВЛЕНО */
         #world-map-btn {
             position: absolute;
-            bottom: 10px; 
-            left: 10px; 
-            width: 120px; 
-            height: 120px;
+            bottom: 15px; 
+            left: 15px; 
             z-index: 1000000;
             cursor: pointer;
             user-select: none;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .globe-wrapper {
+            position: relative;
+            width: 85px; /* Фиксированный размер для исключения сплющивания */
+            height: 85px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        /* Исправленная рамка: сохраняет пропорции */
         .globe-frame-img {
             position: absolute;
-            top: 0; left: 0;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             z-index: 3;
             pointer-events: none;
-            object-fit: contain; /* Чтобы рамка не сплющивалась */
+            object-fit: contain;
         }
 
         #world-map-btn .globe-img {
-            position: absolute;
-            width: 76%; /* Подогнал размер, чтобы глобус был четко в центре рамки */
-            height: 76%;
+            width: 82%; /* Глобус внутри рамки */
+            height: 82%;
             border-radius: 50%;
             object-fit: cover;
             z-index: 1;
         }
 
         .map-label-container {
-            position: absolute;
+            margin-top: -10px; /* Наложение текста на нижнюю часть рамки как на референсе */
             z-index: 10;
-            bottom: -5px; /* Вынес текст чуть ниже глобуса как на скриншоте */
-            width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
+            width: 100%;
         }
 
         .yellow-line {
-            width: 45%;
+            width: 60px;
             height: 2px;
             background: #edb432;
             box-shadow: 0 0 5px #edb432;
@@ -86,13 +91,12 @@
 
         .map-label {
             color: #ffffff;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: bold;
             font-family: 'serif', 'Times New Roman';
-            text-shadow: 2px 2px 3px #000;
-            padding: 1px 0;
+            text-shadow: 2px 2px 4px #000;
+            padding: 2px 0;
             text-transform: uppercase;
-            letter-spacing: 1px;
         }
 
         #world-map-btn:active { transform: scale(0.95); }
@@ -106,8 +110,10 @@
             globeBtn.id = 'world-map-btn';
             
             globeBtn.innerHTML = `
-                <img src="globe.png" class="globe-img" draggable="false">
-                <img src="globe-frame.png" class="globe-frame-img" draggable="false">
+                <div class="globe-wrapper">
+                    <img src="globe.png" class="globe-img" draggable="false">
+                    <img src="globe-frame.png" class="globe-frame-img" draggable="false">
+                </div>
                 <div class="map-label-container">
                     <div class="yellow-line"></div>
                     <div class="map-label">Мир</div>
