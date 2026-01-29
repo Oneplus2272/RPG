@@ -37,7 +37,7 @@
             display: none; 
             z-index: 999999; 
             box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-            background: #000; /* Черный фон внутри круга, чтобы не было видно рамку сзади */
+            background: #000; 
         }
 
         /* УРОВЕНЬ ЧЕМПИОНА */
@@ -60,12 +60,12 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.5);
         }
 
-        /* ИНФО-ПАНЕЛЬ (ИМЯ И СИЛА) - КОРОТКАЯ, ВНИЗУ, ЗА КРУГОМ */
+        /* ИНФО-ПАНЕЛЬ: ПОДПРАВИЛ ПОЗИЦИЮ ТЕКСТА */
         #hero-info-panel {
             position: fixed;
-            top: 95px;      /* Опустил к нижней части круга */
-            left: 70px;     /* Сдвинул еще глубже за круг */
-            width: 90px;    /* Еще короче */
+            top: 95px;      
+            left: 70px;     
+            width: 95px;    /* Чуть расширил для комфорта текста */
             height: 38px;   
             background: rgba(0, 0, 0, 0.7);
             backdrop-filter: blur(5px);
@@ -74,8 +74,8 @@
             border-left: none;
             display: flex;
             flex-direction: column;
-            justify-content: center;
-            padding-left: 25px; /* Текст начинается сразу после края круга */
+            justify-content: center; /* Центровка по вертикали */
+            padding-left: 28px;      /* Сдвиг текста вправо от круга */
             color: #fff;
             z-index: 999990;    
         }
@@ -85,13 +85,16 @@
             font-weight: bold;
             color: #ffcc00;
             margin: 0;
-            line-height: 1.1;
+            padding: 0;
+            line-height: 1.2; /* Чтобы имя не липло к силе */
         }
 
         .info-power {
             font-size: 10px;
             color: #fff;
             margin: 0;
+            padding: 0;
+            line-height: 1;
         }
 
         /* ГЛОБУС */
