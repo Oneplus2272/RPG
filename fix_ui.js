@@ -38,10 +38,10 @@
             z-index: 999999;
         }
 
-        /* ГЛОБУС: БЕЗ ТЕНЕЙ, БЕЗ ВЫДЕЛЕНИЯ КВАДРАТОМ */
+        /* ГЛОБУС: ОПУЩЕН НИЖЕ */
         #world-map-btn {
             position: absolute;
-            bottom: 40px;
+            bottom: 10px; /* Было 40px, теперь 10px — глобус стал ниже */
             left: 5px; 
             width: 140px; 
             height: 140px;
