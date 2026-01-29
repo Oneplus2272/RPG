@@ -32,7 +32,7 @@
         .info-name { font-size: 12px; font-weight: bold; color: #ffcc00; margin: 0; line-height: 1.2; }
         .info-power { font-size: 10px; color: #fff; margin: 0; line-height: 1; }
 
-        /* ГЛОБУС С РАМКОЙ - ИСПРАВЛЕННЫЕ РАЗМЕРЫ */
+        /* ГЛОБУС (БЕЗ РАМКИ) */
         #world-map-btn {
             position: absolute;
             bottom: 10px; 
@@ -43,41 +43,29 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            /* Убираем синий/белый квадрат при клике */
             -webkit-tap-highlight-color: transparent;
             outline: none;
         }
 
         .globe-wrapper {
             position: relative;
-            width: 180px; /* Размер всей конструкции */
-            height: 180px;
+            width: 150px; 
+            height: 150px;
             display: flex;
             align-items: center;
             justify-content: center;
         }
 
-        .globe-frame-img {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%; /* Рамка занимает весь контейнер */
-            height: 100%;
-            z-index: 3; /* Поверх глобуса */
-            pointer-events: none;
-            object-fit: contain;
-        }
-
         #world-map-btn .globe-img {
-            width: 70%; /* Глобус теперь МЕНЬШЕ рамки, чтобы она была "надета" сверху */
-            height: 70%;
+            width: 100%; 
+            height: 100%;
             border-radius: 50%;
             object-fit: cover;
-            z-index: 1; /* Под рамкой */
+            z-index: 1;
         }
 
         .map-label-container {
-            margin-top: -20px; /* Надпись накладывается на нижнюю часть рамки */
+            margin-top: -15px; 
             z-index: 10;
             display: flex;
             flex-direction: column;
@@ -87,15 +75,15 @@
         }
 
         .yellow-line {
-            width: 90px;
+            width: 80px;
             height: 2px;
             background: #edb432;
-            box-shadow: 0 0 6px #edb432;
+            box-shadow: 0 0 5px #edb432;
         }
 
         .map-label {
             color: #ffffff;
-            font-size: 22px;
+            font-size: 20px;
             font-weight: bold;
             font-family: 'serif', 'Times New Roman';
             text-shadow: 2px 2px 4px #000;
@@ -116,7 +104,6 @@
             globeBtn.innerHTML = `
                 <div class="globe-wrapper">
                     <img src="globe.png" class="globe-img" draggable="false">
-                    <img src="globe-frame.png" class="globe-frame-img" draggable="false">
                 </div>
                 <div class="map-label-container">
                     <div class="yellow-line"></div>
