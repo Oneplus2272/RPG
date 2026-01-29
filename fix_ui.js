@@ -11,22 +11,20 @@
             background-size: cover !important;
         }
 
-        /* КАРТОЧКИ: Убираем фон замков, оставляем только чистую прозрачность */
+        /* КАРТОЧКИ БЕЗ ФОНА */
         .card {
-            background: rgba(0, 0, 0, 0.7) !important; /* Темная подложка */
+            background: rgba(0, 0, 0, 0.7) !important;
             backdrop-filter: blur(10px);
             border: 2px solid #edb432 !important;
-            background-image: none !important; /* Принудительно убираем любые картинки фона */
+            background-image: none !important;
         }
 
-        /* Убираем фон у самих изображений героев внутри карточек */
         .card img {
             background: transparent !important;
-            background-image: none !important;
             object-fit: contain !important;
         }
 
-        /* АВАТАРКА В ВЕРХНЕМ ЛЕВОМ УГЛУ */
+        /* АВАТАРКА */
         #hero-avatar-circle {
             position: fixed;
             top: 10px;
@@ -40,15 +38,16 @@
             z-index: 999999;
         }
 
-        /* ГЛОБУС В НИЖНЕМ ЛЕВОМ УГЛУ */
+        /* ГЛОБУС (УВЕЛИЧЕН В 1.5 РАЗА И ПЕРЕНЕСЕН ВЛЕВО) */
         #world-map-btn {
             position: fixed;
-            bottom: 20px;
-            left: 20px; /* Перенес на лево */
-            width: 70px;
-            height: 70px;
+            bottom: 30px;
+            left: 20px;
+            width: 105px; /* Было 70px * 1.5 = 105px */
+            height: 105px;
             z-index: 1000000;
             cursor: pointer;
+            display: none; /* По умолчанию скрыт */
         }
 
         #world-map-btn img {
@@ -59,10 +58,9 @@
             animation: pulse-yellow 2s infinite;
         }
 
-        /* Анимация желтой обводки (сжимается/разжимается) */
         @keyframes pulse-yellow {
             0% { box-shadow: 0 0 0 0 rgba(255, 204, 0, 0.7); transform: scale(1); }
-            70% { box-shadow: 0 0 0 15px rgba(255, 204, 0, 0); transform: scale(1.05); }
+            70% { box-shadow: 0 0 0 20px rgba(255, 204, 0, 0); transform: scale(1.03); }
             100% { box-shadow: 0 0 0 0 rgba(255, 204, 0, 0); transform: scale(1); }
         }
 
@@ -77,10 +75,15 @@
         globeBtn.innerHTML = '<img src="globe.png" alt="Map">';
         document.body.appendChild(globeBtn);
         
-        globeBtn.onclick = () => console.log("Map clicked");
+        globeBtn.onclick = () => {
+            if (window.Telegram.WebApp.HapticFeedback) {
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+            }
+            console.log("Открытие карты мира...");
+        };
     }
 
-    // ЛОГИКА АВАТАРКИ
+    // СОЗДАЕМ АВАТАР
     if (!document.getElementById('hero-avatar-circle')) {
         const div = document.createElement('div');
         div.id = 'hero-avatar-circle';
@@ -88,11 +91,23 @@
         document.body.appendChild(div);
     }
 
+    // ГЛАВНЫЙ ЦИКЛ ПРОВЕРКИ СОСТОЯНИЯ
     setInterval(() => {
+        const selectionScreen = document.getElementById('selection-screen');
+        const globeBtn = document.getElementById('world-map-btn');
         const mainHero = document.getElementById('main-hero-img');
         const avatarImg = document.getElementById('avatar-img');
         const circle = document.getElementById('hero-avatar-circle');
 
+        // Логика видимости ГЛОБУСА:
+        // Если экран выбора скрыт (display: none), значит мы в замке — показываем глобус
+        if (selectionScreen && selectionScreen.style.display === 'none') {
+            globeBtn.style.display = 'block';
+        } else {
+            globeBtn.style.display = 'none';
+        }
+
+        // Логика аватара
         if (mainHero && mainHero.src) {
             let faceNum = "";
             if (mainHero.src.includes('tsar')) faceNum = "1";
@@ -104,5 +119,5 @@
                 circle.style.display = 'block';
             }
         }
-    }, 500);
+    }, 400);
 })();
