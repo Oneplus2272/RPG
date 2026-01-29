@@ -60,12 +60,12 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.5);
         }
 
-        /* ИНФО-ПАНЕЛЬ: Еще больше подвинул текст вправо */
+        /* ИНФО-ПАНЕЛЬ */
         #hero-info-panel {
             position: fixed;
             top: 98px;      
             left: 70px;     
-            width: 105px;   /* Немного увеличил ширину, чтобы текст не обрезался */
+            width: 105px;   
             height: 38px;   
             background: rgba(0, 0, 0, 0.7);
             backdrop-filter: blur(5px);
@@ -75,7 +75,7 @@
             display: flex;
             flex-direction: column;
             justify-content: center; 
-            padding-left: 36px;      /* УВЕЛИЧЕНО: было 32px, теперь 36px */
+            padding-left: 36px;      
             color: #fff;
             z-index: 999990;    
         }
@@ -99,20 +99,21 @@
             white-space: nowrap;
         }
 
-        /* ГЛОБУС */
+        /* ГЛОБУС И НАДПИСЬ КАРТА МИРА */
         #world-map-btn {
             position: absolute;
-            bottom: 10px; 
+            bottom: 5px; /* Опустил чуть ниже */
             left: 5px; 
-            width: 140px; 
-            height: 140px;
+            width: 120px; /* Немного уменьшил, чтобы надпись смотрелась пропорционально */
+            height: 120px;
             z-index: 1000000;
             cursor: pointer;
             -webkit-tap-highlight-color: transparent;
             outline: none;
             user-select: none;
-            animation: none !important;
-            transform: none !important;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         #world-map-btn img {
@@ -122,13 +123,21 @@
             border-radius: 50%;
             box-shadow: none !important; 
             filter: none !important;
-            animation: none !important;
             -webkit-user-drag: none; 
+        }
+
+        .map-label {
+            color: #ffffff;
+            font-size: 14px;
+            font-weight: bold;
+            font-family: 'serif', Arial;
+            text-shadow: 2px 2px 4px #000000;
+            margin-top: -15px; /* Наложение текста на нижнюю часть глобуса для стиля */
+            pointer-events: none;
         }
 
         #world-map-btn:active {
             transform: scale(0.96) !important;
-            outline: none;
         }
     `;
     document.head.appendChild(style);
@@ -139,7 +148,11 @@
             const globeBtn = document.createElement('div');
             globeBtn.id = 'world-map-btn';
             globeBtn.setAttribute('tabindex', '-1');
-            globeBtn.innerHTML = '<img src="globe.png" alt="Map" draggable="false">';
+            // Добавлена надпись "Карта мира"
+            globeBtn.innerHTML = `
+                <img src="globe.png" alt="Map" draggable="false">
+                <div class="map-label">Карта мира</div>
+            `;
             castleScreen.appendChild(globeBtn);
             
             globeBtn.onclick = (e) => {
