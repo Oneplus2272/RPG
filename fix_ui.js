@@ -5,146 +5,81 @@
 
     const style = document.createElement('style');
     style.innerHTML = `
-        /* ЭКРАН ВЫБОРА */
-        #selection-screen {
-            background: url('bg.jpg') no-repeat center center !important;
-            background-size: cover !important;
-        }
+        /* ЭКРАН ВЫБОРА И КАРТОЧКИ (без изменений) */
+        #selection-screen { background: url('bg.jpg') no-repeat center center !important; background-size: cover !important; }
+        .card { background: rgba(0, 0, 0, 0.75) !important; backdrop-filter: blur(12px); border: 2px solid #edb432 !important; }
+        .card img { background: transparent !important; object-fit: contain !important; }
 
-        /* КАРТОЧКИ */
-        .card {
-            background: rgba(0, 0, 0, 0.75) !important;
-            backdrop-filter: blur(12px);
-            border: 2px solid #edb432 !important;
-            background-image: none !important;
-        }
-
-        .card img {
-            background: transparent !important;
-            object-fit: contain !important;
-        }
-
-        /* АВАТАРКА */
+        /* АВАТАРКА И ИНФО-ПАНЕЛЬ (сохранено) */
         #hero-avatar-circle {
-            position: fixed;
-            top: 50px; 
-            left: 10px;
-            width: 90px; 
-            height: 90px;
-            border: 4px solid #ffcc00; 
-            border-radius: 50%;
-            overflow: visible; 
-            display: none; 
-            z-index: 999999; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-            background: #000; 
+            position: fixed; top: 50px; left: 10px; width: 90px; height: 90px;
+            border: 4px solid #ffcc00; border-radius: 50%; z-index: 999999;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5); background: #000; display: none;
         }
-
-        /* УРОВЕНЬ */
         #hero-level-badge {
-            position: absolute;
-            bottom: -5px;
-            left: -5px;
-            width: 30px;
-            height: 30px;
-            background: radial-gradient(circle, #ffcc00, #b8860b);
-            border: 2px solid #fff;
-            border-radius: 50%;
-            color: #000;
-            font-weight: bold;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000001;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            position: absolute; bottom: -5px; left: -5px; width: 30px; height: 30px;
+            background: radial-gradient(circle, #ffcc00, #b8860b); border: 2px solid #fff;
+            border-radius: 50%; color: #000; font-weight: bold; font-size: 14px;
+            display: flex; align-items: center; justify-content: center; z-index: 1000001;
         }
-
-        /* ИНФО-ПАНЕЛЬ */
         #hero-info-panel {
-            position: fixed;
-            top: 98px;      
-            left: 70px;     
-            width: 105px;   
-            height: 38px;   
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(5px);
-            border-radius: 0 10px 10px 0;
-            border: 1px solid rgba(255, 204, 0, 0.4);
-            border-left: none;
-            display: flex;
-            flex-direction: column;
-            justify-content: center; 
-            padding-left: 36px;      
-            color: #fff;
-            z-index: 999990;    
+            position: fixed; top: 98px; left: 70px; width: 105px; height: 38px;
+            background: rgba(0, 0, 0, 0.7); backdrop-filter: blur(5px);
+            border-radius: 0 10px 10px 0; border: 1px solid rgba(255, 204, 0, 0.4);
+            border-left: none; display: flex; flex-direction: column;
+            justify-content: center; padding-left: 36px; color: #fff; z-index: 999990;
         }
+        .info-name { font-size: 12px; font-weight: bold; color: #ffcc00; margin: 0; line-height: 1.2; }
+        .info-power { font-size: 10px; color: #fff; margin: 0; line-height: 1; }
 
-        .info-name {
-            font-size: 12px;
-            font-weight: bold;
-            color: #ffcc00;
-            margin: 0;
-            padding: 0;
-            line-height: 1.2;
-            white-space: nowrap;
-        }
-
-        .info-power {
-            font-size: 10px;
-            color: #fff;
-            margin: 0;
-            padding: 0;
-            line-height: 1;
-            white-space: nowrap;
-        }
-
-        /* ГЛОБУС "МИР": СТАРЫЙ РАЗМЕР, НО УВЕЛИЧЕН ВНУТРИ */
+        /* ГЛОБУС С ТВОЕЙ НОВОЙ РАМКОЙ */
         #world-map-btn {
             position: absolute;
             bottom: 10px; 
             left: 10px; 
-            width: 110px; 
-            height: 110px;
+            width: 115px; 
+            height: 115px;
             z-index: 1000000;
             cursor: pointer;
-            -webkit-tap-highlight-color: transparent;
-            outline: none;
             user-select: none;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-end;
-            overflow: hidden; /* Чтобы глобус не вылезал за границы круга */
-            border-radius: 50%;
-            border: 2px solid #edb432;
-            box-sizing: border-box;
+            justify-content: center;
+            overflow: visible;
         }
 
-        #world-map-btn img {
+        /* Твоя картинка рамки (1000008073.png) */
+        .globe-frame-img {
             position: absolute;
             top: 0; left: 0;
-            width: 130%; /* УВЕЛИЧИЛ САМ ГЛОБУС ВНУТРИ КРУГА */
-            height: 130%;
-            top: -15%; /* Центрируем после увеличения */
-            left: -15%;
+            width: 100%;
+            height: 100%;
+            z-index: 3; /* Поверх глобуса */
+            pointer-events: none;
+        }
+
+        #world-map-btn .globe-img {
+            position: absolute;
+            width: 82%; /* Уменьшил, чтобы влезло ВНУТРИ рамки */
+            height: 82%;
+            border-radius: 50%;
             object-fit: cover;
-            -webkit-user-drag: none; 
+            z-index: 1;
         }
 
         .map-label-container {
             position: relative;
-            z-index: 2;
+            z-index: 10; /* Выше рамки */
             width: 100%;
-            background: transparent; 
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-bottom: 8px; 
+            margin-top: 55px; /* Смещаем текст вниз на глобус */
         }
 
         .yellow-line {
-            width: 60%;
+            width: 55%;
             height: 2px;
             background: #edb432;
             box-shadow: 0 0 5px #edb432;
@@ -152,16 +87,15 @@
 
         .map-label {
             color: #ffffff;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: bold;
             font-family: 'serif', 'Times New Roman';
-            text-shadow: 1px 1px 3px #000;
-            padding: 2px 0;
+            text-shadow: 2px 2px 3px #000;
+            padding: 1px 0;
+            text-transform: uppercase;
         }
 
-        #world-map-btn:active {
-            transform: scale(0.95);
-        }
+        #world-map-btn:active { transform: scale(0.95); }
     `;
     document.head.appendChild(style);
 
@@ -170,10 +104,11 @@
         if (castleScreen && !document.getElementById('world-map-btn')) {
             const globeBtn = document.createElement('div');
             globeBtn.id = 'world-map-btn';
-            globeBtn.setAttribute('tabindex', '-1');
             
+            // Здесь 1000008073.png — это твоя картинка рамки
             globeBtn.innerHTML = `
-                <img src="globe.png" alt="Map" draggable="false">
+                <img src="globe.png" class="globe-img" draggable="false">
+                <img src="1000008073.png" class="globe-frame-img" draggable="false">
                 <div class="map-label-container">
                     <div class="yellow-line"></div>
                     <div class="map-label">Мир</div>
@@ -183,7 +118,6 @@
             castleScreen.appendChild(globeBtn);
             
             globeBtn.onclick = (e) => {
-                e.preventDefault(); 
                 if (window.Telegram.WebApp.HapticFeedback) {
                     window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
                 }
@@ -191,25 +125,7 @@
         }
     }
 
-    if (!document.getElementById('hero-avatar-circle')) {
-        const circle = document.createElement('div');
-        circle.id = 'hero-avatar-circle';
-        circle.innerHTML = `
-            <img id="avatar-img" style="width:100%;height:100%;object-fit:cover;border-radius:50%;position:relative;z-index:2;" src="">
-            <div id="hero-level-badge">1</div>
-        `;
-        document.body.appendChild(circle);
-
-        const infoPanel = document.createElement('div');
-        infoPanel.id = 'hero-info-panel';
-        infoPanel.style.display = 'none';
-        infoPanel.innerHTML = `
-            <p class="info-name">Никита</p>
-            <p class="info-power">Сила 0</p>
-        `;
-        document.body.appendChild(infoPanel);
-    }
-
+    /* Интервал и логика отображения аватарок (без изменений) */
     setInterval(() => {
         const selectionScreen = document.getElementById('selection-screen');
         if (selectionScreen && selectionScreen.style.display === 'none') {
@@ -218,18 +134,14 @@
             const oldGlobe = document.getElementById('world-map-btn');
             if (oldGlobe) oldGlobe.remove();
         }
-
+        
         const mainHero = document.getElementById('main-hero-img');
         const avatarImg = document.getElementById('avatar-img');
         const circle = document.getElementById('hero-avatar-circle');
         const infoPanel = document.getElementById('hero-info-panel');
 
         if (mainHero && mainHero.src) {
-            let faceNum = "";
-            if (mainHero.src.includes('tsar')) faceNum = "1";
-            else if (mainHero.src.includes('sultan')) faceNum = "2";
-            else if (mainHero.src.includes('king')) faceNum = "3";
-
+            let faceNum = mainHero.src.includes('tsar') ? "1" : mainHero.src.includes('sultan') ? "2" : mainHero.src.includes('king') ? "3" : "";
             if (faceNum !== "" && !avatarImg.src.includes('face_' + faceNum)) {
                 avatarImg.src = 'face_' + faceNum + '.png';
                 circle.style.display = 'block';
@@ -237,4 +149,17 @@
             }
         }
     }, 400);
+
+    if (!document.getElementById('hero-avatar-circle')) {
+        const circle = document.createElement('div');
+        circle.id = 'hero-avatar-circle';
+        circle.innerHTML = `<img id="avatar-img" style="width:100%;height:100%;object-fit:cover;border-radius:50%;position:relative;z-index:2;" src=""><div id="hero-level-badge">1</div>`;
+        document.body.appendChild(circle);
+
+        const infoPanel = document.createElement('div');
+        infoPanel.id = 'hero-info-panel';
+        infoPanel.style.display = 'none';
+        infoPanel.innerHTML = `<p class="info-name">Никита</p><p class="info-power">Сила 0</p>`;
+        document.body.appendChild(infoPanel);
+    }
 })();
