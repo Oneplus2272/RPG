@@ -5,12 +5,12 @@ const CityManager = {
     
     currentX: 0, 
     currentY: 0,
-    scale: 1.2, // Чуть приблизим для четкости
+    scale: 1.0, 
     
-    mapSize: 1000, 
-    safeMargin: 150, // На сколько пикселей НЕ доходить до края (барьер)
+    mapSize: 1500, 
+    safeMargin: 60, // Барьер 60px от каждого края
     minScale: 1.0,
-    maxScale: 2.0,
+    maxScale: 2.5,
 
     lastDist: 0,
     startX: 0, startY: 0,
@@ -19,29 +19,27 @@ const CityManager = {
         const castleScreen = document.getElementById('castle-screen');
         if (!castleScreen) return;
 
-        // 1. Небо
+        // Фон неба (яркий дневной)
         const sky = document.createElement('div');
         sky.id = 'sky-layer';
         castleScreen.appendChild(sky);
 
-        // 2. Вьюпорт
         this.viewport = document.createElement('div');
         this.viewport.id = 'map-viewport';
         
-        // 3. Карта
         this.container = document.createElement('div');
         this.container.id = 'city-map';
         
-        // 4. Слой освещения
-        const light = document.createElement('div');
-        light.id = 'map-light';
-        this.container.appendChild(light);
+        // Слой яркого солнечного света
+        const sunLight = document.createElement('div');
+        sunLight.id = 'sun-light';
+        this.container.appendChild(sunLight);
         
         this.viewport.appendChild(this.container);
         castleScreen.appendChild(this.viewport);
 
         this.applyStyles();
-        this.centerMap(); // Ставим по центру
+        this.centerMap();
         this.initEvents();
         this.updatePosition();
     },
@@ -52,7 +50,7 @@ const CityManager = {
             #sky-layer {
                 position: fixed;
                 top: 0; left: 0; width: 100%; height: 100%;
-                background: #0a0f05;
+                background: #4facfe; /* Ясное небо */
                 z-index: 1;
             }
 
@@ -61,7 +59,7 @@ const CityManager = {
                 top: 0; left: 0; width: 100vw; height: 100vh;
                 overflow: hidden;
                 z-index: 2;
-                perspective: 1000px;
+                perspective: 1200px;
                 touch-action: none;
             }
 
@@ -69,26 +67,27 @@ const CityManager = {
                 position: absolute;
                 width: ${this.mapSize}px;
                 height: ${this.mapSize}px;
-                background-color: #14260d; /* Глубокий зеленый */
+                background-color: #2e5a1c; /* Яркий зеленый ландшафт */
                 transform-origin: center center;
                 transform: rotateX(55deg) rotateZ(45deg);
                 will-change: left, top, transform;
             }
 
-            /* Чистое освещение без полос */
-            #map-light {
+            /* Эффект палящего солнца */
+            #sun-light {
                 position: absolute;
                 top: 0; left: 0; width: 100%; height: 100%;
-                background: radial-gradient(circle at 50% 0%, rgba(255,255,180,0.15) 0%, transparent 70%);
+                background: radial-gradient(circle at 50% 10%, rgba(255,255,230,0.4) 0%, rgba(255,255,200,0.1) 40%, transparent 70%);
                 pointer-events: none;
+                mix-blend-mode: screen;
             }
 
-            /* Атмосфера у горизонта */
+            /* Яркий горизонт */
             #map-viewport::after {
                 content: "";
                 position: absolute;
-                top: 0; left: 0; width: 100%; height: 50%;
-                background: linear-gradient(to top, transparent, rgba(10, 15, 5, 0.9));
+                top: 0; left: 0; width: 100%; height: 35%;
+                background: linear-gradient(to top, transparent, rgba(255, 255, 255, 0.4));
                 pointer-events: none;
             }
         `;
@@ -96,7 +95,6 @@ const CityManager = {
     },
 
     centerMap() {
-        // Рассчитываем центр экрана относительно центра карты
         this.currentX = (window.innerWidth / 2) - (this.mapSize / 2);
         this.currentY = (window.innerHeight / 2) - (this.mapSize / 2);
     },
@@ -106,15 +104,13 @@ const CityManager = {
         const vw = window.innerWidth;
         const vh = window.innerHeight;
 
-        // Логика барьера (Safe Zone):
-        // Рассчитываем границы так, чтобы края карты (mapSize) никогда не заходили слишком далеко в экран
+        // Ограничители по 60px
         const limitX_right = vw - (this.mapSize * s) + this.safeMargin;
         const limitX_left = -this.safeMargin;
         
         const limitY_bottom = vh - (this.mapSize * s) + this.safeMargin;
         const limitY_top = -this.safeMargin;
 
-        // Применяем ограничения
         if (this.currentX > limitX_left) this.currentX = limitX_left;
         if (this.currentY > limitY_top) this.currentY = limitY_top;
         if (this.currentX < limitX_right) this.currentX = limitX_right;
