@@ -7,12 +7,9 @@ const CityManager = {
     currentY: 0,
     scale: 1.0, 
     
-    // Увеличиваем размер, чтобы углы при повороте не были видны
-    mapSize: 2000, 
-    // Увеличиваем буфер, чтобы скрыть "синие углы"
-    safeMargin: 300, 
+    mapSize: 2000, // Увеличенный размер для перекрытия углов
     minScale: 1.0,
-    maxScale: 2.0,
+    maxScale: 2.5,
 
     lastDist: 0,
     startX: 0, startY: 0,
@@ -21,6 +18,7 @@ const CityManager = {
         const castleScreen = document.getElementById('castle-screen');
         if (!castleScreen) return;
 
+        // Небо (фон)
         const sky = document.createElement('div');
         sky.id = 'sky-layer';
         castleScreen.appendChild(sky);
@@ -31,6 +29,7 @@ const CityManager = {
         this.container = document.createElement('div');
         this.container.id = 'city-map';
         
+        // Яркое освещение
         const sunLight = document.createElement('div');
         sunLight.id = 'sun-light';
         this.container.appendChild(sunLight);
@@ -50,7 +49,7 @@ const CityManager = {
             #sky-layer {
                 position: fixed;
                 top: 0; left: 0; width: 100%; height: 100%;
-                background: #4facfe;
+                background: #4facfe; /* Цвет неба */
                 z-index: 1;
             }
 
@@ -68,23 +67,25 @@ const CityManager = {
                 width: ${this.mapSize}px;
                 height: ${this.mapSize}px;
                 background-color: #2e5a1c;
-                /* Важно: вращаем относительно центра */
                 transform-origin: center center;
-                will-change: left, top, transform;
+                will-change: transform, left, top;
             }
 
             #sun-light {
                 position: absolute;
                 top: 0; left: 0; width: 100%; height: 100%;
-                background: radial-gradient(circle at 50% 50%, rgba(255,255,230,0.3) 0%, transparent 80%);
+                /* Мощное центральное освещение */
+                background: radial-gradient(circle at 50% 50%, rgba(255,255,230,0.4) 0%, transparent 70%);
                 pointer-events: none;
+                mix-blend-mode: overlay;
             }
 
+            /* Дымка у горизонта, чтобы скрыть стык */
             #map-viewport::after {
                 content: "";
                 position: absolute;
                 top: 0; left: 0; width: 100%; height: 40%;
-                background: linear-gradient(to top, transparent, rgba(79, 172, 254, 0.6));
+                background: linear-gradient(to top, transparent, rgba(79, 172, 254, 0.8));
                 pointer-events: none;
             }
         `;
@@ -92,7 +93,7 @@ const CityManager = {
     },
 
     centerMap() {
-        // Ставим игрока в центр 2000-пиксельной карты
+        // Устанавливаем камеру ровно в центр карты
         this.currentX = (window.innerWidth / 2) - (this.mapSize / 2);
         this.currentY = (window.innerHeight / 2) - (this.mapSize / 2);
     },
@@ -102,14 +103,19 @@ const CityManager = {
         const vw = window.innerWidth;
         const vh = window.innerHeight;
 
-        // Расчет границ с учетом того, что карта повернута (ромб шире квадрата)
-        // Мы ограничиваем движение так, чтобы края никогда не заходили в экран
-        const limit = (this.mapSize * s * 0.2); // Коэффициент запаса для ромба
+        // Математический расчет границ для ромба:
+        // Чтобы углы не вылезали, мы ограничиваем перемещение сильнее, чем просто по размеру
+        const overflowX = (this.mapSize * s - vw) / 2;
+        const overflowY = (this.mapSize * s - vh) / 2;
 
-        const minX = vw - (this.mapSize * s) + limit;
-        const maxX = -limit;
-        const minY = vh - (this.mapSize * s) + limit;
-        const maxY = -limit;
+        // Коэффициент 0.35 — это магическое число для rotate(45deg), 
+        // которое не дает углам зайти в видимую зону
+        const margin = this.mapSize * s * 0.15; 
+
+        const minX = vw - this.mapSize * s + margin;
+        const maxX = -margin;
+        const minY = vh - this.mapSize * s + margin;
+        const maxY = -margin;
 
         if (this.currentX > maxX) this.currentX = maxX;
         if (this.currentY > maxY) this.currentY = maxY;
@@ -118,7 +124,6 @@ const CityManager = {
 
         this.container.style.left = this.currentX + 'px';
         this.container.style.top = this.currentY + 'px';
-        // Применяем изометрию здесь
         this.container.style.transform = `scale(${s}) rotateX(55deg) rotateZ(45deg)`;
     },
 
