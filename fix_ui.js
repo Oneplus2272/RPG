@@ -99,13 +99,13 @@
             white-space: nowrap;
         }
 
-        /* ГЛОБУС "МИР": УВЕЛИЧЕН В 2 РАЗА, БЕЗ ЧЕРНОЙ РАМКИ */
+        /* ГЛОБУС "МИР": СТАРЫЙ РАЗМЕР, НО УВЕЛИЧЕН ВНУТРИ */
         #world-map-btn {
             position: absolute;
-            bottom: 5px; 
-            left: 5px; 
-            width: 220px; /* Увеличено в 2 раза (было 110px) */
-            height: 220px; /* Увеличено в 2 раза */
+            bottom: 10px; 
+            left: 10px; 
+            width: 110px; 
+            height: 110px;
             z-index: 1000000;
             cursor: pointer;
             -webkit-tap-highlight-color: transparent;
@@ -115,44 +115,48 @@
             flex-direction: column;
             align-items: center;
             justify-content: flex-end;
+            overflow: hidden; /* Чтобы глобус не вылезал за границы круга */
+            border-radius: 50%;
+            border: 2px solid #edb432;
+            box-sizing: border-box;
         }
 
         #world-map-btn img {
             position: absolute;
             top: 0; left: 0;
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            border-radius: 50%;
-            border: 4px solid #edb432; /* Пропорционально увеличил толщину рамки */
-            box-sizing: border-box;
+            width: 130%; /* УВЕЛИЧИЛ САМ ГЛОБУС ВНУТРИ КРУГА */
+            height: 130%;
+            top: -15%; /* Центрируем после увеличения */
+            left: -15%;
+            object-fit: cover;
+            -webkit-user-drag: none; 
         }
 
         .map-label-container {
             position: relative;
             z-index: 2;
             width: 100%;
-            background: transparent; /* УБРАЛ ЧЕРНУЮ РАМКУ */
+            background: transparent; 
             display: flex;
             flex-direction: column;
             align-items: center;
-            margin-bottom: 25px; /* Поднял текст чуть выше из-за увеличения размера */
+            margin-bottom: 8px; 
         }
 
         .yellow-line {
-            width: 45%; /* Сделал полоски короче для стиля */
+            width: 60%;
             height: 2px;
             background: #edb432;
-            box-shadow: 0 0 8px #edb432;
+            box-shadow: 0 0 5px #edb432;
         }
 
         .map-label {
             color: #ffffff;
-            font-size: 24px; /* Увеличил шрифт пропорционально кнопке */
+            font-size: 16px;
             font-weight: bold;
             font-family: 'serif', 'Times New Roman';
-            text-shadow: 2px 2px 5px #000; /* Усилил тень для читаемости без фона */
-            padding: 4px 0;
+            text-shadow: 1px 1px 3px #000;
+            padding: 2px 0;
         }
 
         #world-map-btn:active {
