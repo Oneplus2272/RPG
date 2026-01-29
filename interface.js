@@ -25,7 +25,7 @@ const UIManager = {
             resourceBar.appendChild(item);
         });
 
-        // 2. РАМКА ДЛЯ ЗОЛОТА (как на скриншоте)
+        // 2. ОТДЕЛЬНАЯ РАМКА ДЛЯ ЗОЛОТА (ПОД ПАНЕЛЬЮ)
         const goldPanel = document.createElement('div');
         goldPanel.id = 'gold-special-panel';
         goldPanel.innerHTML = `
@@ -48,30 +48,33 @@ const UIManager = {
         const style = document.createElement('style');
         style.id = 'ui-styles';
         style.innerHTML = `
+            /* ВЕРХНЯЯ ПАНЕЛЬ */
             #top-resource-bar {
                 position: fixed;
                 top: 0;
                 left: 0;
                 width: 100%;
                 height: 45px;
-                background: rgba(20, 15, 10, 0.8);
-                border-bottom: 1px solid #555;
+                background: rgba(20, 15, 10, 0.85);
+                border-bottom: 2px solid #333;
                 display: flex;
                 align-items: center;
                 justify-content: flex-start;
                 padding: 0 10px;
                 z-index: 2000000;
                 box-sizing: border-box;
+                backdrop-filter: blur(4px);
             }
 
             .resource-item {
                 display: flex;
                 align-items: center;
                 margin-right: 12px;
-                color: #e0e0e0;
+                color: #fff;
                 font-family: sans-serif;
                 font-size: 13px;
                 font-weight: bold;
+                text-shadow: 1px 1px 1px #000;
             }
 
             .resource-item img {
@@ -82,38 +85,37 @@ const UIManager = {
             }
 
             .big-stone img {
-                width: 34px;
-                height: 34px;
+                width: 36px;
+                height: 36px;
             }
 
-            /* СТИЛЬ ЗОЛОТА СО СКРИНШОТА */
+            /* РАМКА ЗОЛОТА - ТЕПЕРЬ ПОД ПАНЕЛЬЮ */
             #gold-special-panel {
                 position: fixed;
-                top: 5px;   /* Оно на одном уровне с ресурсами, но справа */
+                top: 50px; /* Опускаем ниже основной панели (45px + 5px отступ) */
                 right: 10px;
                 z-index: 2000001;
             }
 
             .gold-container {
-                background: linear-gradient(180deg, #1a3c1a 0%, #0d240d 100%); /* Темно-зеленый градиент */
-                border: 2px solid #edb432; /* Золотая кайма */
+                background: linear-gradient(180deg, #1a3c1a 0%, #0d240d 100%);
+                border: 2px solid #edb432;
                 border-radius: 20px;
                 display: flex;
                 align-items: center;
                 padding: 2px 2px 2px 15px;
-                min-width: 100px;
-                height: 34px;
-                box-shadow: inset 0 0 5px rgba(0,0,0,0.5);
+                min-width: 90px;
+                height: 32px;
+                box-shadow: 0 4px 6px rgba(0,0,0,0.5);
             }
 
             #gold-value {
                 color: #fff;
                 font-family: sans-serif;
                 font-weight: bold;
-                font-size: 15px;
-                margin-right: 10px;
-                flex-grow: 1;
-                text-align: center;
+                font-size: 14px;
+                margin-right: 8px;
+                text-shadow: 1px 1px 1px #000;
             }
 
             .gold-icon-wrapper {
@@ -123,8 +125,8 @@ const UIManager = {
             }
 
             .gold-icon-wrapper img {
-                width: 32px;
-                height: 32px;
+                width: 34px;
+                height: 34px;
             }
 
             .plus-button {
@@ -142,15 +144,19 @@ const UIManager = {
                 font-size: 12px;
                 font-weight: bold;
                 border: 1px solid #000;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.5);
             }
 
+            /* АДАПТИВНОСТЬ */
             @media (min-width: 768px) {
                 #top-resource-bar { height: 55px; }
+                #gold-special-panel { top: 60px; }
                 .resource-item { font-size: 16px; margin-right: 25px; }
-                .resource-item img { width: 32px; height: 32px; }
-                .big-stone img { width: 42px; height: 42px; }
-                .gold-container { height: 40px; padding-left: 20px; }
-                .gold-icon-wrapper img { width: 42px; height: 42px; }
+                .resource-item img { width: 34px; height: 34px; }
+                .big-stone img { width: 44px; height: 44px; }
+                .gold-container { height: 40px; min-width: 120px; }
+                .gold-icon-wrapper img { width: 44px; height: 44px; }
+                #gold-value { font-size: 18px; }
             }
         `;
         document.head.appendChild(style);
