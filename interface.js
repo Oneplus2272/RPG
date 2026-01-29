@@ -3,7 +3,7 @@ const UIManager = {
         const castleScreen = document.getElementById('castle-screen');
         if (!castleScreen) return;
 
-        // 1. ОСНОВНАЯ ПАНЕЛЬ (Хлеб, Дерево, Камень, Железо, Серебро)
+        // 1. ОСНОВНАЯ ПАНЕЛЬ
         const resourceBar = document.createElement('div');
         resourceBar.id = 'top-resource-bar';
         
@@ -17,7 +17,8 @@ const UIManager = {
 
         resources.forEach(res => {
             const item = document.createElement('div');
-            item.className = 'resource-item';
+            // Добавляем специальный класс для камня, чтобы его увеличить
+            item.className = `resource-item ${res.id === 'stone' ? 'big-stone' : ''}`;
             item.innerHTML = `
                 <img src="${res.icon}" alt="${res.id}">
                 <span>${res.value}</span>
@@ -25,7 +26,7 @@ const UIManager = {
             resourceBar.appendChild(item);
         });
 
-        // 2. ОТДЕЛЬНАЯ РАМКА ДЛЯ ЗОЛОТА
+        // 2. РАМКА ДЛЯ ЗОЛОТА
         const goldPanel = document.createElement('div');
         goldPanel.id = 'gold-special-panel';
         goldPanel.innerHTML = `
@@ -45,18 +46,18 @@ const UIManager = {
         const style = document.createElement('style');
         style.id = 'ui-styles';
         style.innerHTML = `
-            /* ОСНОВНАЯ ПАНЕЛЬ */
             #top-resource-bar {
                 position: fixed;
                 top: 0;
                 left: 0;
                 width: 100%;
-                height: 50px; /* Немного увеличил высоту под большие иконки */
+                height: 50px;
                 background: rgba(45, 30, 20, 0.8);
                 border-bottom: 2px solid #edb432;
                 display: flex;
                 align-items: center;
-                padding: 0 20px 0 100px;
+                /* СМЕСТИЛ ВЛЕВО: уменьшил отступ с 100px до 20px */
+                padding: 0 20px; 
                 z-index: 2000000;
                 backdrop-filter: blur(5px);
                 box-sizing: border-box;
@@ -65,32 +66,38 @@ const UIManager = {
             .resource-item {
                 display: flex;
                 align-items: center;
-                margin-right: 25px; /* Увеличил отступ между ресурсами */
+                margin-right: 25px;
                 color: #fff;
                 font-family: sans-serif;
-                font-size: 16px; /* Чуть крупнее шрифт */
+                font-size: 16px;
                 font-weight: bold;
                 text-shadow: 1px 1px 2px #000;
             }
 
             .resource-item img {
-                width: 32px; /* Увеличил фото ресурсов */
+                width: 32px;
                 height: 32px;
                 margin-right: 8px;
                 object-fit: contain;
             }
 
-            /* РАМКА ПОД ЗОЛОТО (Справа под панелью) */
+            /* УВЕЛИЧЕННОЕ ФОТО КАМНЯ */
+            .big-stone img {
+                width: 42px; /* Камень теперь заметно больше остальных */
+                height: 42px;
+                transform: scale(1.1); /* Дополнительный акцент */
+            }
+
             #gold-special-panel {
                 position: fixed;
-                top: 55px; /* Сразу под основной панелью */
-                right: 20px; /* У правого края */
+                top: 55px;
+                right: 20px;
                 z-index: 2000000;
             }
 
             .gold-content {
-                background: rgba(144, 238, 144, 0.3); /* Светло-зеленый фон внутри */
-                border: 2px solid #90ee90;           /* Светло-зеленая рамка */
+                background: rgba(144, 238, 144, 0.3);
+                border: 2px solid #90ee90;
                 border-radius: 10px;
                 padding: 5px 15px;
                 display: flex;
@@ -101,7 +108,7 @@ const UIManager = {
             }
 
             .gold-content img {
-                width: 35px; /* Золото чуть больше остальных */
+                width: 35px;
                 height: 35px;
                 margin-right: 10px;
             }
