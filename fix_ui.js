@@ -60,12 +60,12 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.5);
         }
 
-        /* ИНФО-ПАНЕЛЬ: Сдвинул текст вправо и опустил рамку ниже */
+        /* ИНФО-ПАНЕЛЬ: Еще больше подвинул текст вправо */
         #hero-info-panel {
             position: fixed;
-            top: 98px;      /* Опустил на 3px ниже для центровки по низу круга */
+            top: 98px;      
             left: 70px;     
-            width: 100px;   /* Чуть удлинил рамку, чтобы текст влез */
+            width: 105px;   /* Немного увеличил ширину, чтобы текст не обрезался */
             height: 38px;   
             background: rgba(0, 0, 0, 0.7);
             backdrop-filter: blur(5px);
@@ -75,7 +75,7 @@
             display: flex;
             flex-direction: column;
             justify-content: center; 
-            padding-left: 32px;      /* ВЫТАЛКИВАЕМ ТЕКСТ: было 28px, стало 32px */
+            padding-left: 36px;      /* УВЕЛИЧЕНО: было 32px, теперь 36px */
             color: #fff;
             z-index: 999990;    
         }
