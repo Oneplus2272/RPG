@@ -4,14 +4,14 @@ const CityManager = {
     isDragging: false,
     
     // Состояние камеры
-    currentX: -500,
-    currentY: -500,
-    scale: 1, // Текущий зум
+    currentX: -200, // Начальное смещение
+    currentY: -200,
+    scale: 1, 
     
-    // Настройки карты
-    mapSize: 2500, 
-    minScale: 0.5,
-    maxScale: 1.5,
+    // Настройки
+    mapSize: 1000, 
+    minScale: 0.8,
+    maxScale: 2.0,
 
     // Для жестов
     lastDist: 0,
@@ -21,6 +21,7 @@ const CityManager = {
         const castleScreen = document.getElementById('castle-screen');
         if (!castleScreen) return;
 
+        // Небо
         const sky = document.createElement('div');
         sky.id = 'sky-layer';
         castleScreen.appendChild(sky);
@@ -45,7 +46,7 @@ const CityManager = {
             #sky-layer {
                 position: fixed;
                 top: 0; left: 0; width: 100%; height: 100%;
-                background: linear-gradient(to bottom, #1e3c72 0%, #2a5298 100%);
+                background: #1a2a3a; /* Темный фон неба */
                 z-index: 1;
             }
 
@@ -54,33 +55,32 @@ const CityManager = {
                 top: 0; left: 0; width: 100vw; height: 100vh;
                 overflow: hidden;
                 z-index: 2;
-                perspective: 1500px;
-                touch-action: none; /* Важно для мобильного зума */
+                perspective: 1200px;
+                touch-action: none;
             }
 
             #city-map {
                 position: absolute;
                 width: ${this.mapSize}px;
                 height: ${this.mapSize}px;
-                background-color: #2d4c1e;
+                background-color: #1b3012; /* Темно-зеленый */
                 
-                /* Чистый ландшафт без черных точек */
+                /* Мягкие переходы цвета */
                 background-image: 
-                    radial-gradient(circle at 30% 30%, #3d6a2a 0%, transparent 50%),
-                    radial-gradient(circle at 70% 60%, #4a7c36 0%, transparent 50%),
-                    radial-gradient(circle at 50% 10%, #355d23 0%, transparent 40%);
+                    radial-gradient(circle at 50% 50%, #243d18 0%, transparent 70%),
+                    radial-gradient(circle at 20% 80%, #16290f 0%, transparent 50%);
                 
                 transform-origin: 0 0;
-                /* Изометрия */
                 transform: rotateX(60deg) rotateZ(45deg);
                 will-change: left, top, transform;
             }
 
+            /* Легкий туман у горизонта */
             #map-viewport::after {
                 content: "";
                 position: absolute;
-                top: 0; left: 0; width: 100%; height: 45%;
-                background: linear-gradient(to top, transparent, rgba(30, 60, 114, 0.8));
+                top: 0; left: 0; width: 100%; height: 40%;
+                background: linear-gradient(to top, transparent, rgba(26, 42, 58, 0.9));
                 pointer-events: none;
             }
         `;
@@ -88,73 +88,75 @@ const CityManager = {
     },
 
     updatePosition() {
-        // Рассчитываем границы с учетом текущего зума
-        const scaledSize = this.mapSize * this.scale;
-        const minX = window.innerWidth - this.mapSize;
-        const minY = window.innerHeight - this.mapSize;
+        // Учитываем масштаб при расчете границ
+        const s = this.scale;
+        
+        // Ограничение: не даем краю карты уйти внутрь экрана
+        // Расчет границ (упрощенный для стабильности)
+        const minX = window.innerWidth - this.mapSize * s;
+        const minY = window.innerHeight - this.mapSize * s;
 
-        // Ограничиваем перемещение (упор в края)
         if (this.currentX > 0) this.currentX = 0;
         if (this.currentY > 0) this.currentY = 0;
+        
+        // Если карта меньше экрана (при сильном зуме out), центрируем, иначе стопорим
         if (this.currentX < minX) this.currentX = minX;
         if (this.currentY < minY) this.currentY = minY;
 
         this.container.style.left = this.currentX + 'px';
         this.container.style.top = this.currentY + 'px';
-        
-        // Применяем зум к изометрической трансформации
         this.container.style.transform = `scale(${this.scale}) rotateX(60deg) rotateZ(45deg)`;
     },
 
     initEvents() {
-        // Обработка касаний (Зум и Драг)
-        this.viewport.addEventListener('touchstart', (e) => {
-            if (e.touches.length === 1) {
-                this.isDragging = true;
-                this.startX = e.touches[0].pageX - this.currentX;
-                this.startY = e.touches[0].pageY - this.currentY;
-            } else if (e.touches.length === 2) {
-                this.isDragging = false;
-                this.lastDist = Math.hypot(
-                    e.touches[0].pageX - e.touches[1].pageX,
-                    e.touches[0].pageY - e.touches[1].pageY
-                );
-            }
-        }, {passive: false});
+        // Мышь и тач
+        const handleStart = (e) => {
+            const touch = e.touches ? e.touches[0] : e;
+            this.isDragging = true;
+            this.startX = touch.pageX - this.currentX;
+            this.startY = touch.pageY - this.currentY;
+        };
 
-        this.viewport.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-            
-            if (e.touches.length === 1 && this.isDragging) {
-                // Перемещение
-                this.currentX = e.touches[0].pageX - this.startX;
-                this.currentY = e.touches[0].pageY - this.startY;
-            } else if (e.touches.length === 2) {
-                // Зум пальцами
+        const handleMove = (e) => {
+            if (e.touches && e.touches.length === 2) {
+                // Логика зума пальцами
+                this.isDragging = false;
                 const dist = Math.hypot(
                     e.touches[0].pageX - e.touches[1].pageX,
                     e.touches[0].pageY - e.touches[1].pageY
                 );
-                
-                const delta = dist / this.lastDist;
-                this.lastDist = dist;
-                
-                const newScale = this.scale * delta;
-                if (newScale >= this.minScale && newScale <= this.maxScale) {
-                    this.scale = newScale;
+                if (this.lastDist > 0) {
+                    const delta = dist / this.lastDist;
+                    const newScale = this.scale * delta;
+                    if (newScale >= this.minScale && newScale <= this.maxScale) {
+                        this.scale = newScale;
+                    }
                 }
+                this.lastDist = dist;
+            } else if (this.isDragging) {
+                // Логика перемещения
+                const touch = e.touches ? e.touches[0] : e;
+                this.currentX = touch.pageX - this.startX;
+                this.currentY = touch.pageY - this.startY;
             }
             this.updatePosition();
-        }, {passive: false});
+        };
 
-        this.viewport.addEventListener('touchend', () => {
+        this.viewport.addEventListener('mousedown', handleStart);
+        this.viewport.addEventListener('touchstart', handleStart, {passive: false});
+        
+        window.addEventListener('mousemove', handleMove);
+        window.addEventListener('touchmove', handleMove, {passive: false});
+        
+        window.addEventListener('mouseup', () => this.isDragging = false);
+        window.addEventListener('touchend', () => {
             this.isDragging = false;
             this.lastDist = 0;
         });
 
-        // Поддержка мышки (скролл колесиком для зума)
+        // Зум колесиком
         this.viewport.addEventListener('wheel', (e) => {
-            const delta = e.deltaY > 0 ? 0.9 : 1.1;
+            const delta = e.deltaY > 0 ? 0.95 : 1.05;
             const newScale = this.scale * delta;
             if (newScale >= this.minScale && newScale <= this.maxScale) {
                 this.scale = newScale;
