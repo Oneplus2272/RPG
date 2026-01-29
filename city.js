@@ -1,115 +1,136 @@
 const CityManager = {
     container: null,
-    tileW: 100, // Ширина плитки
-    tileH: 50,  // Высота плитки (в 2 раза меньше ширины для изометрии)
-    gridSize: 10, // Сетка 10x10
+    isDragging: false,
+    startX: 0,
+    startY: 0,
+    currentX: -500, // Начальное смещение (чтобы не быть в углу)
+    currentY: -500,
+    mapWidth: 3000,  // Размер твоего мира
+    mapHeight: 3000,
 
     init() {
         const castleScreen = document.getElementById('castle-screen');
         if (!castleScreen) return;
 
+        const viewport = document.createElement('div');
+        viewport.id = 'map-viewport';
+        
         this.container = document.createElement('div');
         this.container.id = 'city-map';
+        
+        // Устанавливаем начальную позицию
+        this.container.style.left = this.currentX + 'px';
+        this.container.style.top = this.currentY + 'px';
+
+        viewport.appendChild(this.container);
+        castleScreen.appendChild(viewport);
+
         this.applyStyles();
-        castleScreen.appendChild(this.container);
+        this.initEvents(viewport);
 
-        this.createBaseMap();
-        console.log("City Manager: Изометрическая карта готова");
-
-        // Тестовое здание: Ратуша в центре (координаты 4, 4)
-        this.addBuilding('main-hall', 'townhall', 4, 4, 2);
+        // Добавим что-нибудь в центр для ориентира
+        this.addMarker();
     },
 
     applyStyles() {
         const style = document.createElement('style');
         style.innerHTML = `
+            #map-viewport {
+                width: 100vw;
+                height: 100vh;
+                overflow: hidden;
+                position: relative;
+                background: #000;
+            }
+
             #city-map {
+                position: absolute;
+                width: ${this.mapWidth}px;
+                height: ${this.mapHeight}px;
+                
+                /* ГЕНЕРИРУЕМ ЛАНДШАФТ КОДОМ */
+                background-color: #2d4c1e; /* Темно-зеленый */
+                background-image: 
+                    linear-gradient(rgba(255,255,255,.05) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255,255,255,.05) 1px, transparent 1px);
+                background-size: 100px 100px; /* Клетки по 100 пикселей */
+                
+                will-change: transform; /* Оптимизация для мобилок */
+            }
+
+            /* Тестовый маркер центра */
+            .center-marker {
                 position: absolute;
                 top: 50%;
                 left: 50%;
-                width: 2000px; /* Размер карты больше экрана для скролла */
-                height: 2000px;
-                transform: translate(-50%, -50%); /* Центрируем карту */
-                background: #1a1a1a;
-            }
-
-            .tile {
-                position: absolute;
-                width: 100px;
-                height: 50px;
-                background: rgba(45, 76, 30, 0.5);
-                border: 1px solid rgba(255,255,255,0.05);
-                clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
-            }
-
-            .building {
-                position: absolute;
-                z-index: 100;
-                pointer-events: auto;
-                transition: filter 0.2s;
-            }
-
-            .building img {
-                width: 100%;
-                height: auto;
-                /* Сдвигаем картинку вверх, чтобы она «стояла» на плитке */
-                transform: translateY(-50%); 
-            }
-
-            .building:hover {
-                filter: brightness(1.2);
+                width: 20px;
+                height: 20px;
+                background: #edb432;
+                border-radius: 50%;
+                transform: translate(-50%, -50%);
+                box-shadow: 0 0 20px #edb432;
             }
         `;
         document.head.appendChild(style);
     },
 
-    // Создаем сетку земли
-    createBaseMap() {
-        for (let x = 0; x < this.gridSize; x++) {
-            for (let y = 0; y < this.gridSize; y++) {
-                const tile = document.createElement('div');
-                tile.className = 'tile';
-                
-                // Перевод координат в изометрию
-                const posX = (x - y) * (this.tileW / 2);
-                const posY = (x + y) * (this.tileH / 2);
-
-                tile.style.left = (1000 + posX) + 'px'; // 1000 - центр карты
-                tile.style.top = (500 + posY) + 'px';
-                
-                this.container.appendChild(tile);
-            }
-        }
+    addMarker() {
+        const marker = document.createElement('div');
+        marker.className = 'center-marker';
+        this.container.appendChild(marker);
     },
 
-    // Добавление изометрического здания
-    addBuilding(id, type, gridX, gridY, size) {
-        const b = document.createElement('div');
-        b.id = id;
-        b.className = 'building';
-        
-        // Расчет позиции (центрируем по клетке)
-        const posX = (gridX - gridY) * (this.tileW / 2);
-        const posY = (gridX + gridY) * (this.tileH / 2);
+    initEvents(viewport) {
+        const start = (e) => {
+            this.isDragging = true;
+            const pageX = e.pageX || e.touches[0].pageX;
+            const pageY = e.pageY || e.touches[0].pageY;
+            this.startX = pageX - this.currentX;
+            this.startY = pageY - this.currentY;
+            viewport.style.cursor = 'grabbing';
+        };
 
-        b.style.width = (this.tileW * size) + 'px';
-        b.style.left = (1000 + posX) + 'px';
-        b.style.top = (500 + posY) + 'px';
-        
-        // Используем заглушку, пока нет ассетов
-        b.innerHTML = `<img src="${type}.png" onerror="this.src='https://cdn-icons-png.flaticon.com/512/619/619043.png'">`;
-        
-        b.onclick = () => alert(`Здание: ${type} [${gridX}:${gridY}]`);
-        this.container.appendChild(b);
+        const move = (e) => {
+            if (!this.isDragging) return;
+            const pageX = e.pageX || e.touches[0].pageX;
+            const pageY = e.pageY || e.touches[0].pageY;
+            
+            this.currentX = pageX - this.startX;
+            this.currentY = pageY - this.startY;
+
+            // Ограничители, чтобы не улетать в пустоту
+            const minX = window.innerWidth - this.mapWidth;
+            const minY = window.innerHeight - this.mapHeight;
+            
+            if (this.currentX > 0) this.currentX = 0;
+            if (this.currentY > 0) this.currentY = 0;
+            if (this.currentX < minX) this.currentX = minX;
+            if (this.currentY < minY) this.currentY = minY;
+
+            this.container.style.left = this.currentX + 'px';
+            this.container.style.top = this.currentY + 'px';
+        };
+
+        const stop = () => { 
+            this.isDragging = false; 
+            viewport.style.cursor = 'grab';
+        };
+
+        viewport.addEventListener('mousedown', start);
+        viewport.addEventListener('touchstart', start, {passive: false});
+        window.addEventListener('mousemove', move);
+        window.addEventListener('touchmove', move, {passive: false});
+        window.addEventListener('mouseup', stop);
+        window.addEventListener('touchend', stop);
     }
 };
 
 window.addEventListener('load', () => {
-    const checkStart = setInterval(() => {
-        const selection = document.getElementById('selection-screen');
-        if (selection && selection.style.display === 'none') {
+    const check = setInterval(() => {
+        const sel = document.getElementById('selection-screen');
+        if (sel && sel.style.display === 'none') {
             CityManager.init();
-            clearInterval(checkStart);
+            clearInterval(check);
         }
     }, 500);
 });
