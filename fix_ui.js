@@ -33,13 +33,69 @@
             height: 90px;
             border: 4px solid #ffcc00; 
             border-radius: 50%;
-            overflow: hidden;
+            overflow: visible; /* Изменено для отображения уровня */
             display: none; 
             z-index: 999999;
             box-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
 
-        /* ГЛОБУС: ОПУЩЕН ДО 10px ОТ НИЖНЕГО КРАЯ */
+        /* УРОВЕНЬ ЧЕМПИОНА */
+        #hero-level-badge {
+            position: absolute;
+            bottom: -5px;
+            left: -5px;
+            width: 30px;
+            height: 30px;
+            background: radial-gradient(circle, #ffcc00, #b8860b);
+            border: 2px solid #fff;
+            border-radius: 50%;
+            color: #000;
+            font-weight: bold;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000001;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+        }
+
+        /* ИНФО-ПАНЕЛЬ (ИМЯ И СИЛА) */
+        #hero-info-panel {
+            position: absolute;
+            left: 85px; /* Справа от аватарки */
+            bottom: 0;   /* От нижней части круга */
+            width: 120px;
+            height: 45px;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            border-radius: 0 10px 10px 0;
+            border: 1px solid rgba(255, 204, 0, 0.3);
+            border-left: none;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding-left: 15px;
+            color: #fff;
+            z-index: 999998;
+        }
+
+        .info-name {
+            font-size: 14px;
+            font-weight: bold;
+            color: #ffcc00;
+            margin: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .info-power {
+            font-size: 12px;
+            color: #fff;
+            margin: 0;
+        }
+
+        /* ГЛОБУС */
         #world-map-btn {
             position: absolute;
             bottom: 10px; 
@@ -48,12 +104,9 @@
             height: 140px;
             z-index: 1000000;
             cursor: pointer;
-            
-            /* Убираем выделение квадратом при нажатии */
             -webkit-tap-highlight-color: transparent;
             outline: none;
             user-select: none;
-            
             animation: none !important;
             transform: none !important;
         }
@@ -63,16 +116,12 @@
             height: 100%;
             object-fit: contain;
             border-radius: 50%;
-            
-            /* Убираем все тени и свечения вокруг */
             box-shadow: none !important; 
             filter: none !important;
-            
             animation: none !important;
             -webkit-user-drag: none; 
         }
 
-        /* Только легкое изменение масштаба при клике без рамок */
         #world-map-btn:active {
             transform: scale(0.96) !important;
             outline: none;
@@ -101,7 +150,15 @@
     if (!document.getElementById('hero-avatar-circle')) {
         const div = document.createElement('div');
         div.id = 'hero-avatar-circle';
-        div.innerHTML = '<img id="avatar-img" style="width:100%;height:100%;object-fit:cover;" src="">';
+        // Внутренняя структура: картинка + уровень + инфо-панель
+        div.innerHTML = `
+            <img id="avatar-img" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" src="">
+            <div id="hero-level-badge">1</div>
+            <div id="hero-info-panel">
+                <p class="info-name">Никита</p>
+                <p class="info-power">Сила 30к</p>
+            </div>
+        `;
         document.body.appendChild(div);
     }
 
