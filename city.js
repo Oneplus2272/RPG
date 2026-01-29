@@ -2,28 +2,32 @@ const CityManager = {
     container: null,
     viewport: null,
     isDragging: false,
-    startX: 0,
-    startY: 0,
-    // Начальная позиция камеры (центр огромной карты)
-    currentX: -2000, 
-    currentY: -2000,
-    mapWidth: 5000,
-    mapHeight: 5000,
+    
+    // Состояние камеры
+    currentX: -500,
+    currentY: -500,
+    scale: 1, // Текущий зум
+    
+    // Настройки карты
+    mapSize: 2500, 
+    minScale: 0.5,
+    maxScale: 1.5,
+
+    // Для жестов
+    lastDist: 0,
+    startX: 0, startY: 0,
 
     init() {
         const castleScreen = document.getElementById('castle-screen');
         if (!castleScreen) return;
 
-        // 1. Создаем слой неба
         const sky = document.createElement('div');
         sky.id = 'sky-layer';
         castleScreen.appendChild(sky);
 
-        // 2. Создаем окно просмотра (Viewport)
         this.viewport = document.createElement('div');
         this.viewport.id = 'map-viewport';
         
-        // 3. Создаем саму землю
         this.container = document.createElement('div');
         this.container.id = 'city-map';
         
@@ -33,14 +37,11 @@ const CityManager = {
         this.applyStyles();
         this.initEvents();
         this.updatePosition();
-
-        console.log("City Manager: Ландшафт в стиле 'Марш Империй' запущен");
     },
 
     applyStyles() {
         const style = document.createElement('style');
         style.innerHTML = `
-            /* Небо на заднем плане */
             #sky-layer {
                 position: fixed;
                 top: 0; left: 0; width: 100%; height: 100%;
@@ -48,69 +49,51 @@ const CityManager = {
                 z-index: 1;
             }
 
-            /* Окно, через которое мы смотрим на мир */
             #map-viewport {
                 position: absolute;
-                top: 0; left: 0;
-                width: 100vw; height: 100vh;
+                top: 0; left: 0; width: 100vw; height: 100vh;
                 overflow: hidden;
                 z-index: 2;
-                perspective: 1500px; /* Глубина 3D */
+                perspective: 1500px;
+                touch-action: none; /* Важно для мобильного зума */
             }
 
-            /* Огромная земля */
             #city-map {
                 position: absolute;
-                width: ${this.mapWidth}px;
-                height: ${this.mapHeight}px;
+                width: ${this.mapSize}px;
+                height: ${this.mapSize}px;
                 background-color: #2d4c1e;
                 
-                /* Текстура земли: пятна травы и шум */
+                /* Чистый ландшафт без черных точек */
                 background-image: 
-                    radial-gradient(circle at 20% 30%, #3d6a2a 0%, transparent 40%),
-                    radial-gradient(circle at 80% 70%, #4a7c36 0%, transparent 50%),
-                    radial-gradient(circle at 50% 50%, #254018 0%, transparent 60%),
-                    url('https://www.transparenttextures.com/patterns/carbon-fibre.png');
+                    radial-gradient(circle at 30% 30%, #3d6a2a 0%, transparent 50%),
+                    radial-gradient(circle at 70% 60%, #4a7c36 0%, transparent 50%),
+                    radial-gradient(circle at 50% 10%, #355d23 0%, transparent 40%);
                 
-                /* Тот самый наклон из стратегий */
+                transform-origin: 0 0;
+                /* Изометрия */
                 transform: rotateX(60deg) rotateZ(45deg);
-                transform-style: preserve-3d;
-                will-change: left, top; /* Ускоряет работу на телефонах */
+                will-change: left, top, transform;
             }
 
-            /* Атмосферный туман у горизонта */
             #map-viewport::after {
                 content: "";
                 position: absolute;
-                top: 0; left: 0; width: 100%; height: 50%;
-                background: linear-gradient(to top, transparent, rgba(30, 60, 114, 0.9));
-                pointer-events: none; /* Чтобы туман не мешал кликать */
-            }
-
-            /* Золотой маркер, чтобы не потеряться в центре */
-            .center-point {
-                position: absolute;
-                top: 50%; left: 50%;
-                width: 40px; height: 40px;
-                background: rgba(237, 180, 50, 0.5);
-                border: 2px solid #edb432;
-                transform: translate(-50%, -50%) rotateZ(-45deg) rotateX(-60deg);
-                box-shadow: 0 0 15px #edb432;
+                top: 0; left: 0; width: 100%; height: 45%;
+                background: linear-gradient(to top, transparent, rgba(30, 60, 114, 0.8));
+                pointer-events: none;
             }
         `;
         document.head.appendChild(style);
-
-        // Добавим маркер центра
-        const marker = document.createElement('div');
-        marker.className = 'center-point';
-        this.container.appendChild(marker);
     },
 
     updatePosition() {
-        // Ограничиваем, чтобы не уйти за край карты
-        const minX = window.innerWidth - this.mapWidth;
-        const minY = window.innerHeight - this.mapHeight;
+        // Рассчитываем границы с учетом текущего зума
+        const scaledSize = this.mapSize * this.scale;
+        const minX = window.innerWidth - this.mapSize;
+        const minY = window.innerHeight - this.mapSize;
 
+        // Ограничиваем перемещение (упор в края)
         if (this.currentX > 0) this.currentX = 0;
         if (this.currentY > 0) this.currentY = 0;
         if (this.currentX < minX) this.currentX = minX;
@@ -118,47 +101,75 @@ const CityManager = {
 
         this.container.style.left = this.currentX + 'px';
         this.container.style.top = this.currentY + 'px';
+        
+        // Применяем зум к изометрической трансформации
+        this.container.style.transform = `scale(${this.scale}) rotateX(60deg) rotateZ(45deg)`;
     },
 
     initEvents() {
-        const start = (e) => {
-            this.isDragging = true;
-            const px = e.pageX || e.touches[0].pageX;
-            const py = e.pageY || e.touches[0].pageY;
-            this.startX = px - this.currentX;
-            this.startY = py - this.currentY;
-        };
+        // Обработка касаний (Зум и Драг)
+        this.viewport.addEventListener('touchstart', (e) => {
+            if (e.touches.length === 1) {
+                this.isDragging = true;
+                this.startX = e.touches[0].pageX - this.currentX;
+                this.startY = e.touches[0].pageY - this.currentY;
+            } else if (e.touches.length === 2) {
+                this.isDragging = false;
+                this.lastDist = Math.hypot(
+                    e.touches[0].pageX - e.touches[1].pageX,
+                    e.touches[0].pageY - e.touches[1].pageY
+                );
+            }
+        }, {passive: false});
 
-        const move = (e) => {
-            if (!this.isDragging) return;
-            // e.preventDefault(); // Можно раскомментировать, если страница дергается
-            const px = e.pageX || e.touches[0].pageX;
-            const py = e.pageY || e.touches[0].pageY;
+        this.viewport.addEventListener('touchmove', (e) => {
+            e.preventDefault();
             
-            this.currentX = px - this.startX;
-            this.currentY = py - this.startY;
+            if (e.touches.length === 1 && this.isDragging) {
+                // Перемещение
+                this.currentX = e.touches[0].pageX - this.startX;
+                this.currentY = e.touches[0].pageY - this.startY;
+            } else if (e.touches.length === 2) {
+                // Зум пальцами
+                const dist = Math.hypot(
+                    e.touches[0].pageX - e.touches[1].pageX,
+                    e.touches[0].pageY - e.touches[1].pageY
+                );
+                
+                const delta = dist / this.lastDist;
+                this.lastDist = dist;
+                
+                const newScale = this.scale * delta;
+                if (newScale >= this.minScale && newScale <= this.maxScale) {
+                    this.scale = newScale;
+                }
+            }
             this.updatePosition();
-        };
+        }, {passive: false});
 
-        const stop = () => { this.isDragging = false; };
+        this.viewport.addEventListener('touchend', () => {
+            this.isDragging = false;
+            this.lastDist = 0;
+        });
 
-        this.viewport.addEventListener('mousedown', start);
-        this.viewport.addEventListener('touchstart', start, {passive: false});
-        window.addEventListener('mousemove', move);
-        window.addEventListener('touchmove', move, {passive: false});
-        window.addEventListener('mouseup', stop);
-        window.addEventListener('touchend', stop);
+        // Поддержка мышки (скролл колесиком для зума)
+        this.viewport.addEventListener('wheel', (e) => {
+            const delta = e.deltaY > 0 ? 0.9 : 1.1;
+            const newScale = this.scale * delta;
+            if (newScale >= this.minScale && newScale <= this.maxScale) {
+                this.scale = newScale;
+                this.updatePosition();
+            }
+        });
     }
 };
 
-// Запуск при переходе к экрану замка
 window.addEventListener('load', () => {
-    const checkStart = setInterval(() => {
-        const selection = document.getElementById('selection-screen');
-        // Если экран выбора скрыт, значит мы в игре
-        if (selection && (selection.style.display === 'none' || selection.classList.contains('hidden'))) {
+    const check = setInterval(() => {
+        const sel = document.getElementById('selection-screen');
+        if (sel && sel.style.display === 'none') {
             CityManager.init();
-            clearInterval(checkStart);
+            clearInterval(check);
         }
     }, 500);
 });
