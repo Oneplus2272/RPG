@@ -62,10 +62,13 @@
             border-radius: 50%;
             object-fit: cover;
             z-index: 1;
+            /* Смещаем сам глобус чуть ниже внутри обертки */
+            transform: translateY(10px);
         }
 
         .map-label-container {
-            margin-top: -15px; 
+            /* Поднимаем контейнер с текстом выше, чтобы он заходил на глобус */
+            margin-top: -30px; 
             z-index: 10;
             display: flex;
             flex-direction: column;
@@ -83,11 +86,11 @@
 
         .map-label {
             color: #ffffff;
-            font-size: 20px;
+            font-size: 16px; /* Уменьшил шрифт надписи */
             font-weight: bold;
             font-family: 'serif', 'Times New Roman';
             text-shadow: 2px 2px 4px #000;
-            padding: 2px 0;
+            padding: 1px 0;
             text-transform: uppercase;
         }
 
