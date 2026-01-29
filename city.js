@@ -3,12 +3,13 @@ const CityManager = {
     viewport: null,
     isDragging: false,
     
-    currentX: 0, currentY: 0,
-    scale: 1.0, 
+    currentX: 0, 
+    currentY: 0,
+    scale: 0.8, // Начинаем с небольшого отдаления, чтобы видеть остров
     
-    mapSize: 1500, 
-    minScale: 0.5, // Теперь можно отдалять сильнее, чтобы видеть воду
-    maxScale: 2.0,
+    mapSize: 2500, 
+    minScale: 0.6,
+    maxScale: 1.5,
 
     lastDist: 0,
     startX: 0, startY: 0,
@@ -17,7 +18,7 @@ const CityManager = {
         const castleScreen = document.getElementById('castle-screen');
         if (!castleScreen) return;
 
-        // 1. Океан (вместо неба)
+        // 1. Слой океана
         const ocean = document.createElement('div');
         ocean.id = 'ocean-layer';
         castleScreen.appendChild(ocean);
@@ -25,10 +26,11 @@ const CityManager = {
         this.viewport = document.createElement('div');
         this.viewport.id = 'map-viewport';
         
+        // 2. Остров
         this.container = document.createElement('div');
         this.container.id = 'city-map';
         
-        // Свет на острове
+        // Солнечный свет
         const sunLight = document.createElement('div');
         sunLight.id = 'sun-light';
         this.container.appendChild(sunLight);
@@ -49,7 +51,6 @@ const CityManager = {
                 position: fixed;
                 top: 0; left: 0; width: 100%; height: 100%;
                 background: #1a4e66;
-                /* Эффект волн через градиент */
                 background-image: radial-gradient(circle at 50% 50%, #205e7a 0%, #1a4e66 100%);
                 z-index: 1;
             }
@@ -59,7 +60,7 @@ const CityManager = {
                 top: 0; left: 0; width: 100vw; height: 100vh;
                 overflow: hidden;
                 z-index: 2;
-                perspective: 1200px;
+                perspective: 1500px;
                 touch-action: none;
             }
 
@@ -68,31 +69,28 @@ const CityManager = {
                 width: ${this.mapSize}px;
                 height: ${this.mapSize}px;
                 background-color: #2e5a1c;
-                /* Тень от острова на воде */
-                box-shadow: 0 50px 100px rgba(0,0,0,0.5);
+                box-shadow: 0 40px 80px rgba(0,0,0,0.6);
                 transform-origin: center center;
                 will-change: transform, left, top;
-                /* Скругление краев, чтобы был похож на остров */
-                border-radius: 40px;
-                border: 10px solid #3d6a2a;
+                border-radius: 60px; /* Скругленный остров */
+                border: 8px solid #3d6a2a;
             }
 
             #sun-light {
                 position: absolute;
                 top: 0; left: 0; width: 100%; height: 100%;
-                background: radial-gradient(circle at 50% 20%, rgba(255,255,230,0.4) 0%, transparent 80%);
+                background: radial-gradient(circle at 50% 20%, rgba(255,255,230,0.3) 0%, transparent 80%);
                 pointer-events: none;
                 mix-blend-mode: overlay;
-                border-radius: 40px;
+                border-radius: 60px;
             }
 
-            /* Солнечная дорожка на воде */
+            /* Солнечные блики на воде */
             #map-viewport::before {
                 content: "";
                 position: absolute;
-                top: 0; left: 50%; width: 200%; height: 100%;
-                background: radial-gradient(ellipse at center top, rgba(255,255,255,0.2) 0%, transparent 50%);
-                transform: translateX(-50%);
+                top: 0; left: 0; width: 100%; height: 100%;
+                background: radial-gradient(ellipse at 50% 0%, rgba(255,255,255,0.15) 0%, transparent 60%);
                 pointer-events: none;
                 z-index: 1;
             }
@@ -107,15 +105,16 @@ const CityManager = {
 
     updatePosition() {
         const s = this.scale;
-        // Ограничиваем скролл так, чтобы остров не уплывал совсем далеко, 
-        // но даем увидеть воду (запас 200px)
-        const margin = 200; 
         const vw = window.innerWidth;
         const vh = window.innerHeight;
 
-        const minX = vw - this.mapSize * s - margin;
+        // Ограничиваем скролл: позволяем видеть берега (края плитки), 
+        // но не даем острову "улететь" из центра. Запас видимости воды — 100px.
+        const margin = 100; 
+
+        const minX = vw - (this.mapSize * s) - margin;
         const maxX = margin;
-        const minY = vh - this.mapSize * s - margin;
+        const minY = vh - (this.mapSize * s) - margin;
         const maxY = margin;
 
         if (this.currentX > maxX) this.currentX = maxX;
@@ -167,7 +166,7 @@ const CityManager = {
         window.addEventListener('touchend', () => { this.isDragging = false; this.lastDist = 0; });
 
         this.viewport.addEventListener('wheel', (e) => {
-            const delta = e.deltaY > 0 ? 0.9 : 1.1;
+            const delta = e.deltaY > 0 ? 0.95 : 1.05;
             const newScale = this.scale * delta;
             if (newScale >= this.minScale && newScale <= this.maxScale) {
                 this.scale = newScale;
@@ -180,7 +179,7 @@ const CityManager = {
 window.addEventListener('load', () => {
     const check = setInterval(() => {
         const sel = document.getElementById('selection-screen');
-        if (sel && sel.style.display === 'none') {
+        if (sel && (sel.style.display === 'none' || sel.classList.contains('hidden'))) {
             CityManager.init();
             clearInterval(check);
         }
