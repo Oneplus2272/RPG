@@ -7,10 +7,12 @@ const CityManager = {
     currentY: 0,
     scale: 1.0, 
     
-    mapSize: 1500, 
-    safeMargin: 60, // Барьер 60px от каждого края
+    // Увеличиваем размер, чтобы углы при повороте не были видны
+    mapSize: 2000, 
+    // Увеличиваем буфер, чтобы скрыть "синие углы"
+    safeMargin: 300, 
     minScale: 1.0,
-    maxScale: 2.5,
+    maxScale: 2.0,
 
     lastDist: 0,
     startX: 0, startY: 0,
@@ -19,7 +21,6 @@ const CityManager = {
         const castleScreen = document.getElementById('castle-screen');
         if (!castleScreen) return;
 
-        // Фон неба (яркий дневной)
         const sky = document.createElement('div');
         sky.id = 'sky-layer';
         castleScreen.appendChild(sky);
@@ -30,7 +31,6 @@ const CityManager = {
         this.container = document.createElement('div');
         this.container.id = 'city-map';
         
-        // Слой яркого солнечного света
         const sunLight = document.createElement('div');
         sunLight.id = 'sun-light';
         this.container.appendChild(sunLight);
@@ -50,7 +50,7 @@ const CityManager = {
             #sky-layer {
                 position: fixed;
                 top: 0; left: 0; width: 100%; height: 100%;
-                background: #4facfe; /* Ясное небо */
+                background: #4facfe;
                 z-index: 1;
             }
 
@@ -59,7 +59,7 @@ const CityManager = {
                 top: 0; left: 0; width: 100vw; height: 100vh;
                 overflow: hidden;
                 z-index: 2;
-                perspective: 1200px;
+                perspective: 2000px;
                 touch-action: none;
             }
 
@@ -67,27 +67,24 @@ const CityManager = {
                 position: absolute;
                 width: ${this.mapSize}px;
                 height: ${this.mapSize}px;
-                background-color: #2e5a1c; /* Яркий зеленый ландшафт */
+                background-color: #2e5a1c;
+                /* Важно: вращаем относительно центра */
                 transform-origin: center center;
-                transform: rotateX(55deg) rotateZ(45deg);
                 will-change: left, top, transform;
             }
 
-            /* Эффект палящего солнца */
             #sun-light {
                 position: absolute;
                 top: 0; left: 0; width: 100%; height: 100%;
-                background: radial-gradient(circle at 50% 10%, rgba(255,255,230,0.4) 0%, rgba(255,255,200,0.1) 40%, transparent 70%);
+                background: radial-gradient(circle at 50% 50%, rgba(255,255,230,0.3) 0%, transparent 80%);
                 pointer-events: none;
-                mix-blend-mode: screen;
             }
 
-            /* Яркий горизонт */
             #map-viewport::after {
                 content: "";
                 position: absolute;
-                top: 0; left: 0; width: 100%; height: 35%;
-                background: linear-gradient(to top, transparent, rgba(255, 255, 255, 0.4));
+                top: 0; left: 0; width: 100%; height: 40%;
+                background: linear-gradient(to top, transparent, rgba(79, 172, 254, 0.6));
                 pointer-events: none;
             }
         `;
@@ -95,6 +92,7 @@ const CityManager = {
     },
 
     centerMap() {
+        // Ставим игрока в центр 2000-пиксельной карты
         this.currentX = (window.innerWidth / 2) - (this.mapSize / 2);
         this.currentY = (window.innerHeight / 2) - (this.mapSize / 2);
     },
@@ -104,20 +102,23 @@ const CityManager = {
         const vw = window.innerWidth;
         const vh = window.innerHeight;
 
-        // Ограничители по 60px
-        const limitX_right = vw - (this.mapSize * s) + this.safeMargin;
-        const limitX_left = -this.safeMargin;
-        
-        const limitY_bottom = vh - (this.mapSize * s) + this.safeMargin;
-        const limitY_top = -this.safeMargin;
+        // Расчет границ с учетом того, что карта повернута (ромб шире квадрата)
+        // Мы ограничиваем движение так, чтобы края никогда не заходили в экран
+        const limit = (this.mapSize * s * 0.2); // Коэффициент запаса для ромба
 
-        if (this.currentX > limitX_left) this.currentX = limitX_left;
-        if (this.currentY > limitY_top) this.currentY = limitY_top;
-        if (this.currentX < limitX_right) this.currentX = limitX_right;
-        if (this.currentY < limitY_bottom) this.currentY = limitY_bottom;
+        const minX = vw - (this.mapSize * s) + limit;
+        const maxX = -limit;
+        const minY = vh - (this.mapSize * s) + limit;
+        const maxY = -limit;
+
+        if (this.currentX > maxX) this.currentX = maxX;
+        if (this.currentY > maxY) this.currentY = maxY;
+        if (this.currentX < minX) this.currentX = minX;
+        if (this.currentY < minY) this.currentY = minY;
 
         this.container.style.left = this.currentX + 'px';
         this.container.style.top = this.currentY + 'px';
+        // Применяем изометрию здесь
         this.container.style.transform = `scale(${s}) rotateX(55deg) rotateZ(45deg)`;
     },
 
