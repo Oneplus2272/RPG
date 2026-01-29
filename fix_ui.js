@@ -32,23 +32,26 @@
         .info-name { font-size: 12px; font-weight: bold; color: #ffcc00; margin: 0; line-height: 1.2; }
         .info-power { font-size: 10px; color: #fff; margin: 0; line-height: 1; }
 
-        /* ГЛОБУС С ТВОЕЙ НОВОЙ РАМКОЙ - ИСПРАВЛЕНО */
+        /* ГЛОБУС С ТВОЕЙ НОВОЙ РАМКОЙ - УВЕЛИЧЕНО В 2 РАЗА */
         #world-map-btn {
             position: absolute;
-            bottom: 15px; 
-            left: 15px; 
+            bottom: 10px; 
+            left: 10px; 
             z-index: 1000000;
             cursor: pointer;
             user-select: none;
             display: flex;
             flex-direction: column;
             align-items: center;
+            /* Убираем белый/синий квадрат при нажатии */
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
         }
 
         .globe-wrapper {
             position: relative;
-            width: 85px; /* Фиксированный размер для исключения сплющивания */
-            height: 85px;
+            width: 170px; /* Увеличено в 2 раза (было ~85) */
+            height: 170px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -66,7 +69,7 @@
         }
 
         #world-map-btn .globe-img {
-            width: 82%; /* Глобус внутри рамки */
+            width: 82%; 
             height: 82%;
             border-radius: 50%;
             object-fit: cover;
@@ -74,16 +77,17 @@
         }
 
         .map-label-container {
-            margin-top: -10px; /* Наложение текста на нижнюю часть рамки как на референсе */
+            margin-top: -25px; /* Смещаем надпись на рамку, пропорционально увеличению */
             z-index: 10;
             display: flex;
             flex-direction: column;
             align-items: center;
             width: 100%;
+            pointer-events: none;
         }
 
         .yellow-line {
-            width: 60px;
+            width: 100px; /* Линии тоже чуть шире */
             height: 2px;
             background: #edb432;
             box-shadow: 0 0 5px #edb432;
@@ -91,7 +95,7 @@
 
         .map-label {
             color: #ffffff;
-            font-size: 16px;
+            font-size: 22px; /* Текст крупнее для большой рамки */
             font-weight: bold;
             font-family: 'serif', 'Times New Roman';
             text-shadow: 2px 2px 4px #000;
