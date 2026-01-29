@@ -45,6 +45,8 @@
             align-items: center;
             -webkit-tap-highlight-color: transparent;
             outline: none;
+            /* Запрещаем вызов контекстного меню браузера на всей кнопке */
+            -webkit-touch-callout: none;
         }
 
         .globe-wrapper {
@@ -54,6 +56,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            pointer-events: none; /* Контейнер игнорирует касания, чтобы не вызывать меню */
         }
 
         #world-map-btn .globe-img {
@@ -62,12 +65,13 @@
             border-radius: 50%;
             object-fit: cover;
             z-index: 1;
-            /* Смещаем сам глобус чуть ниже внутри обертки */
             transform: translateY(10px);
+            /* Дополнительная защита: запрещаем события именно на картинке */
+            pointer-events: none;
+            -webkit-user-drag: none;
         }
 
         .map-label-container {
-            /* Поднимаем контейнер с текстом выше, чтобы он заходил на глобус */
             margin-top: -30px; 
             z-index: 10;
             display: flex;
@@ -86,7 +90,7 @@
 
         .map-label {
             color: #ffffff;
-            font-size: 16px; /* Уменьшил шрифт надписи */
+            font-size: 16px;
             font-weight: bold;
             font-family: 'serif', 'Times New Roman';
             text-shadow: 2px 2px 4px #000;
@@ -104,6 +108,13 @@
             const globeBtn = document.createElement('div');
             globeBtn.id = 'world-map-btn';
             
+            // Запрещаем контекстное меню через JS для надежности
+            globeBtn.oncontextmenu = function(event) {
+                event.preventDefault();
+                event.stopPropagation();
+                return false;
+            };
+
             globeBtn.innerHTML = `
                 <div class="globe-wrapper">
                     <img src="globe.png" class="globe-img" draggable="false">
@@ -124,7 +135,6 @@
         }
     }
 
-    /* Интервал и логика отображения аватарок (без изменений) */
     setInterval(() => {
         const selectionScreen = document.getElementById('selection-screen');
         if (selectionScreen && selectionScreen.style.display === 'none') {
