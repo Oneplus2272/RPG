@@ -1,46 +1,43 @@
 const CityManager = {
     container: null,
     isDragging: false,
-    startX: 0,
-    startY: 0,
-    currentX: -500,
-    currentY: -400,
+    startX: 0, startY: 0,
+    currentX: window.innerWidth / 2,
+    currentY: 100, // Смещаем чуть вниз, чтобы видеть "небо"
 
     init() {
         const castleScreen = document.getElementById('castle-screen');
         if (!castleScreen) return;
 
-        // Создаем небо (фон за картой)
+        // Небо с солнцем (фон)
         const sky = document.createElement('div');
-        sky.id = 'sky-bg';
+        sky.id = 'sky-layer';
         castleScreen.appendChild(sky);
 
         const viewport = document.createElement('div');
         viewport.id = 'map-viewport';
         
+        // Сама земля
         this.container = document.createElement('div');
         this.container.id = 'city-map';
         
-        this.container.style.left = this.currentX + 'px';
-        this.container.style.top = this.currentY + 'px';
-
         viewport.appendChild(this.container);
         castleScreen.appendChild(viewport);
 
         this.applyStyles();
         this.initEvents(viewport);
         
-        // Добавляем тестовую изометрическую ячейку
-        this.addSlot(1500, 1500); 
+        // Добавляем тестовую точку строительства
+        this.addSlot(500, 500); 
     },
 
     applyStyles() {
         const style = document.createElement('style');
         style.innerHTML = `
-            #sky-bg {
+            #sky-layer {
                 position: fixed;
-                top: 0; left: 0; width: 100%; height: 100%;
-                background: linear-gradient(to bottom, #4facfe 0%, #00f2fe 100%);
+                top: 0; left: 0; width: 100%; height: 60%;
+                background: linear-gradient(to bottom, #87ceeb 0%, #e0f6ff 100%);
                 z-index: 1;
             }
 
@@ -49,46 +46,74 @@ const CityManager = {
                 overflow: hidden;
                 position: relative;
                 z-index: 2;
-                /* Эффект солнечного света сверху */
-                box-shadow: inset 0 100px 150px -50px rgba(255,255,150,0.4);
+                perspective: 1200px; /* Создает эффект глубины */
             }
 
             #city-map {
                 position: absolute;
-                width: 3000px; height: 3000px;
-                background-color: #348c31;
-                /* Изометрическая сетка ромбами */
+                width: 4000px; height: 4000px;
+                background-color: #3d6a2a;
+                /* Сетка как в стратегии */
                 background-image: 
-                    linear-gradient(45deg, rgba(0,0,0,0.1) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.1) 75%, rgba(0,0,0,0.1)),
-                    linear-gradient(45deg, rgba(0,0,0,0.1) 25%, transparent 25%, transparent 75%, rgba(0,0,0,0.1) 75%, rgba(0,0,0,0.1));
+                    linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px);
                 background-size: 100px 100px;
-                background-position: 0 0, 50px 50px;
-                transform-origin: top left;
+                
+                /* МАГИЯ ИЗОМЕТРИИ: Наклон плоскости */
+                transform: rotateX(60deg) rotateZ(45deg);
+                transform-style: preserve-3d;
+                transition: transform 0.1s ease-out;
+                box-shadow: 0 0 500px rgba(0,0,0,0.5);
             }
 
-            /* Изометрическая ячейка под здание */
             .slot {
                 position: absolute;
-                width: 120px;
-                height: 70px;
-                background: rgba(237, 180, 50, 0.3);
-                border: 2px solid #edb432;
-                /* Превращаем квадрат в ромб */
-                clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+                width: 100px; height: 100px;
+                background: rgba(237, 180, 50, 0.4);
+                border: 3px solid #edb432;
                 display: flex;
-                align-items: center;
-                justify-content: center;
-                color: #edb432;
-                font-weight: bold;
-                font-size: 10px;
-                transition: background 0.3s;
-            }
-
-            .slot:active {
-                background: rgba(237, 180, 50, 0.6);
+                align-items: center; justify-content: center;
+                color: #fff; font-weight: bold;
+                /* Чтобы текст не был наклонен вместе с картой */
+                transform: rotateZ(-45deg) rotateX(-60deg);
             }
         `;
         document.head.appendChild(style);
+    },
+
+    // Логика перемещения с учетом наклона
+    initEvents(viewport) {
+        const updatePos = () => {
+            // Центрируем карту и применяем смещение
+            this.container.style.left = (this.currentX - 2000) + 'px';
+            this.container.style.top = (this.currentY - 2000) + 'px';
+        };
+
+        const start = (e) => {
+            this.isDragging = true;
+            const px = e.pageX || e.touches[0].pageX;
+            const py = e.pageY || e.touches[0].pageY;
+            this.startX = px - this.currentX;
+            this.startY = py - this.currentY;
+        };
+
+        const move = (e) => {
+            if (!this.isDragging) return;
+            const px = e.pageX || e.touches[0].pageX;
+            const py = e.pageY || e.touches[0].pageY;
+            this.currentX = px - this.startX;
+            this.currentY = py - this.startY;
+            updatePos();
+        };
+
+        updatePos(); // Ставим карту в начальную позицию
+
+        viewport.addEventListener('mousedown', start);
+        viewport.addEventListener('touchstart', start);
+        window.addEventListener('mousemove', move);
+        window.addEventListener('touchmove', move, {passive: false});
+        window.addEventListener('mouseup', () => this.isDragging = false);
+        window.addEventListener('touchend', () => this.isDragging = false);
     },
 
     addSlot(x, y) {
@@ -96,47 +121,7 @@ const CityManager = {
         slot.className = 'slot';
         slot.style.left = x + 'px';
         slot.style.top = y + 'px';
-        slot.innerText = 'BUILD';
+        slot.innerHTML = 'BUILD';
         this.container.appendChild(slot);
-    },
-
-    initEvents(viewport) {
-        const start = (e) => {
-            this.isDragging = true;
-            const pageX = e.pageX || e.touches[0].pageX;
-            const pageY = e.pageY || e.touches[0].pageY;
-            this.startX = pageX - this.currentX;
-            this.startY = pageY - this.currentY;
-        };
-
-        const move = (e) => {
-            if (!this.isDragging) return;
-            const pageX = e.pageX || e.touches[0].pageX;
-            const pageY = e.pageY || e.touches[0].pageY;
-            this.currentX = pageX - this.startX;
-            this.currentY = pageY - this.startY;
-            
-            this.container.style.left = this.currentX + 'px';
-            this.container.style.top = this.currentY + 'px';
-        };
-
-        const stop = () => { this.isDragging = false; };
-
-        viewport.addEventListener('mousedown', start);
-        viewport.addEventListener('touchstart', start);
-        window.addEventListener('mousemove', move);
-        window.addEventListener('touchmove', move, {passive: false});
-        window.addEventListener('mouseup', stop);
-        window.addEventListener('touchend', stop);
     }
 };
-
-// Запуск
-window.addEventListener('load', () => {
-    const check = setInterval(() => {
-        if (document.getElementById('selection-screen').style.display === 'none') {
-            CityManager.init();
-            clearInterval(check);
-        }
-    }, 500);
-});
