@@ -24,7 +24,7 @@
             object-fit: contain !important;
         }
 
-        /* АВАТАРКА: ОПУЩЕНА НИЖЕ (top: 50px) */
+        /* АВАТАРКА */
         #hero-avatar-circle {
             position: fixed;
             top: 50px; 
@@ -40,7 +40,7 @@
             background: #000; 
         }
 
-        /* УРОВЕНЬ ЧЕМПИОНА */
+        /* УРОВЕНЬ */
         #hero-level-badge {
             position: absolute;
             bottom: -5px;
@@ -99,13 +99,13 @@
             white-space: nowrap;
         }
 
-        /* ГЛОБУС И НАДПИСЬ КАРТА МИРА */
+        /* ГЛОБУС "МИР" КАК НА ФОТО */
         #world-map-btn {
             position: absolute;
-            bottom: 5px; /* Опустил чуть ниже */
-            left: 5px; 
-            width: 120px; /* Немного уменьшил, чтобы надпись смотрелась пропорционально */
-            height: 120px;
+            bottom: 10px; 
+            left: 10px; 
+            width: 110px; 
+            height: 110px;
             z-index: 1000000;
             cursor: pointer;
             -webkit-tap-highlight-color: transparent;
@@ -114,30 +114,51 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            justify-content: flex-end; /* Текст внизу круга */
         }
 
         #world-map-btn img {
+            position: absolute;
+            top: 0; left: 0;
             width: 100%;
             height: 100%;
             object-fit: contain;
             border-radius: 50%;
-            box-shadow: none !important; 
-            filter: none !important;
-            -webkit-user-drag: none; 
+            border: 2px solid #edb432; /* Золотой ободок вокруг глобуса */
+            box-sizing: border-box;
+            background: rgba(0,0,0,0.3);
+        }
+
+        .map-label-container {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.5); /* Темный фон под текстом */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 5px; /* Чуть выше нижнего края */
+        }
+
+        /* Желтые полоски */
+        .yellow-line {
+            width: 60%;
+            height: 2px;
+            background: #edb432;
+            box-shadow: 0 0 5px #edb432;
         }
 
         .map-label {
             color: #ffffff;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: bold;
-            font-family: 'serif', Arial;
-            text-shadow: 2px 2px 4px #000000;
-            margin-top: -15px; /* Наложение текста на нижнюю часть глобуса для стиля */
-            pointer-events: none;
+            font-family: 'serif', 'Times New Roman';
+            text-shadow: 1px 1px 3px #000;
+            padding: 2px 0;
         }
 
         #world-map-btn:active {
-            transform: scale(0.96) !important;
+            transform: scale(0.95);
         }
     `;
     document.head.appendChild(style);
@@ -148,10 +169,15 @@
             const globeBtn = document.createElement('div');
             globeBtn.id = 'world-map-btn';
             globeBtn.setAttribute('tabindex', '-1');
-            // Добавлена надпись "Карта мира"
+            
+            // Структура глобуса с полосками и надписью "Мир"
             globeBtn.innerHTML = `
                 <img src="globe.png" alt="Map" draggable="false">
-                <div class="map-label">Карта мира</div>
+                <div class="map-label-container">
+                    <div class="yellow-line"></div>
+                    <div class="map-label">Мир</div>
+                    <div class="yellow-line"></div>
+                </div>
             `;
             castleScreen.appendChild(globeBtn);
             
