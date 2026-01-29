@@ -31,23 +31,18 @@
             padding: 20px;
             width: 100%;
             box-sizing: border-box;
-            scroll-snap-type: x mandatory;
         }
         .cards-container::-webkit-scrollbar { display: none; }
 
         .card {
             background-color: #151515;
-            background-size: cover;
-            background-position: center;
             border-radius: 24px;
             min-width: 280px;
             padding: 20px;
             border: 2px solid #252525;
             display: flex;
             flex-direction: column;
-            position: relative;
             scroll-snap-align: center;
-            box-shadow: inset 0 -120px 80px -20px rgba(0,0,0,0.9);
         }
 
         .hero-placeholder {
@@ -62,7 +57,6 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
-            filter: drop-shadow(0 5px 15px rgba(0,0,0,0.5));
         }
 
         .card h3 {
@@ -72,12 +66,6 @@
             text-transform: uppercase;
         }
 
-        .stats-block { width: 100%; margin-bottom: 15px; }
-        .stat-row { margin-bottom: 8px; }
-        .stat-label { font-size: 10px; color: #aaa; display: flex; justify-content: space-between; margin-bottom: 3px; }
-        .bar-bg { width: 100%; height: 5px; background: rgba(255,255,255,0.1); border-radius: 10px; }
-        .bar-fill { height: 100%; background: #edb432; border-radius: 10px; }
-
         .select-btn {
             padding: 12px;
             background: rgba(255,255,255,0.1);
@@ -86,67 +74,20 @@
             border-radius: 12px;
             font-weight: bold;
             text-transform: uppercase;
-            z-index: 5;
         }
 
-        /* ЭКРАН ЗАМКА (ОЧИЩЕННЫЙ) */
+        /* ЭКРАН ЗАМКА (ПУСТОЙ) */
         #castle-screen {
             display: none;
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #1a1a1a; /* Базовый цвет ландшафта */
-            flex-direction: column;
+            top: 0; left: 0; 
+            width: 100%; height: 100%;
+            background: #000; /* Полностью черный чистый экран */
             z-index: 10;
         }
 
-        .top-bar {
-            width: 100%;
-            display: flex;
-            justify-content: space-around;
-            padding: 15px 0;
-            background: rgba(0,0,0,0.7);
-            border-bottom: 1px solid rgba(237, 180, 50, 0.4);
-            font-weight: bold;
-            color: #edb432;
-        }
-
-        .hero-render-container {
-            flex: 1;
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
-            padding-bottom: 120px;
-        }
-
-        /* Убрали фиксированную картинку героя */
-        #main-hero-img {
-            display: none;
-        }
-
-        .bottom-menu {
-            position: absolute;
-            bottom: 30px;
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
-
-        .menu-btn {
-            width: 55px; height: 55px;
-            background: rgba(0,0,0,0.8);
-            border: 1px solid #edb432;
-            border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            color: #edb432;
-            font-weight: bold;
-        }
-
-        .main-action-btn {
-            width: 75px; height: 75px;
-            background: #edb432;
-            color: #000;
-            border: none;
-        }
+        /* Скрытый вспомогательный элемент для логики аватара */
+        #main-hero-img { display: none; }
     </style>
 </head>
 <body>
@@ -154,53 +95,26 @@
     <div id="selection-screen">
         <h2 style="text-align:center;">ВЫБЕРИ СВОЕГО ГЕРОЯ</h2>
         <div class="cards-container">
-            
             <div class="card" id="c-tsar">
                 <div class="hero-placeholder"><img src="hero_tsar.png"></div>
                 <h3>Царь</h3>
-                <div class="stats-block">
-                    <div class="stat-label">Сила <span>85/100</span></div>
-                    <div class="bar-bg"><div class="bar-fill" style="width: 85%"></div></div>
-                </div>
                 <button class="select-btn" onclick="selectHero('Царь', 'tsar')">Выбрать</button>
             </div>
-
             <div class="card" id="c-sultan">
                 <div class="hero-placeholder"><img src="hero_sultan.png"></div>
                 <h3>Султан</h3>
-                <div class="stats-block">
-                    <div class="stat-label">Ловкость <span>95/100</span></div>
-                    <div class="bar-bg"><div class="bar-fill" style="width: 95%"></div></div>
-                </div>
                 <button class="select-btn" onclick="selectHero('Султан', 'sultan')">Выбрать</button>
             </div>
-
             <div class="card" id="c-king">
                 <div class="hero-placeholder"><img src="hero_king.png"></div>
                 <h3>Король</h3>
-                <div class="stats-block">
-                    <div class="stat-label">Броня <span>90/100</span></div>
-                    <div class="bar-bg"><div class="bar-fill" style="width: 90%"></div></div>
-                </div>
                 <button class="select-btn" onclick="selectHero('Король', 'king')">Выбрать</button>
             </div>
-
         </div>
     </div>
 
     <div id="castle-screen">
-        <div class="top-bar">
-            <div>GOLD 1,000</div>
-            <div>ENERGY 10/10</div>
-            <div>LVL 1</div>
-        </div>
-        <div class="hero-render-container">
-            <div class="bottom-menu">
-                <div class="menu-btn">UPG</div>
-                <div class="menu-btn main-action-btn">WORK</div>
-                <div class="menu-btn">CLAN</div>
-            </div>
-        </div>
+        <img id="main-hero-img" src="" alt="">
     </div>
 
     <script>
@@ -221,15 +135,18 @@
         tg.MainButton.onClick(() => {
             if (!selectedId) return;
 
+            // Скрываем выбор
             document.getElementById('selection-screen').style.display = 'none';
+            
+            // Активируем чистый экран
             const castle = document.getElementById('castle-screen');
+            const heroImg = document.getElementById('main-hero-img');
+
+            // Передаем ID картинке (скрытой), чтобы fix_ui.js понял, какую аватарку ставить
+            heroImg.src = 'hero_' + selectedId + '.png'; 
             
-            // Теперь герой и фон замка НЕ ставятся
-            castle.style.display = 'flex';
+            castle.style.display = 'block';
             tg.MainButton.hide();
-            
-            // Сохраняем ID для фикс_юи (чтобы аватарка подтянулась)
-            window.lastSelectedHero = selectedId;
         });
     </script> 
     <script src="fix_ui.js"></script> 
