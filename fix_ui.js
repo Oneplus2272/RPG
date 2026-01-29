@@ -11,7 +11,7 @@
             background-size: cover !important;
         }
 
-        /* КАРТОЧКИ: Чистая прозрачность без фонов замка */
+        /* КАРТОЧКИ: Прозрачность без лишних фонов */
         .card {
             background: rgba(0, 0, 0, 0.75) !important;
             backdrop-filter: blur(12px);
@@ -21,7 +21,6 @@
 
         .card img {
             background: transparent !important;
-            background-image: none !important;
             object-fit: contain !important;
         }
 
@@ -39,15 +38,18 @@
             z-index: 999999;
         }
 
-        /* ГЛОБУС В ЛЕВОМ УГЛУ (БЕЗ АНИМАЦИИ) */
+        /* ГЛОБУС: СМЕЩЕН ЛЕВЕЕ И БЕЗ АНИМАЦИИ */
         #world-map-btn {
             position: absolute;
             bottom: 40px;
-            left: 20px;
+            left: 5px; /* Максимально влево */
             width: 140px; 
             height: 140px;
             z-index: 1000000;
             cursor: pointer;
+            /* Гарантируем отсутствие анимаций */
+            animation: none !important;
+            transform: none !important;
         }
 
         #world-map-btn img {
@@ -55,13 +57,13 @@
             height: 100%;
             object-fit: contain;
             border-radius: 50%;
-            /* Анимация удалена */
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.5); /* Просто легкая тень для объема */
+            animation: none !important; /* Убираем анимацию с самой картинки */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); 
         }
 
-        /* Эффект только при самом нажатии пальцем */
+        /* Легкий эффект при нажатии для отклика */
         #world-map-btn:active {
-            transform: scale(0.95);
+            transform: scale(0.95) !important;
         }
     `;
     document.head.appendChild(style);
