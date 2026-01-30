@@ -1,6 +1,7 @@
 const CityManager = {
     container: null,
     viewport: null,
+    castleImg: null, // Ссылка на элемент замка
     isDragging: false,
     
     currentX: 0, 
@@ -14,6 +15,25 @@ const CityManager = {
 
     lastDist: 0,
     startX: 0, startY: 0,
+
+    // База данных скинов для героев - ЗДЕСЬ ПРОПИСАНЫ ПУТИ К ФОТО
+    skins: {
+        tsar: {
+            island: '#2e5a1c',     // Зеленая трава
+            ocean: '#1a4e66',      // Глубокий синий
+            castle: 'tsar-castle.png'
+        },
+        sultan: {
+            island: '#d2b48c',     // Песок
+            ocean: '#20b2aa',      // Бирюзовая вода
+            castle: 'sultan-palace.png'
+        },
+        king: {
+            island: '#458b00',     // Темный лес
+            ocean: '#000080',      // Темно-синий
+            castle: 'king-fortress.png'
+        }
+    },
 
     init() {
         const castleScreen = document.getElementById('castle-screen');
@@ -37,6 +57,9 @@ const CityManager = {
         sunLight.id = 'sun-light';
         this.container.appendChild(sunLight);
         
+        // 3. Создаем замок внутри контейнера
+        this.createCastle();
+
         this.viewport.appendChild(this.container);
         castleScreen.appendChild(this.viewport);
 
@@ -44,6 +67,65 @@ const CityManager = {
         this.centerMap();
         this.initEvents();
         this.animate(); // Запуск цикла плавной анимации
+    },
+
+    // Метод создания элемента замка
+    createCastle() {
+        this.castleImg = document.createElement('img');
+        this.castleImg.id = 'tsar-castle-img';
+        
+        Object.assign(this.castleImg.style, {
+            position: 'absolute',
+            left: '50%',
+            top: '50%',
+            // Компенсация изометрии: замок стоит вертикально
+            transform: 'translate(-50%, -100%) rotateZ(-45deg) rotateX(-55deg)',
+            transformOrigin: 'bottom center',
+            width: '400px',
+            zIndex: '10',
+            pointerEvents: 'none',
+            transition: 'all 0.5s ease'
+        });
+
+        this.container.appendChild(this.castleImg);
+    },
+
+    // Метод смены визуального стиля (ЗДЕСЬ ИСПОЛЬЗУЮТСЯ ПУТИ К ФОТО)
+    updateSkin(heroType) {
+        const skin = this.skins[heroType];
+        if (!skin) return;
+
+        // Меняем цвет острова
+        if (this.container) {
+            this.container.style.backgroundColor = skin.island;
+            this.container.style.borderColor = this.adjustColor(skin.island, -20);
+        }
+
+        // Меняем цвет океана
+        const ocean = document.getElementById('ocean-layer');
+        if (ocean) {
+            ocean.style.background = skin.ocean;
+            ocean.style.backgroundImage = `radial-gradient(circle at 50% 50%, ${this.adjustColor(skin.ocean, 10)} 0%, ${skin.ocean} 100%)`;
+        }
+
+        // МЕНЯЕМ ПУТЬ К КАРТИНКЕ ЗАМКА
+        if (this.castleImg) {
+            this.castleImg.src = skin.castle;
+        }
+    },
+
+    // Вспомогательная функция для коррекции цвета бортов
+    adjustColor(hex, amt) {
+        let usePound = false;
+        if (hex[0] === "#") { hex = hex.slice(1); usePound = true; }
+        let num = parseInt(hex, 16);
+        let r = (num >> 16) + amt;
+        if (r > 255) r = 255; else if (r < 0) r = 0;
+        let b = ((num >> 8) & 0x00FF) + amt;
+        if (b > 255) b = 255; else if (b < 0) b = 0;
+        let g = (num & 0x0000FF) + amt;
+        if (g > 255) g = 255; else if (g < 0) g = 0;
+        return (usePound ? "#" : "") + (g | (b << 8) | (r << 16)).toString(16);
     },
 
     applyStyles() {
@@ -55,6 +137,7 @@ const CityManager = {
                 background: #1a4e66;
                 background-image: radial-gradient(circle at 50% 50%, #205e7a 0%, #1a4e66 100%);
                 z-index: 1;
+                transition: background 1s ease;
             }
 
             #map-viewport {
@@ -76,6 +159,7 @@ const CityManager = {
                 will-change: transform, left, top;
                 border-radius: 80px;
                 border: 10px solid #3d6a2a;
+                transition: background-color 1s ease, border-color 1s ease;
             }
 
             #sun-light {
