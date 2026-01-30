@@ -147,12 +147,21 @@
             
             castle.style.display = 'block';
             tg.MainButton.hide();
+
+            // ВНЕДРЕНИЕ: Вызываем смену скина в CityManager
+            // Мы делаем небольшую задержку, чтобы CityManager успел инициализироваться, 
+            // так как он запускается через интервал в 500мс после скрытия экрана выбора.
+            setTimeout(() => {
+                if (window.CityManager && typeof CityManager.updateSkin === 'function') {
+                    CityManager.updateSkin(selectedId);
+                }
+            }, 600);
         });
     </script>
-        <script src="loading.js"></script> 
+    <script src="loading.js"></script> 
     <script src="city.js"></script>
     <script src="fix_ui.js"></script> 
     <script src="interface.js"></script> 
     <script src="castle.js"></script>
-    </body>
+</body>
 </html>
