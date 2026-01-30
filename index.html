@@ -17,7 +17,7 @@
 
         /* ЭКРАН ВЫБОРА */
         #selection-screen {
-            display: flex;
+            display: none; /* Изначально скрыт, пока идет фоновая загрузка */
             flex-direction: column;
             align-items: center;
             justify-content: center;
@@ -76,17 +76,16 @@
             text-transform: uppercase;
         }
 
-        /* ЭКРАН ЗАМКА (ПУСТОЙ) */
+        /* ЭКРАН ЗАМКА */
         #castle-screen {
             display: none;
             position: fixed;
             top: 0; left: 0; 
             width: 100%; height: 100%;
-            background: #000; /* Полностью черный чистый экран */
+            background: #000; 
             z-index: 10;
         }
 
-        /* Скрытый вспомогательный элемент для логики аватара */
         #main-hero-img { display: none; }
     </style>
 </head>
@@ -122,6 +121,46 @@
         tg.expand();
         let selectedId = null;
 
+        // Список ресурсов для фоновой загрузки
+        const imagesToLoad = [
+            'hero_tsar.png', 'hero_sultan.png', 'hero_king.png',
+            'tsar-castle.png', 'sultan-palace.png', 'king-fortress.png'
+        ];
+
+        let loadedCount = 0;
+
+        // Функция фоновой предзагрузки
+        function preloadAssets() {
+            imagesToLoad.forEach(src => {
+                const img = new Image();
+                img.src = src;
+                img.onload = () => {
+                    loadedCount++;
+                    if (loadedCount === imagesToLoad.length) {
+                        // Когда всё скачано, даем команду на запуск
+                        finishLoading();
+                    }
+                };
+                img.onerror = () => {
+                    console.error("Не удалось загрузить:", src);
+                    loadedCount++;
+                    if (loadedCount === imagesToLoad.length) finishLoading();
+                };
+            });
+        }
+
+        function finishLoading() {
+            // Если у тебя в loading.js есть экран с id="loading-screen", 
+            // этот код его скроет. Если нет - просто покажет меню.
+            const loader = document.getElementById('loading-screen');
+            if (loader) loader.style.display = 'none';
+
+            document.getElementById('selection-screen').style.display = 'flex';
+        }
+
+        // Запускаем скачивание сразу
+        window.addEventListener('DOMContentLoaded', preloadAssets);
+
         function selectHero(name, id) {
             selectedId = id;
             document.querySelectorAll('.card').forEach(c => c.style.borderColor = '#252525');
@@ -135,22 +174,14 @@
         tg.MainButton.onClick(() => {
             if (!selectedId) return;
 
-            // Скрываем выбор
             document.getElementById('selection-screen').style.display = 'none';
-            
-            // Активируем чистый экран
             const castle = document.getElementById('castle-screen');
             const heroImg = document.getElementById('main-hero-img');
 
-            // Передаем ID картинке (скрытой), чтобы fix_ui.js понял, какую аватарку ставить
             heroImg.src = 'hero_' + selectedId + '.png'; 
-            
             castle.style.display = 'block';
             tg.MainButton.hide();
 
-            // ВНЕДРЕНИЕ: Вызываем смену скина в CityManager
-            // Мы делаем небольшую задержку, чтобы CityManager успел инициализироваться, 
-            // так как он запускается через интервал в 500мс после скрытия экрана выбора.
             setTimeout(() => {
                 if (window.CityManager && typeof CityManager.updateSkin === 'function') {
                     CityManager.updateSkin(selectedId);
@@ -162,6 +193,5 @@
     <script src="city.js"></script>
     <script src="fix_ui.js"></script> 
     <script src="interface.js"></script> 
-    <script src="castle.js"></script>
 </body>
 </html>
