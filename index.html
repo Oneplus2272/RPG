@@ -17,7 +17,7 @@
 
         /* ЭКРАН ВЫБОРА */
         #selection-screen {
-            display: none; /* Изначально скрыт, пока идет фоновая загрузка */
+            display: none; 
             flex-direction: column;
             align-items: center;
             justify-content: center;
@@ -76,7 +76,6 @@
             text-transform: uppercase;
         }
 
-        /* ЭКРАН ЗАМКА */
         #castle-screen {
             display: none;
             position: fixed;
@@ -120,8 +119,9 @@
         const tg = window.Telegram.WebApp;
         tg.expand();
         let selectedId = null;
+        let isAppStarted = false;
 
-        // Список ресурсов для фоновой загрузки
+        // Список ресурсов (проверь, чтобы названия файлов в папке были ТАКИМИ ЖЕ)
         const imagesToLoad = [
             'hero_tsar.png', 'hero_sultan.png', 'hero_king.png',
             'tsar-castle.png', 'sultan-palace.png', 'king-fortress.png'
@@ -129,37 +129,51 @@
 
         let loadedCount = 0;
 
-        // Функция фоновой предзагрузки
         function preloadAssets() {
+            console.log("Начинаю загрузку ресурсов...");
+            
+            // Страховка: если через 5 секунд ресурсы не загрузились, запускаем игру принудительно
+            setTimeout(() => {
+                if (!isAppStarted) {
+                    console.warn("Загрузка затянулась. Запускаю игру принудительно...");
+                    finishLoading();
+                }
+            }, 5000);
+
             imagesToLoad.forEach(src => {
                 const img = new Image();
                 img.src = src;
                 img.onload = () => {
                     loadedCount++;
-                    if (loadedCount === imagesToLoad.length) {
-                        // Когда всё скачано, даем команду на запуск
-                        finishLoading();
-                    }
+                    console.log(`Загружено: ${src} (${loadedCount}/${imagesToLoad.length})`);
+                    if (loadedCount === imagesToLoad.length) finishLoading();
                 };
                 img.onerror = () => {
-                    console.error("Не удалось загрузить:", src);
                     loadedCount++;
+                    console.error(`ОШИБКА: Файл не найден: ${src}`);
                     if (loadedCount === imagesToLoad.length) finishLoading();
                 };
             });
         }
 
         function finishLoading() {
-            // Если у тебя в loading.js есть экран с id="loading-screen", 
-            // этот код его скроет. Если нет - просто покажет меню.
-            const loader = document.getElementById('loading-screen');
-            if (loader) loader.style.display = 'none';
+            if (isAppStarted) return;
+            isAppStarted = true;
+
+            console.log("Все ресурсы обработаны. Открываю экран выбора.");
+
+            // Скрываем загрузочный экран (проверь ID в loading.js)
+            const loader = document.getElementById('loading-screen') || document.querySelector('.loading-container');
+            if (loader) {
+                loader.style.transition = "opacity 0.5s ease";
+                loader.style.opacity = "0";
+                setTimeout(() => loader.style.display = 'none', 500);
+            }
 
             document.getElementById('selection-screen').style.display = 'flex';
         }
 
-        // Запускаем скачивание сразу
-        window.addEventListener('DOMContentLoaded', preloadAssets);
+        window.addEventListener('load', preloadAssets);
 
         function selectHero(name, id) {
             selectedId = id;
