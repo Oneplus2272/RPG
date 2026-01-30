@@ -7,7 +7,8 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         body {
-            background: #000;
+            background: #000 url('Loading_screen_war_of_kings.png') no-repeat center center;
+            background-size: cover;
             color: white;
             font-family: 'Segoe UI', Roboto, sans-serif;
             margin: 0;
@@ -121,36 +122,43 @@
         let selectedId = null;
         let isAppStarted = false;
 
-        // Список ресурсов (проверь, чтобы названия файлов в папке были ТАКИМИ ЖЕ)
+        // ПОЛНЫЙ ОБНОВЛЕННЫЙ СПИСОК РЕСУРСОВ
         const imagesToLoad = [
+            'Loading_screen_war_of_kings.png',
             'hero_tsar.png', 'hero_sultan.png', 'hero_king.png',
-            'tsar-castle.png', 'sultan-palace.png', 'king-fortress.png'
+            'tsar-castle.png', 'sultan-palace.png', 'king-fortress.png',
+            'bg.jpg', 'globe.png', 
+            'face_1.png', 'face_2.png', 'face_3.png',
+            'bread.png', 'wood.png', 'stone.png', 'iron.png', 'silver.png', 'gold.png'
         ];
 
         let loadedCount = 0;
 
         function preloadAssets() {
-            console.log("Начинаю загрузку ресурсов...");
+            console.log("Начало предзагрузки...");
             
-            // Страховка: если через 5 секунд ресурсы не загрузились, запускаем игру принудительно
-            setTimeout(() => {
+            const backupTimer = setTimeout(() => {
                 if (!isAppStarted) {
-                    console.warn("Загрузка затянулась. Запускаю игру принудительно...");
+                    console.warn("Тайм-аут предзагрузки. Принудительный старт.");
                     finishLoading();
                 }
-            }, 5000);
+            }, 8000);
+
+            if (imagesToLoad.length === 0) {
+                finishLoading();
+                return;
+            }
 
             imagesToLoad.forEach(src => {
                 const img = new Image();
                 img.src = src;
                 img.onload = () => {
                     loadedCount++;
-                    console.log(`Загружено: ${src} (${loadedCount}/${imagesToLoad.length})`);
                     if (loadedCount === imagesToLoad.length) finishLoading();
                 };
                 img.onerror = () => {
+                    console.error("Файл не найден:", src);
                     loadedCount++;
-                    console.error(`ОШИБКА: Файл не найден: ${src}`);
                     if (loadedCount === imagesToLoad.length) finishLoading();
                 };
             });
@@ -160,15 +168,23 @@
             if (isAppStarted) return;
             isAppStarted = true;
 
-            console.log("Все ресурсы обработаны. Открываю экран выбора.");
+            // Убираем фоновую картинку загрузки с body, чтобы она не мешала игре
+            document.body.style.background = "#000";
 
-            // Скрываем загрузочный экран (проверь ID в loading.js)
-            const loader = document.getElementById('loading-screen') || document.querySelector('.loading-container');
-            if (loader) {
-                loader.style.transition = "opacity 0.5s ease";
-                loader.style.opacity = "0";
-                setTimeout(() => loader.style.display = 'none', 500);
-            }
+            const loaders = [
+                document.getElementById('loading-screen'),
+                document.getElementById('preloader'),
+                document.querySelector('.loading-container'),
+                document.querySelector('[id*="load"]')
+            ];
+
+            loaders.forEach(l => {
+                if (l) {
+                    l.style.transition = "opacity 0.6s ease";
+                    l.style.opacity = '0';
+                    setTimeout(() => l.style.display = 'none', 600);
+                }
+            });
 
             document.getElementById('selection-screen').style.display = 'flex';
         }
